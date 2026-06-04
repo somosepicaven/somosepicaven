@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ÉPICA | Mando Central de Ingeniería Institucional</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome para evitar fallos de carga y mostrar iconos perfectos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Configuración del tema ÉPICA con colores corporativos -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'epica-dark': '#0f172a',
+                        'epica-slate': '#f8fafc',
+                        'epica-slate-border': '#e2e8f0',
+                        'epica-cyan': '#06b6d4',
+                        'epica-mint': '#10b981',
+                        'epica-mint-light': '#34d399',
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Estilos avanzados: Grilla tecnológica en perspectiva y efectos de luz neón -->
+    <style>
+        body {
+            background-color: #f8fafc;
+            color: #0f172a;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+            /* Grilla de ingeniería tecnológica */
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.04) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.04) 0px, transparent 50%),
+                linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+        }
+        .glass-light {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 30px -10px rgba(6, 182, 212, 0.05);
+        }
+        .glass-premium-light {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(6, 182, 212, 0.15);
+            box-shadow: 0 20px 40px -15px rgba(6, 182, 212, 0.08);
+        }
+        .interactive-card {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .interactive-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(6, 182, 212, 0.35);
+            box-shadow: 0 15px 35px -10px rgba(6, 182, 212, 0.12);
+        }
+        .section-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .section-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        input[type="range"] {
+            accent-color: #06b6d4;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #06b6d4;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-epica-cyan selection:text-white">
+
+    <!-- TOAST NOTIFICATION SYSTEM -->
+    <div id="toast-container" class="fixed top-24 right-6 z-[100] flex flex-col gap-3 pointer-events-none max-w-sm w-full"></div>
+
+    <!-- LOGO COMPONENT AS VECTOR SVG: LA PIRÁMIDE GEOMÉTRICA DE ÉPICA -->
+    <div class="hidden">
+        <svg id="epica-isotype" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="gradient-cyan-mint" x1="15" y1="15" x2="85" y2="75" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#06b6d4"/>
+                    <stop offset="100%" stop-color="#10b981"/>
+                </linearGradient>
+            </defs>
+            <!-- Glowing Network Background -->
+            <circle cx="50" cy="50" r="45" stroke="url(#gradient-cyan-mint)" stroke-width="1" stroke-dasharray="4 4" opacity="0.4"/>
+            <circle cx="15" cy="75" r="3" fill="#06b6d4"/>
+            <circle cx="85" cy="75" r="3" fill="#10b981"/>
+            <circle cx="50" cy="15" r="3" fill="#06b6d4"/>
+            
+            <!-- Estructura de la Pirámide Tridimensional -->
+            <!-- Cara Izquierda -->
+            <path d="M50 15 L15 75 L50 85 Z" stroke="url(#gradient-cyan-mint)" stroke-width="2.5" stroke-linejoin="round" fill="url(#gradient-cyan-mint)" fill-opacity="0.05"/>
+            <!-- Cara Derecha -->
+            <path d="M50 15 L85 75 L50 85 Z" stroke="url(#gradient-cyan-mint)" stroke-width="2.5" stroke-linejoin="round" fill="url(#gradient-cyan-mint)" fill-opacity="0.15"/>
+            <!-- Línea de profundidad interna (Eje de equilibrio) -->
+            <line x1="50" y1="15" x2="50" y2="85" stroke="url(#gradient-cyan-mint)" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.8"/>
+            
+            <!-- Flecha de Evolución Ascendente -->
+            <path d="M42 58 L50 48 L58 58" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M50 48 L50 72" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+    </div>
+
+    <!-- NAVIGATION BAR -->
+    <nav class="fixed top-0 w-full z-50 glass-light border-b border-slate-200 py-3.5 px-6 md:px-12 flex justify-between items-center">
+        <div class="flex items-center space-x-3.5 cursor-pointer" onclick="showSection('home')">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-epica-cyan to-epica-mint p-[1.5px] flex items-center justify-center shadow-md shadow-epica-cyan/10">
+                <div class="w-full h-full rounded-[14px] bg-white flex items-center justify-center p-1.5">
+                    <svg class="w-full h-full"><use href="#epica-isotype"/></svg>
+                </div>
+            </div>
+            <div>
+                <h1 class="text-xl font-extrabold tracking-widest text-slate-900 font-display flex items-center gap-1.5">
+                    ÉPICA
+                </h1>
+                <p class="text-[9px] text-epica-mint font-bold tracking-widest uppercase">Mente Clara • Orden Real</p>
+            </div>
+        </div>
+
+        <!-- Desktop Links -->
+        <div class="hidden xl:flex items-center space-x-1">
+            <button onclick="showSection('home')" class="nav-link px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all flex items-center gap-2" data-section="home">
+                <i class="fa-solid fa-chart-line text-xs"></i> Mando Central
+            </button>
+            <button onclick="showSection('doctrina')" class="nav-link px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all flex items-center gap-2" data-section="doctrina">
+                <i class="fa-solid fa-book-open text-xs"></i> Doctrina
+            </button>
+            <button onclick="showSection('pitch')" class="nav-link px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all flex items-center gap-2" data-section="pitch">
+                <i class="fa-solid fa-presentation-screen text-xs"></i> Pitch Deck
+            </button>
+            <button onclick="showSection('infografia')" class="nav-link px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all flex items-center gap-2" data-section="infografia">
+                <i class="fa-solid fa-user-tie text-xs"></i> Rol Politólogo
+            </button>
+            <button onclick="showSection('registro')" class="nav-link px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all flex items-center gap-2" data-section="registro">
+                <i class="fa-solid fa-user-plus text-xs"></i> Registro de Militantes
+            </button>
+            <button onclick="showSection('admin-db')" class="nav-link px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all flex items-center gap-2" data-section="admin-db">
+                <i class="fa-solid fa-database text-xs"></i> Admin DB
+            </button>
+            <button onclick="showSection('docs')" class="nav-link px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:text-slate-900 transition-all flex items-center gap-2" data-section="docs">
+                <i class="fa-solid fa-folder-open text-xs"></i> Documentos
+            </button>
+        </div>
+
+        <!-- Social Icons Menu -->
+        <div class="hidden sm:flex items-center space-x-2.5">
+            <a href="https://instagram.com/somosepicaven" target="_blank" class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:text-pink-500 hover:bg-slate-200/50 transition">
+                <i class="fa-brands fa-instagram text-sm"></i>
+            </a>
+            <a href="https://tiktok.com/@somosepicaven" target="_blank" class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-200/50 transition">
+                <i class="fa-brands fa-tiktok text-sm"></i>
+            </a>
+            <a href="https://wa.me/somosepicaven" target="_blank" class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 hover:text-emerald-500 hover:bg-slate-200/50 transition">
+                <i class="fa-brands fa-whatsapp text-sm"></i>
+            </a>
+        </div>
+
+        <!-- Mobile Navigation Trigger -->
+        <button onclick="toggleMobileNav()" class="xl:hidden w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-700 hover:bg-slate-200 transition">
+            <i class="fa-solid fa-bars" id="menu-icon"></i>
+        </button>
+    </nav>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-nav" class="fixed inset-0 top-[73px] z-40 bg-white/95 backdrop-blur-xl border-t border-slate-200 p-6 hidden xl:hidden">
+        <div class="flex flex-col space-y-3.5 text-slate-800">
+            <button onclick="showSection('home'); toggleMobileNav()" class="mobile-nav-link p-3 rounded-xl text-left font-semibold hover:bg-slate-100 transition flex items-center gap-3">
+                <i class="fa-solid fa-chart-line text-epica-cyan"></i> Mando Central
+            </button>
+            <button onclick="showSection('doctrina'); toggleMobileNav()" class="mobile-nav-link p-3 rounded-xl text-left font-semibold hover:bg-slate-100 transition flex items-center gap-3">
+                <i class="fa-solid fa-book-open text-epica-cyan"></i> Doctrina ÉPICA
+            </button>
+            <button onclick="showSection('pitch'); toggleMobileNav()" class="mobile-nav-link p-3 rounded-xl text-left font-semibold hover:bg-slate-100 transition flex items-center gap-3">
+                <i class="fa-solid fa-presentation-screen text-epica-cyan"></i> Pitch Deck
+            </button>
+            <button onclick="showSection('infografia'); toggleMobileNav()" class="mobile-nav-link p-3 rounded-xl text-left font-semibold hover:bg-slate-100 transition flex items-center gap-3">
+                <i class="fa-solid fa-user-tie text-epica-cyan"></i> Rol del Politólogo
+            </button>
+            <button onclick="showSection('registro'); toggleMobileNav()" class="mobile-nav-link p-3 rounded-xl text-left font-semibold hover:bg-slate-100 transition flex items-center gap-3">
+                <i class="fa-solid fa-user-plus text-epica-cyan"></i> Registro Militantes
+            </button>
+            <button onclick="showSection('admin-db'); toggleMobileNav()" class="mobile-nav-link p-3 rounded-xl text-left font-semibold hover:bg-slate-100 transition flex items-center gap-3">
+                <i class="fa-solid fa-database text-epica-cyan"></i> Admin DB
+            </button>
+            <button onclick="showSection('docs'); toggleMobileNav()" class="mobile-nav-link p-3 rounded-xl text-left font-semibold hover:bg-slate-100 transition flex items-center gap-3">
+                <i class="fa-solid fa-folder-open text-epica-cyan"></i> Docs & Capacitación
+            </button>
+
+            <div class="border-t border-slate-200 pt-6 flex justify-around">
+                <a href="https://instagram.com/somosepicaven" target="_blank" class="flex flex-col items-center text-slate-500 hover:text-pink-500 transition">
+                    <i class="fa-brands fa-instagram text-2xl mb-1"></i>
+                    <span class="text-xs">Instagram</span>
+                </a>
+                <a href="https://tiktok.com/@somosepicaven" target="_blank" class="flex flex-col items-center text-slate-500 hover:text-slate-800 transition">
+                    <i class="fa-brands fa-tiktok text-2xl mb-1"></i>
+                    <span class="text-xs">TikTok</span>
+                </a>
+                <a href="https://wa.me/somosepicaven" target="_blank" class="flex flex-col items-center text-slate-500 hover:text-emerald-500 transition">
+                    <i class="fa-brands fa-whatsapp text-2xl mb-1"></i>
+                    <span class="text-xs">WhatsApp</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN BODY CONTROLLER -->
+    <main class="flex-grow pt-28 px-4 sm:px-8 lg:px-12 max-w-7xl mx-auto w-full pb-16 relative z-10">
+
+        <!-- SECTION 1: HOME / COMMAND CENTER -->
+        <section id="home" class="section-content active space-y-12">
+            <!-- Hero Grid -->
+            <div class="grid lg:grid-cols-12 gap-8 items-center">
+                <!-- Text block -->
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-epica-cyan/10 border border-epica-cyan/20 text-xs font-bold text-epica-cyan uppercase tracking-wider">
+                        <span class="w-2.5 h-2.5 rounded-full bg-epica-cyan animate-pulse"></span>
+                        Ingeniería Institucional de Centro Neutral
+                    </div>
+                    <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight font-display text-slate-950">
+                        Mente Clara,<br><span class="bg-gradient-to-r from-epica-cyan to-epica-mint bg-clip-text text-transparent">Orden Real.</span>
+                    </h1>
+                    <p class="text-lg text-slate-500 leading-relaxed max-w-xl">
+                        Diseñamos un Estado moderno, eficiente y 100% digital, libre de la parálisis ideológica del pasado. Un movimiento fundado y dirigido por científicos políticos para Venezuela.
+                    </p>
+                    <div class="flex flex-wrap gap-4 pt-2">
+                        <button onclick="showSection('registro')" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-epica-cyan to-epica-mint text-white font-extrabold text-sm transition-all shadow-md shadow-epica-cyan/25 hover:scale-[1.02]">
+                            Registrarme como Militante
+                        </button>
+                        <button onclick="showSection('pitch')" class="px-6 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-bold text-sm border border-slate-200 transition-all hover:scale-[1.02]">
+                            Ver Pitch Deck Comercial
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Brand Isotype Showcase Frame (La Pirámide Geométrica) -->
+                <div class="lg:col-span-5 flex justify-center">
+                    <div class="glass-premium-light p-8 rounded-3xl w-full max-w-sm flex flex-col items-center justify-center text-center space-y-6 relative overflow-hidden">
+                        <div class="absolute -top-10 -right-10 w-32 h-32 bg-epica-cyan/5 rounded-full blur-2xl"></div>
+                        <div class="w-40 h-40 p-2 rounded-2xl bg-white shadow-xl shadow-slate-200/50 relative z-10">
+                            <svg class="w-full h-full"><use href="#epica-isotype"/></svg>
+                        </div>
+                        <div class="space-y-1 relative z-10">
+                            <h3 class="text-2xl font-black text-slate-900 tracking-wider">ÉPICA</h3>
+                            <p class="text-xs text-epica-mint font-extrabold uppercase tracking-widest">Estructura Tecnológica de Estado</p>
+                        </div>
+                        <p class="text-xs text-slate-400 leading-relaxed max-w-xs">
+                            Este símbolo representa la pirámide de equilibrio del Estado: balanceado por el Centro Neutral y apuntando con rigor técnico hacia la modernidad científica.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTERACTIVE REGIONAL NODE MAP OF VENEZUELA -->
+            <div class="glass-premium-light p-8 rounded-3xl border border-slate-200 space-y-6">
+                <div class="text-center md:text-left max-w-2xl">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 mb-3 rounded-full bg-amber-500/10 border border-amber-500/20 text-[11px] font-bold text-amber-600 uppercase tracking-wide">
+                        <i class="fa-solid fa-triangle-exclamation animate-pulse"></i>
+                        Nodos en fase de desarrollo y expansión nacional
+                    </div>
+                    <h3 class="text-2xl font-bold text-slate-900 font-display flex items-center gap-2.5">
+                        <i class="fa-solid fa-map-location-dot text-epica-cyan"></i>
+                        Red de Nodos Tecnológicos en Venezuela
+                    </h3>
+                    <p class="text-sm text-slate-500 mt-1">
+                        Interactúa con la maqueta de nuestra red nacional. **Todos los nodos descritos abajo se encuentran en etapa de planificación, diseño de políticas y desarrollo técnico.**
+                    </p>
+                </div>
+
+                <div class="grid lg:grid-cols-12 gap-8 items-center">
+                    <!-- Interactive Visual Map (Left Col 7) -->
+                    <div class="lg:col-span-7 flex justify-center bg-slate-900 p-6 rounded-2xl relative overflow-hidden h-[420px] shadow-inner border border-slate-800">
+                        <!-- Floating Warning Overlay inside map -->
+                        <div class="absolute top-3 left-3 z-20 px-2.5 py-1 rounded-md bg-amber-500/10 border border-amber-500/20 text-[9px] text-amber-400 font-bold uppercase tracking-wider flex items-center gap-1.5 backdrop-blur-sm">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
+                            Prototipo de Red en Desarrollo
+                        </div>
+                        
+                        <div class="absolute inset-0 bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:30px_30px] opacity-25"></div>
+                        
+                        <!-- Interconnected Nodes (Custom High-Tech SVG Map of Venezuela) -->
+                        <svg class="w-full h-full relative z-10" viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="venezuela-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.08" />
+                                    <stop offset="100%" stop-color="#10b981" stop-opacity="0.02" />
+                                </linearGradient>
+                            </defs>
+
+                            <!-- Glow Map Outline of Venezuela -->
+                            <path d="M 60,150 C 60,110 110,80 150,80 C 170,75 180,95 200,95 C 220,90 240,90 260,95 C 280,100 310,95 340,95 C 365,85 385,100 405,105 C 425,115 440,110 450,130 C 460,150 430,200 420,230 C 410,250 380,275 350,285 C 310,295 270,280 250,255 C 230,230 210,195 190,195 C 160,195 140,215 110,215 C 80,215 70,180 60,150 Z" 
+                                  fill="url(#venezuela-gradient)" 
+                                  stroke="rgba(6, 182, 212, 0.3)" 
+                                  stroke-width="2.5" 
+                                  stroke-dasharray="3 3" />
+
+                            <!-- Interconnection Mesh Lines -->
+                            <line x1="250" y1="115" x2="155" y2="125" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.7" />
+                            <line x1="250" y1="115" x2="345" y2="135" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.7" />
+                            <line x1="155" y1="125" x2="110" y2="180" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.6" />
+                            <line x1="250" y1="115" x2="220" y2="160" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.6" />
+                            <line x1="220" y1="160" x2="280" y2="220" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.6" />
+                            <line x1="345" y1="135" x2="355" y2="95" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.5" />
+                            
+                            <!-- Central Node (CCS) -->
+                            <g class="cursor-pointer group" onclick="selectMapRegion('central')">
+                                <circle cx="250" cy="115" r="14" fill="#06b6d4" class="opacity-20 animate-ping" />
+                                <circle cx="250" cy="115" r="8" fill="#06b6d4" stroke="#ffffff" stroke-width="2" />
+                                <text x="250" y="98" fill="#ffffff" font-size="9" font-family="Space Grotesk" font-weight="bold" text-anchor="middle">NODO CENTRAL (CCS)</text>
+                            </g>
+
+                            <!-- Occidental Node -->
+                            <g class="cursor-pointer group" onclick="selectMapRegion('occidente')">
+                                <circle cx="155" cy="125" r="12" fill="#10b981" class="opacity-20" />
+                                <circle cx="155" cy="125" r="6" fill="#10b981" stroke="#ffffff" stroke-width="1.5" />
+                                <text x="155" y="112" fill="#a7f3d0" font-size="8" font-family="Space Grotesk" text-anchor="middle">OCCIDENTE</text>
+                            </g>
+
+                            <!-- Oriental Node -->
+                            <g class="cursor-pointer group" onclick="selectMapRegion('oriente')">
+                                <circle cx="345" cy="135" r="12" fill="#06b6d4" class="opacity-20" />
+                                <circle cx="345" cy="135" r="6" fill="#06b6d4" stroke="#ffffff" stroke-width="1.5" />
+                                <text x="345" y="122" fill="#93c5fd" font-size="8" font-family="Space Grotesk" text-anchor="middle">ORIENTE</text>
+                            </g>
+
+                            <!-- Andes Node -->
+                            <g class="cursor-pointer group" onclick="selectMapRegion('andes')">
+                                <circle cx="110" cy="180" r="12" fill="#10b981" class="opacity-20" />
+                                <circle cx="110" cy="180" r="6" fill="#10b981" stroke="#ffffff" stroke-width="1.5" />
+                                <text x="110" y="167" fill="#a7f3d0" font-size="8" font-family="Space Grotesk" text-anchor="middle">ANDES</text>
+                            </g>
+
+                            <!-- Llanos Node (New) -->
+                            <g class="cursor-pointer group" onclick="selectMapRegion('llanos')">
+                                <circle cx="220" cy="160" r="11" fill="#10b981" class="opacity-20" />
+                                <circle cx="220" cy="160" r="5" fill="#10b981" stroke="#ffffff" stroke-width="1.5" />
+                                <text x="220" y="148" fill="#a7f3d0" font-size="8" font-family="Space Grotesk" text-anchor="middle">LLANOS</text>
+                            </g>
+
+                            <!-- Sur Node (New) -->
+                            <g class="cursor-pointer group" onclick="selectMapRegion('sur')">
+                                <circle cx="280" cy="220" r="11" fill="#06b6d4" class="opacity-20" />
+                                <circle cx="280" cy="220" r="5" fill="#06b6d4" stroke="#ffffff" stroke-width="1.5" />
+                                <text x="280" y="208" fill="#93c5fd" font-size="8" font-family="Space Grotesk" text-anchor="middle">SUR / GUAYANA</text>
+                            </g>
+
+                            <!-- Insular Node (New) -->
+                            <g class="cursor-pointer group" onclick="selectMapRegion('insular')">
+                                <circle cx="355" cy="95" r="11" fill="#06b6d4" class="opacity-20" />
+                                <circle cx="355" cy="95" r="5" fill="#06b6d4" stroke="#ffffff" stroke-width="1.5" />
+                                <text x="355" y="83" fill="#93c5fd" font-size="8" font-family="Space Grotesk" text-anchor="middle">INSULAR</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- Region Stats Reader -->
+                    <div class="lg:col-span-5 glass-light p-6 rounded-2xl border border-slate-200/50 space-y-4">
+                        <div class="flex items-center gap-3 pb-2 border-b border-slate-100">
+                            <span class="p-2.5 rounded-xl bg-epica-cyan/10 text-epica-cyan">
+                                <i class="fa-solid fa-circle-info text-lg"></i>
+                            </span>
+                            <div>
+                                <h4 id="region-name" class="font-extrabold text-slate-900 font-display">Nodo Central (Distrito Capital)</h4>
+                                <p id="region-status" class="text-[10px] text-amber-600 font-bold uppercase tracking-widest flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                    Planificación y Diseño Técnico
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Data Cards -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="p-3 bg-white border border-slate-100 rounded-xl">
+                                <p class="text-[10px] text-slate-400 uppercase font-bold">Interesados / Registros</p>
+                                <h5 id="region-militants" class="text-xl font-extrabold text-slate-900 mt-1">452 Registrados</h5>
+                            </div>
+                            <div class="p-3 bg-white border border-slate-100 rounded-xl">
+                                <p class="text-[10px] text-slate-400 uppercase font-bold">Célula Local</p>
+                                <h5 id="region-cells" class="text-xl font-extrabold text-slate-900 mt-1">En Maquetación</h5>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-slate-50 rounded-xl text-xs text-slate-500 leading-relaxed" id="region-desc">
+                            Coordinando la infraestructura de pruebas para el piloto del programa 'Estado Cero Papel'. Diseñado para interconectar con entes locales del Área Metropolitana de Caracas de manera transparente.
+                        </div>
+
+                        <div class="p-3 rounded-lg bg-amber-500/5 border border-amber-500/10 text-[10px] text-amber-700 leading-relaxed">
+                            <i class="fa-solid fa-triangle-exclamation"></i> <strong>Aclaratoria:</strong> Este nodo y su base local están en etapa de estructuración. El registro actual es preliminar para mapeo y auditoría de perfiles.
+                        </div>
+
+                        <button onclick="showSection('registro')" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-user-plus"></i> Pre-registrarme en este Nodo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="glass-light p-6 rounded-2xl flex items-center space-x-4 border-l-4 border-epica-cyan">
+                    <div class="p-3.5 bg-epica-cyan/10 rounded-xl text-epica-cyan">
+                        <i class="fa-solid fa-circle-nodes text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase font-extrabold tracking-wider">Estructura de Base</p>
+                        <h4 class="text-xl font-extrabold text-slate-900">Nodos Descentralizados</h4>
+                        <p class="text-[11px] text-slate-400">Células digitales autogestionadas</p>
+                    </div>
+                </div>
+                <div class="glass-light p-6 rounded-2xl flex items-center space-x-4 border-l-4 border-epica-mint">
+                    <div class="p-3.5 bg-epica-mint/10 rounded-xl text-epica-mint">
+                        <i class="fa-solid fa-file-invoice text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase font-extrabold tracking-wider font-display">Metodología Principal</p>
+                        <h4 class="text-xl font-extrabold text-slate-900">Estado Cero Papel</h4>
+                        <p class="text-[11px] text-slate-400 font-sans">Trámites y datos 100% protegidos</p>
+                    </div>
+                </div>
+                <div class="glass-light p-6 rounded-2xl flex items-center space-x-4 border-l-4 border-teal-500">
+                    <div class="p-3.5 bg-teal-500/10 rounded-xl text-teal-500">
+                        <i class="fa-solid fa-graduation-cap text-xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 uppercase font-extrabold tracking-wider font-display">Conducción Académica</p>
+                        <h4 class="text-xl font-extrabold text-slate-900">Liderado por Politólogos</h4>
+                        <p class="text-[11px] text-slate-400">Especialistas en ingeniería de Estado</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Media Hub -->
+            <div class="glass-light p-8 rounded-2xl border border-slate-200/60 space-y-6">
+                <div class="text-center md:text-left">
+                    <h3 class="text-xl font-extrabold text-slate-900 font-display">Sigue la Evolución de ÉPICA</h3>
+                    <p class="text-sm text-slate-500">Nuestras cuentas oficiales están activas y monitoreadas para conectar con el talento nacional:</p>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <a href="https://instagram.com/somosepicaven" target="_blank" class="interactive-card p-4 rounded-xl text-center flex flex-col items-center gap-2 group bg-white border border-slate-100">
+                        <div class="w-12 h-12 rounded-full bg-pink-50 flex items-center justify-center text-pink-500 group-hover:scale-110 transition">
+                            <i class="fa-brands fa-instagram text-2xl"></i>
+                        </div>
+                        <span class="font-bold text-sm text-slate-800">Instagram</span>
+                        <span class="text-[10px] text-slate-400">@somosepicaven</span>
+                    </a>
+                    <a href="https://tiktok.com/@somosepicaven" target="_blank" class="interactive-card p-4 rounded-xl text-center flex flex-col items-center gap-2 group bg-white border border-slate-100">
+                        <div class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center text-slate-700 group-hover:scale-110 transition">
+                            <i class="fa-brands fa-tiktok text-2xl"></i>
+                        </div>
+                        <span class="font-bold text-sm text-slate-800">TikTok</span>
+                        <span class="text-[10px] text-slate-400">@somosepicaven</span>
+                    </a>
+                    <a href="https://wa.me/somosepicaven" target="_blank" class="interactive-card p-4 rounded-xl text-center flex flex-col items-center gap-2 group bg-white border border-slate-100">
+                        <div class="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500 group-hover:scale-110 transition">
+                            <i class="fa-brands fa-whatsapp text-2xl"></i>
+                        </div>
+                        <span class="font-bold text-sm text-slate-800">WhatsApp</span>
+                        <span class="text-[10px] text-slate-400">Canal de Nodos</span>
+                    </a>
+                    <a href="https://x.com/somosepicaven" target="_blank" class="interactive-card p-4 rounded-xl text-center flex flex-col items-center gap-2 group bg-white border border-slate-100">
+                        <div class="w-12 h-12 rounded-full bg-sky-50 flex items-center justify-center text-sky-500 group-hover:scale-110 transition">
+                            <i class="fa-brands fa-x-twitter text-2xl"></i>
+                        </div>
+                        <span class="font-bold text-sm text-slate-800">X / Twitter</span>
+                        <span class="text-[10px] text-slate-400">@somosepicaven</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: DOCTRINA ÉPICA -->
+        <section id="doctrina" class="section-content space-y-10">
+            <div class="text-center max-w-3xl mx-auto space-y-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-epica-mint/10 border border-epica-mint/20 text-xs font-bold text-epica-mint uppercase tracking-wider">
+                    Ejes Programáticos & Filosofía
+                </div>
+                <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight font-display text-slate-900">Nuestra Doctrina Institucional</h2>
+                <p class="text-slate-500">
+                    Cambiamos el debate retórico por soluciones de diseño científico. Cada uno de nuestros pilares responde a una necesidad técnica de modernización estatal.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Pilar 1 -->
+                <div class="glass-light p-6 rounded-2xl space-y-4 border-t-4 border-epica-cyan">
+                    <div class="w-12 h-12 rounded-xl bg-epica-cyan/10 flex items-center justify-center text-epica-cyan text-lg">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 font-display">Pragmatismo de Centro Neutral</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">
+                        Nuestra neutralidad ideológica no es inacción. Es una política de gerencia activa centrada en el diagnóstico cuantitativo y la resolución técnica de conflictos estructurales.
+                    </p>
+                </div>
+
+                <!-- Pilar 2 -->
+                <div class="glass-light p-6 rounded-2xl space-y-4 border-t-4 border-epica-mint">
+                    <div class="w-12 h-12 rounded-xl bg-epica-mint/10 flex items-center justify-center text-epica-mint text-lg">
+                        <i class="fa-solid fa-scroll"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 font-display">Estado Cero Papel</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">
+                        La burocracia lenta y manual es la cuna de la corrupción institucional. Proponemos la digitalización integral e inalterable de todos los procesos del Estado.
+                    </p>
+                </div>
+
+                <!-- Pilar 3 -->
+                <div class="glass-light p-6 rounded-2xl space-y-4 border-t-4 border-teal-500">
+                    <div class="w-12 h-12 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-500 text-lg">
+                        <i class="fa-solid fa-circle-nodes"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 font-display">Sinergia Institucional</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">
+                        No creemos en la destrucción o desmantelamiento ciego. ÉPICA tiende puentes técnicos con actores de todos los sectores para modernizar las instituciones desde adentro.
+                    </p>
+                </div>
+
+                <!-- Pilar 4 -->
+                <div class="glass-light p-6 rounded-2xl space-y-4 border-t-4 border-epica-cyan">
+                    <div class="w-12 h-12 rounded-xl bg-epica-cyan/10 flex items-center justify-center text-epica-cyan text-lg">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 font-display">Meritocracia Estricta</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">
+                        Los cargos de la administración pública no deben ser prebendas de lealtad. Promovemos evaluaciones públicas y concursos de aptitud estrictos.
+                    </p>
+                </div>
+
+                <!-- Pilar 5 -->
+                <div class="glass-light p-6 rounded-2xl space-y-4 border-t-4 border-epica-mint">
+                    <div class="w-12 h-12 rounded-xl bg-epica-mint/10 flex items-center justify-center text-epica-mint text-lg">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 font-display">Ética Financiera</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">
+                        Prohibimos estatutariamente el uso de fondos públicos nacionales o subsidios extranjeros opacos. Financiación transparente y auditada de forma privada.
+                    </p>
+                </div>
+
+                <!-- Pilar 6 -->
+                <div class="glass-light p-6 rounded-2xl space-y-4 border-t-4 border-teal-500">
+                    <div class="w-12 h-12 rounded-xl bg-teal-500/10 flex items-center justify-center text-teal-500 text-lg">
+                        <i class="fa-solid fa-fingerprint"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 font-display">Soberanía de Datos</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed">
+                        Los datos personales de los ciudadanos venezolanos pertenecen única y exclusivamente al ciudadano. Encriptación de nivel militar para todo trámite.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: PITCH DECK INTERACTIVO CON PANEL DE ORADOR -->
+        <section id="pitch" class="section-content space-y-6">
+            <div class="flex flex-col lg:flex-row gap-6">
+                <!-- Main Slides Area (Left) -->
+                <div class="flex-grow flex flex-col space-y-4">
+                    <div class="flex justify-between items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2.5 font-display">
+                            <i class="fa-solid fa-chalkboard-user text-epica-cyan"></i> Presentación de Inversión ÉPICA
+                        </h3>
+                        <button onclick="toggleSpeakerNotes()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition text-xs font-semibold flex items-center gap-1.5">
+                            <i class="fa-solid fa-glasses text-epica-mint"></i>
+                            <span id="speaker-notes-btn-text">Ver Notas del Orador</span>
+                        </button>
+                    </div>
+
+                    <!-- Slide Canvas Container -->
+                    <div class="relative bg-white border border-slate-200 rounded-3xl min-h-[460px] flex flex-col justify-between p-6 md:p-10 shadow-lg overflow-hidden">
+                        <div class="absolute -top-40 -right-40 w-96 h-96 bg-epica-cyan/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+                        <!-- Inside Dynamic Slides -->
+                        <!-- Slide 1 -->
+                        <div class="slide-item space-y-6 flex-grow flex flex-col justify-center" id="deck-slide-1">
+                            <div class="space-y-4">
+                                <span class="text-xs font-bold text-epica-cyan uppercase tracking-wider bg-epica-cyan/10 px-3 py-1 rounded">Lámina 1 / Portada</span>
+                                <h2 class="text-3xl md:text-5xl font-extrabold text-slate-900 leading-tight font-display">
+                                    ÉPICA: <span class="bg-gradient-to-r from-epica-cyan to-epica-mint bg-clip-text text-transparent">Arquitectos del Nuevo Estado</span>
+                                </h2>
+                                <p class="text-lg text-slate-500 font-semibold max-w-2xl leading-relaxed">
+                                    Inversión en tecnología y eficiencia institucional para modernizar de forma pragmática a Venezuela.
+                                </p>
+                            </div>
+                            <div class="border-t border-slate-200/80 pt-6 grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <h4 class="text-xs font-extrabold text-red-500 uppercase tracking-widest flex items-center gap-1.5">
+                                        <i class="fa-solid fa-triangle-exclamation"></i> El Problema
+                                    </h4>
+                                    <p class="text-xs text-slate-500 mt-1">Burocracia sistemática y parálisis ideológica que destruye miles de millones de dólares anuales en el sector productivo privado.</p>
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-extrabold text-epica-mint uppercase tracking-widest flex items-center gap-1.5">
+                                        <i class="fa-solid fa-square-check"></i> La Propuesta
+                                    </h4>
+                                    <p class="text-xs text-slate-500 mt-1">Un modelo de gerencia estatal basado en Ciencias Políticas aplicadas, digitalización completa y meritocracia comprobada.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Slide 2 -->
+                        <div class="slide-item space-y-6 flex-grow flex flex-col justify-center hidden" id="deck-slide-2">
+                            <div class="space-y-4">
+                                <span class="text-xs font-bold text-epica-cyan uppercase tracking-wider bg-epica-cyan/10 px-3 py-1 rounded">Lámina 2 / Doctrina</span>
+                                <h2 class="text-3xl font-extrabold text-slate-900 font-display">Estructura de Centro Neutral</h2>
+                                <p class="text-sm text-slate-500">Dejamos atrás la confrontación tradicional de izquierda o derecha para enfocarnos únicamente en el Pragmatismo y la Administración Científica.</p>
+                            </div>
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                    <div class="w-8 h-8 rounded bg-epica-cyan/10 text-epica-cyan flex items-center justify-center mb-2">
+                                        <i class="fa-solid fa-award"></i>
+                                    </div>
+                                    <h4 class="font-bold text-sm text-slate-800">Meritocracia Estricta</h4>
+                                    <p class="text-[11px] text-slate-400">Gabinete técnico por aptitudes.</p>
+                                </div>
+                                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                    <div class="w-8 h-8 rounded bg-epica-mint/10 text-epica-mint flex items-center justify-center mb-2">
+                                        <i class="fa-solid fa-microchip"></i>
+                                    </div>
+                                    <h4 class="font-bold text-sm text-slate-800">Tecnología Aplicada</h4>
+                                    <p class="text-[11px] text-slate-400">Digitalización anticorrupción.</p>
+                                </div>
+                                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                    <div class="w-8 h-8 rounded bg-epica-cyan/10 text-epica-cyan flex items-center justify-center mb-2">
+                                        <i class="fa-solid fa-coins"></i>
+                                    </div>
+                                    <h4 class="font-bold text-sm text-slate-800">Ética de Capital</h4>
+                                    <p class="text-[11px] text-slate-400">Independencia de fondos estatales.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Slide 3 -->
+                        <div class="slide-item space-y-6 flex-grow flex flex-col justify-center hidden" id="deck-slide-3">
+                            <div class="space-y-4">
+                                <span class="text-xs font-bold text-epica-cyan uppercase tracking-wider bg-epica-cyan/10 px-3 py-1 rounded">Lámina 3 / Proyectos e Impacto</span>
+                                <h2 class="text-3xl font-extrabold text-slate-900 font-display">Ingeniería Institucional Real</h2>
+                                <p class="text-xs text-slate-500">Nuestros politólogos están diseñando el programa de optimización nacional. Usa el simulador para ver cómo influye nuestro plan <strong>Estado Cero Papel</strong> en la rentabilidad de las empresas privadas:</p>
+                            </div>
+                            
+                            <!-- Embedded Calculator -->
+                            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-bold text-slate-500 uppercase">Eliminar Trámites Manuales:</span>
+                                    <span id="sim-percentage" class="text-xs font-bold text-epica-cyan bg-epica-cyan/10 px-2 py-0.5 rounded">50%</span>
+                                </div>
+                                <input type="range" id="sim-slider" min="10" max="100" value="50" oninput="runSimulator(this.value)" class="w-full">
+                                <div class="grid grid-cols-2 gap-4 text-center pt-2">
+                                    <div class="bg-white border border-slate-200 p-2 rounded-lg">
+                                        <p class="text-[9px] text-slate-400 uppercase">Ahorro Promedio en Días</p>
+                                        <p id="sim-days" class="text-lg font-bold text-slate-900">18 Días</p>
+                                    </div>
+                                    <div class="bg-white border border-slate-200 p-2 rounded-lg">
+                                        <p class="text-[9px] text-slate-400 uppercase">Retorno Operativo Estimado</p>
+                                        <p id="sim-roi" class="text-lg font-bold text-epica-mint">3.5x</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Slide 4 -->
+                        <div class="slide-item space-y-6 flex-grow flex flex-col justify-center hidden" id="deck-slide-4">
+                            <div class="space-y-4">
+                                <span class="text-xs font-bold text-epica-cyan uppercase tracking-wider bg-epica-cyan/10 px-3 py-1 rounded">Lámina 4 / Capital</span>
+                                <h2 class="text-3xl font-extrabold text-slate-900 font-display">Inversión en Capital Semilla Tecnológico</h2>
+                                <p class="text-sm text-slate-500">No gastamos un centavo en mítines tradicionales de plástico. Todo aporte privado va directo a:</p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                                    <div class="flex items-center space-x-2 text-epica-mint">
+                                        <i class="fa-solid fa-server"></i>
+                                        <h4 class="font-bold text-xs text-slate-800">Servidores y Software</h4>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400">Desarrollo de algoritmos de distribución logística para los Nodos Digitales nacionales.</p>
+                                </div>
+                                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                                    <div class="flex items-center space-x-2 text-epica-cyan">
+                                        <i class="fa-solid fa-brain"></i>
+                                        <h4 class="font-bold text-xs text-slate-800">Estudios de Campo</h4>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400">Sostenimiento del equipo de politólogos que audita los tiempos burocráticos institucionales.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Slide 5 -->
+                        <div class="slide-item space-y-6 flex-grow flex flex-col justify-center hidden" id="deck-slide-5">
+                            <div class="space-y-4 text-center">
+                                <span class="text-xs font-bold text-epica-cyan uppercase tracking-wider bg-epica-cyan/10 px-3 py-1 rounded">Lámina 5 / Cierre</span>
+                                <h2 class="text-3xl font-extrabold text-slate-900 font-display">Construyamos el Estado Eficiente</h2>
+                                <p class="text-sm text-slate-500 max-w-lg mx-auto">Únete hoy como Aliado de ÉPICA. Agendemos una reunión técnica de 15 minutos de forma segura.</p>
+                            </div>
+                            <!-- Simulation action form -->
+                            <div class="max-w-md mx-auto w-full flex gap-2">
+                                <input type="email" id="pitch-investor-email" placeholder="Su correo o teléfono" class="flex-grow bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-xs focus:outline-none focus:border-epica-cyan text-slate-700">
+                                <button onclick="sendPitchInquiry()" class="px-5 py-3 rounded-lg bg-epica-cyan text-white font-bold text-xs hover:bg-cyan-500 transition shadow-md shadow-cyan-500/10">Agendar</button>
+                            </div>
+                        </div>
+
+                        <!-- Footer slide controls with solid icons -->
+                        <div class="border-t border-slate-200 pt-4 flex justify-between items-center text-xs mt-6">
+                            <div class="flex items-center space-x-2">
+                                <button onclick="prevDeckSlide()" class="w-8 h-8 rounded bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 border border-slate-200 transition">
+                                    <i class="fa-solid fa-chevron-left text-xs"></i>
+                                </button>
+                                <button onclick="nextDeckSlide()" class="w-8 h-8 rounded bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700 border border-slate-200 transition">
+                                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                                </button>
+                            </div>
+                            <span id="deck-slide-indicator" class="font-bold text-slate-400">Diapositiva 1 / 5</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Presenter Notes Area (Right - Collapsible/Toggled by JS) -->
+                <div id="speaker-notes-panel" class="w-full lg:w-[350px] flex flex-col justify-between bg-white border border-slate-200 p-6 rounded-3xl hidden shadow-lg">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+                            <h4 class="text-sm font-extrabold text-slate-900 flex items-center gap-2"><i class="fa-solid fa-chalkboard-user text-epica-mint"></i> Guión de Exposición</h4>
+                            <button onclick="toggleSpeakerNotes()" class="text-slate-400 hover:text-slate-900"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div id="speaker-notes-container" class="text-xs text-slate-500 leading-relaxed space-y-3 max-h-[300px] overflow-y-auto custom-scrollbar">
+                            <!-- Populated dynamically by JS -->
+                        </div>
+                    </div>
+                    <div class="border-t border-slate-200 pt-3 mt-4">
+                        <div class="p-3 bg-epica-cyan/5 rounded-lg border border-epica-cyan/15">
+                            <h5 class="text-[10px] font-extrabold text-epica-cyan uppercase tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation"></i> Regla de Vocería</h5>
+                            <p class="text-[11px] text-slate-500 mt-1">Nunca entres al terreno de la pelea. Ataca al método arcaico de gestión, no al gestor.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: INFOGRAFÍA INTERACTIVA DEL POLITÓLOGO -->
+        <section id="infografia" class="section-content space-y-10">
+            <div class="text-center max-w-3xl mx-auto space-y-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-epica-cyan/10 border border-epica-cyan/20 text-xs font-bold text-epica-cyan uppercase tracking-wider">
+                    Anatomía del Científico Político
+                </div>
+                <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight font-display text-slate-900">El Rol del Politólogo en ÉPICA</h2>
+                <p class="text-slate-500">
+                    Muchos confunden a un político tradicional con un politólogo. El político tradicional busca retórica y masas. El politólogo aplica el método científico a la ingeniería institucional.
+                </p>
+            </div>
+
+            <!-- Visual Infography Grid -->
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div class="glass-light p-6 rounded-2xl border border-slate-200 text-center space-y-4">
+                    <div class="w-16 h-16 rounded-full bg-epica-cyan/10 flex items-center justify-center text-epica-cyan mx-auto text-xl">
+                        <i class="fa-solid fa-city"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 font-display">Arquitecto Institucional</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        No improvisa con ideologías. Diseña instituciones eficientes, sin burocracia pesada, optimizando los recursos del Estado con metodologías modernas de desarrollo orgánico.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="glass-light p-6 rounded-2xl border border-slate-200 text-center space-y-4">
+                    <div class="w-16 h-16 rounded-full bg-epica-mint/10 flex items-center justify-center text-epica-mint mx-auto text-xl">
+                        <i class="fa-solid fa-chart-pie"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 font-display">Analista de Datos Reales</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        Toma decisiones gubernamentales basadas en datos estadísticos y evaluación de impacto real, eliminando el sesgo de la política de tarima y banderas.
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="glass-light p-6 rounded-2xl border border-slate-200 text-center space-y-4">
+                    <div class="w-16 h-16 rounded-full bg-teal-500/10 flex items-center justify-center text-teal-500 mx-auto text-xl">
+                        <i class="fa-solid fa-hands-holding-child"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 font-display">Gestor Técnico de Conflictos</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                        Aplica teoría de juegos y diplomacia institucional para pacificar tensiones, tendiendo puentes entre sectores divergentes con un enfoque pragmático.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Career Matcher / Recruitment Mini-Game (Interactive Skill Finder) -->
+            <div class="glass-premium-light p-8 rounded-3xl border border-slate-200 max-w-4xl mx-auto space-y-6">
+                <div class="text-center space-y-2">
+                    <h3 class="text-2xl font-bold text-slate-900 font-display">Evaluador de Rol de ÉPICA</h3>
+                    <p class="text-sm text-slate-500">¿Eres politólogo, estudiante de ciencias políticas o un ciudadano con deseos de modernizar el Estado? Evalúa tu perfil técnico en 3 segundos.</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 items-center pt-4">
+                    <div class="space-y-4">
+                        <label class="block text-xs font-bold text-slate-400 uppercase">¿En qué área consideras que tu talento impacta más?</label>
+                        <div class="space-y-3" id="matcher-inputs">
+                            <button onclick="runMatcher('arquitecto')" class="w-full text-left p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-epica-cyan text-sm text-slate-700 font-semibold transition-all">
+                                🏗️ Diseñando sistemas eficientes de trámites municipales
+                            </button>
+                            <button onclick="runMatcher('analista')" class="w-full text-left p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-epica-mint text-sm text-slate-700 font-semibold transition-all">
+                                📊 Analizando datos de participación y optimizando recursos
+                            </button>
+                            <button onclick="runMatcher('gestor')" class="w-full text-left p-3.5 rounded-xl bg-slate-50 border border-slate-200 hover:border-teal-500 text-sm text-slate-700 font-semibold transition-all">
+                                🤝 Negociando técnicamente con el sector privado y el gobierno
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Matcher Output -->
+                    <div id="matcher-output" class="p-6 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-4 min-h-[200px] flex flex-col justify-center">
+                        <div class="text-slate-400 space-y-2">
+                            <i class="fa-solid fa-magnifying-glass w-10 h-10 mx-auto text-epica-cyan text-xl animate-bounce"></i>
+                            <h4 class="font-bold text-sm text-slate-800">Esperando selección...</h4>
+                            <p class="text-xs">Selecciona el área donde consideras que destacas más en el formulario del lado izquierdo.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: MILITANT REGISTRATION FORM -->
+        <section id="registro" class="section-content space-y-8">
+            <div class="text-center max-w-3xl mx-auto space-y-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-epica-mint/10 border border-epica-mint/20 text-xs font-bold text-epica-mint uppercase tracking-wider">
+                    Súmate a la Evolución
+                </div>
+                <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight font-display text-slate-900">Registro de Militantes y Aliados</h2>
+                <p class="text-slate-500">
+                    Únete de forma formal a nuestra estructura de ingeniería institucional. Tus datos son encriptados de forma segura y almacenados directamente de forma descentralizada.
+                </p>
+            </div>
+
+            <div class="max-w-2xl mx-auto glass-premium-light p-8 rounded-3xl border border-slate-200">
+                <form id="db-registration-form" onsubmit="handleMilitantRegistration(event)" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Nombre Completo</label>
+                            <input type="text" id="reg-name" required placeholder="Ej. Roberto Mejías" class="w-full bg-slate-50 border border-slate-200 focus:border-epica-cyan rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:ring-1 focus:ring-epica-cyan transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Cédula de Identidad</label>
+                            <input type="text" id="reg-cedula" required placeholder="Ej. V-12345678" class="w-full bg-slate-50 border border-slate-200 focus:border-epica-cyan rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:ring-1 focus:ring-epica-cyan transition">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Número de Teléfono</label>
+                            <input type="tel" id="reg-phone" required placeholder="Ej. 0412-1234567" class="w-full bg-slate-50 border border-slate-200 focus:border-epica-cyan rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:ring-1 focus:ring-epica-cyan transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Correo Electrónico</label>
+                            <input type="email" id="reg-email" required placeholder="Ej. roberto@somosepica.com" class="w-full bg-slate-50 border border-slate-200 focus:border-epica-cyan rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:ring-1 focus:ring-epica-cyan transition">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Edad</label>
+                            <input type="number" id="reg-age" required min="16" max="110" placeholder="Ej. 25" class="w-full bg-slate-50 border border-slate-200 focus:border-epica-cyan rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:ring-1 focus:ring-epica-cyan transition">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Profesión / Ocupación</label>
+                            <input type="text" id="reg-profession" required placeholder="Ej. Politólogo, Estudiante, Programador" class="w-full bg-slate-50 border border-slate-200 focus:border-epica-cyan rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:ring-1 focus:ring-epica-cyan transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">¿Deseas participar activamente como Militante Técnico?</label>
+                        <select id="reg-militant-pref" class="w-full bg-slate-50 border border-slate-200 focus:border-epica-cyan rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:ring-1 focus:ring-epica-cyan transition">
+                            <option value="Sí, deseo ser militante activo">Sí, deseo ser militante y participar en los Nodos</option>
+                            <option value="Solo quiero ser aliado/observador">No, solo quiero estar en la base de datos de apoyo/aliado</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-epica-cyan to-epica-mint text-white font-extrabold text-sm transition-all shadow-md shadow-cyan-500/10 hover:brightness-110 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-user-check"></i> Registrarme y Validar Datos
+                    </button>
+                </form>
+
+                <!-- Simulated Registered Success View -->
+                <div id="db-registration-success" class="hidden text-center p-8 space-y-6">
+                    <div class="w-20 h-20 rounded-full bg-epica-mint/10 text-epica-mint flex items-center justify-center mx-auto shadow-lg shadow-epica-mint/5 text-2xl">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div class="space-y-2">
+                        <h3 class="text-2xl font-black text-slate-900 font-display">¡Inscripción Registrada de Forma Segura!</h3>
+                        <p class="text-sm text-slate-500 max-w-md mx-auto" id="registration-success-desc">
+                            Tus datos han sido procesados. Tu nodo local te contactará en breve a través de los canales encriptados de la red.
+                        </p>
+                    </div>
+                    <div class="border border-slate-200 p-4 rounded-2xl bg-slate-50 font-mono text-xs max-w-sm mx-auto text-left space-y-1">
+                        <p class="text-slate-500">NODO ID: <span id="success-nodo-id" class="text-slate-900 font-bold"></span></p>
+                        <p class="text-slate-500">REGISTRO: <span class="text-slate-900 font-bold">EXITOSO (Caché/Cifrado)</span></p>
+                        <p id="success-github-sync" class="text-slate-500">SYNC GITHUB: <span class="text-red-500 font-bold">Desactivado (Solo Local)</span></p>
+                    </div>
+                    <div class="flex justify-center gap-4">
+                        <button onclick="resetRegistrationForm()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 transition">
+                            Realizar Otro Registro
+                        </button>
+                        <button onclick="showSection('admin-db')" class="px-5 py-2.5 bg-epica-cyan hover:bg-cyan-500 text-white text-xs font-bold rounded-xl transition shadow-md shadow-cyan-500/10">
+                            Ver Base de Datos
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: ADMIN DATABASE MANAGEMENT AND SYNC -->
+        <section id="admin-db" class="section-content space-y-8">
+            <div class="grid lg:grid-cols-12 gap-8">
+                
+                <!-- GitHub Sync Configuration Config (Left Column 5) -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="glass-light p-6 rounded-3xl border border-slate-200 space-y-6">
+                        <div class="flex items-center space-x-3 pb-3 border-b border-slate-200">
+                            <div class="p-2.5 rounded-lg bg-slate-900 text-white text-base">
+                                <i class="fa-brands fa-github"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-base">Estructura Base de Datos</h3>
+                                <p class="text-[10px] text-slate-500">Configura tu repositorio para guardar de forma real</p>
+                            </div>
+                        </div>
+
+                        <form id="github-config-form" onsubmit="saveGitHubConfig(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Usuario de GitHub</label>
+                                <input type="text" id="git-user" placeholder="Ej. robertomejias" class="w-full bg-white border border-slate-200 focus:border-epica-cyan rounded-xl px-3 py-2.5 text-xs text-slate-800 focus:outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Repositorio de ÉPICA (GitHub Pages)</label>
+                                <input type="text" id="git-repo" placeholder="Ej. somosepicaven.github.io" class="w-full bg-white border border-slate-200 focus:border-epica-cyan rounded-xl px-3 py-2.5 text-xs text-slate-800 focus:outline-none transition">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1.5">Personal Access Token (PAT)</label>
+                                <input type="password" id="git-token" placeholder="Ej. ghp_Lp12iOk7..." class="w-full bg-white border border-slate-200 focus:border-epica-cyan rounded-xl px-3 py-2.5 text-xs text-slate-800 focus:outline-none transition">
+                                <p class="text-[9px] text-slate-400 mt-1">Este token permite guardar registros de forma automática en los Issues de tu repositorio.</p>
+                            </div>
+
+                            <button type="submit" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-floppy-disk"></i> Guardar Configuración DB
+                            </button>
+                        </form>
+
+                        <div class="p-3.5 bg-epica-cyan/5 rounded-xl border border-epica-cyan/15 space-y-1.5">
+                            <h4 class="text-xs font-bold text-epica-cyan flex items-center gap-1.5"><i class="fa-solid fa-shield-virus"></i> ¿Cómo Funciona la Seguridad?</h4>
+                            <p class="text-[10px] text-slate-500 leading-relaxed">
+                                Tu Token nunca se envía a servidores externos ni a bases de datos opacas. Queda almacenado localmente en la caché encriptada de tu navegador. El guardado se procesa directamente cliente-servidor con GitHub.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Database Viewer (Right Column 7) -->
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="glass-premium-light p-6 rounded-3xl border border-slate-200 space-y-6">
+                        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-slate-200 pb-4">
+                            <div>
+                                <h3 class="font-extrabold text-slate-900 font-display text-lg">Militantes Registrados</h3>
+                                <p class="text-xs text-slate-500">Visualiza, audita y gestiona la data de tus Nodos de forma local</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="exportDatabase('csv')" class="px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-[10px] font-bold transition flex items-center gap-1">
+                                    <i class="fa-solid fa-download"></i> Exportar CSV
+                                </button>
+                                <button onclick="clearDatabase()" class="px-3 py-2 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 text-[10px] font-bold transition flex items-center gap-1">
+                                    <i class="fa-solid fa-trash-can"></i> Borrar Todo
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Data Table Container -->
+                        <div class="overflow-x-auto max-h-[350px] custom-scrollbar border border-slate-200 rounded-xl bg-white shadow-inner">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead class="bg-slate-50 text-slate-400 uppercase text-[9px] font-extrabold border-b border-slate-200 sticky top-0">
+                                    <tr>
+                                        <th class="p-3">Nodo ID</th>
+                                        <th class="p-3">Nombre</th>
+                                        <th class="p-3">Cédula</th>
+                                        <th class="p-3">Teléfono</th>
+                                        <th class="p-3">Profesión</th>
+                                        <th class="p-3 text-right">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="militants-table-body" class="divide-y divide-slate-100 text-slate-700">
+                                    <!-- Populated dynamically by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 7: DOCS & MEDIA TRAINING SIMULATOR -->
+        <section id="docs" class="section-content space-y-10">
+            <div class="grid lg:grid-cols-12 gap-8">
+                <!-- Searchable Documents List (Left - Column 5) -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="space-y-2">
+                        <h3 class="text-xl font-bold text-slate-900 font-display">Centro de Documentación ÉPICA</h3>
+                        <p class="text-xs text-slate-500">Explora todos los manuales y estatutos oficiales. Filtrados y listos para consulta.</p>
+                    </div>
+
+                    <!-- Search Box -->
+                    <div class="relative">
+                        <input type="text" id="doc-search-input" onkeyup="filterDocs()" placeholder="Buscar en la documentación..." class="w-full bg-white border border-slate-200 focus:border-epica-cyan rounded-xl pl-10 pr-4 py-3 text-xs text-slate-700 focus:outline-none transition">
+                        <span class="absolute left-3.5 top-3.5 text-slate-400"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    </div>
+
+                    <!-- Documents Index Cards -->
+                    <div class="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-1" id="docs-list">
+                        <!-- Manual de Despliegue -->
+                        <div onclick="readDoc('manual-entrenamiento')" class="p-4 rounded-xl bg-white border border-slate-200 hover:border-epica-cyan transition cursor-pointer flex justify-between items-center group doc-card" data-title="manual despliegue mediatico voceros entrenamiento">
+                            <div class="space-y-1">
+                                <h4 class="text-xs font-bold text-slate-800 group-hover:text-epica-cyan transition">Manual de Despliegue Mediático</h4>
+                                <p class="text-[10px] text-slate-500">Simulador de entrenamiento de televisión e interacciones difíciles.</p>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-slate-400"></i>
+                        </div>
+                        <!-- Manifiesto Politólogo -->
+                        <div onclick="readDoc('manifiesto-politologo')" class="p-4 rounded-xl bg-white border border-slate-200 hover:border-epica-cyan transition cursor-pointer flex justify-between items-center group doc-card" data-title="manifiesto politologo arquitectos del nuevo estado">
+                            <div class="space-y-1">
+                                <h4 class="text-xs font-bold text-slate-800 group-hover:text-epica-cyan transition">El Rol de los Politólogos</h4>
+                                <p class="text-[10px] text-slate-500">El manifiesto de convocatoria nacional de ingenieros estatales.</p>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-slate-400"></i>
+                        </div>
+                        <!-- Guía de Despliegue -->
+                        <div onclick="readDoc('guia-github-pages')" class="p-4 rounded-xl bg-white border border-slate-200 hover:border-epica-cyan transition cursor-pointer flex justify-between items-center group doc-card" data-title="guia github pages despliegue gratuito servidor">
+                            <div class="space-y-1">
+                                <h4 class="text-xs font-bold text-slate-800 group-hover:text-epica-cyan transition">Guía de Despliegue en GitHub</h4>
+                                <p class="text-[10px] text-slate-500">Cómo alojar este portal a largo plazo totalmente gratis en la web.</p>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-slate-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document Reader / Interactive Media Training Arena (Right - Column 7) -->
+                <div class="lg:col-span-7">
+                    <div class="glass-premium-light p-6 rounded-3xl border border-slate-200 min-h-[450px] flex flex-col justify-between">
+                        <!-- Head of the Reader -->
+                        <div class="flex justify-between items-center pb-4 border-b border-slate-200/80 mb-4">
+                            <h4 id="reader-title" class="text-base font-extrabold text-slate-900 font-display">Manual de Despliegue Mediático (Entrenamiento)</h4>
+                            <button onclick="copyDocContent()" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10px] font-bold transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-copy"></i> Copiar Texto
+                            </button>
+                        </div>
+
+                        <!-- Content Window (Scrollable) -->
+                        <div id="reader-content" class="text-xs text-slate-500 leading-relaxed space-y-4 max-h-[380px] overflow-y-auto custom-scrollbar pr-2">
+                            <!-- Populated dynamically by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="w-full glass-light border-t border-slate-200 py-6 px-12 text-center text-slate-500 text-xs">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-center md:text-left flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-slate-100 p-1 flex items-center justify-center">
+                    <svg class="w-full h-full"><use href="#epica-isotype"/></svg>
+                </div>
+                <div>
+                    <p class="font-extrabold text-sm text-slate-900 font-display tracking-widest uppercase">ÉPICA</p>
+                    <p class="text-[9px] text-slate-400 uppercase tracking-widest mt-0.5">Mente Clara • Orden Real</p>
+                </div>
+            </div>
+            <div class="flex space-x-4 text-base">
+                <a href="https://instagram.com/somosepicaven" target="_blank" class="hover:text-pink-500 transition"><i class="fa-brands fa-instagram"></i></a>
+                <a href="https://tiktok.com/@somosepicaven" target="_blank" class="hover:text-slate-800 transition"><i class="fa-brands fa-tiktok"></i></a>
+                <a href="https://wa.me/somosepicaven" target="_blank" class="hover:text-emerald-500 transition"><i class="fa-brands fa-whatsapp"></i></a>
+            </div>
+            <p class="text-[11px] font-semibold text-epica-mint">Ecosistema de Gobierno Científico. Caracas, Venezuela.</p>
+        </div>
+    </footer>
+
+    <!-- COMPREHENSIVE JAVASCRIPT ARCHITECTURE -->
+    <script>
+        // Core Router for Single Page Application (SPA)
+        function showSection(id) {
+            document.querySelectorAll('.section-content').forEach(sec => {
+                sec.classList.remove('active');
+            });
+            const activeSection = document.getElementById(id);
+            if (activeSection) {
+                activeSection.classList.add('active');
+            }
+
+            // Sync Nav Links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('data-section') === id) {
+                    link.classList.remove('text-slate-600');
+                    link.classList.add('text-epica-cyan', 'bg-slate-200/50');
+                } else {
+                    link.classList.add('text-slate-600');
+                    link.classList.remove('text-epica-cyan', 'bg-slate-200/50');
+                }
+            });
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Toggle Mobile Nav Menu
+        function toggleMobileNav() {
+            const mobileMenu = document.getElementById('mobile-nav');
+            const menuIcon = document.getElementById('menu-icon');
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden');
+                menuIcon.className = "fa-solid fa-xmark";
+            } else {
+                mobileMenu.classList.add('hidden');
+                menuIcon.className = "fa-solid fa-bars";
+            }
+        }
+
+        // Custom Toast System
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `p-4 rounded-xl border flex items-center gap-3 shadow-lg transition duration-500 transform translate-y-10 opacity-0 pointer-events-auto bg-white border-slate-200`;
+            
+            let color = 'text-epica-cyan';
+            let icon = 'fa-shield-halved';
+            if (type === 'error') {
+                color = 'text-red-500';
+                icon = 'fa-triangle-exclamation';
+            } else if (type === 'info') {
+                color = 'text-epica-mint';
+                icon = 'fa-circle-info';
+            }
+
+            toast.innerHTML = `
+                <div class="p-2.5 rounded-lg bg-slate-50 ${color}"><i class="fa-solid ${icon}"></i></div>
+                <div class="text-xs text-slate-700 flex-grow font-semibold">${message}</div>
+                <button class="text-slate-400 hover:text-slate-900" onclick="this.parentElement.remove()"><i class="fa-solid fa-xmark"></i></button>
+            `;
+            
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            }, 50);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            }, 4500);
+        }
+
+        // --- INTERACTIVE MAP REGIONS DATABASE ---
+        const mapRegionsDB = {
+            'central': {
+                name: "Nodo Central (Distrito Capital, Miranda, La Guaira)",
+                status: "Fase: Planificación y Desarrollo Técnico",
+                militants: "452 Registrados",
+                cells: "En Maquetación",
+                desc: "Coordinando la infraestructura de pruebas para el piloto del programa 'Estado Cero Papel'. Diseñado para interconectar con entes locales del Área Metropolitana de Caracas de manera transparente."
+            },
+            'occidente': {
+                name: "Nodo Occidental (Zulia, Falcón, Lara, Yaracuy)",
+                status: "Fase: Desarrollo y Captación de Politólogos",
+                militants: "312 Registrados",
+                cells: "En Maquetación",
+                desc: "Planteando la estructura de digitalización para la optimización de procesos aduaneros del puerto de Maracaibo y zonas comerciales del Centro-Occidente."
+            },
+            'oriente': {
+                name: "Nodo Oriental (Anzoátegui, Monagas, Sucre, Delta Amacuro)",
+                status: "Fase: Maquetación y Diseño de Nodos Regionales",
+                militants: "185 Registrados",
+                cells: "En Maquetación",
+                desc: "Modelado para la agilización de gestiones fiscales y tributarias de municipios pesqueros y comerciales. Enfocado en optimizar la transparencia de recursos locales."
+            },
+            'andes': {
+                name: "Nodo Andes (Mérida, Táchira, Trujillo)",
+                status: "Fase: Planificación Estratégica",
+                militants: "220 Registrados",
+                cells: "En Maquetación",
+                desc: "Propuesto para coordinar el diseño de políticas públicas de intercambio fronterizo legal y digital. Alta captación de estudiantes de Ciencias Políticas andinas."
+            },
+            'sur': {
+                name: "Nodo Sur (Bolívar, Amazonas, Apure)",
+                status: "Fase: Diseño Preliminar",
+                militants: "95 Registrados",
+                cells: "En Maquetación",
+                desc: "Modelando sistemas digitales de control ecológico, auditoría ambiental de minería e interconectividad territorial en las zonas más amplias del país."
+            },
+            'llanos': {
+                name: "Nodo Llanos (Guárico, Cojedes, Portuguesa, Barinas)",
+                status: "Fase: Diseño Preliminar",
+                militants: "115 Registrados",
+                cells: "En Maquetación",
+                desc: "Diseño institucional enfocado en simplificar la burocracia para productores agrícolas e industriales del corazón productivo del país."
+            },
+            'insular': {
+                name: "Nodo Insular (Nueva Esparta, Dependencias Federales)",
+                status: "Fase: Maquetación Conceptual",
+                militants: "78 Registrados",
+                cells: "En Maquetación",
+                desc: "Plataforma digital para la gestión ágil del turismo, aduanas libres (Puerto Libre) y simplificación de licencias para emprendedores de la región insular."
+            }
+        };
+
+        function selectMapRegion(regionKey) {
+            const data = mapRegionsDB[regionKey];
+            if (!data) return;
+
+            document.getElementById('region-name').textContent = data.name;
+            document.getElementById('region-status').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> ${data.status}`;
+            document.getElementById('region-militants').textContent = data.militants;
+            document.getElementById('region-cells').textContent = data.cells;
+            document.getElementById('region-desc').textContent = data.desc;
+
+            showToast(`Sincronizado con: ${data.name} (Fase de Desarrollo)`);
+        }
+
+        // --- DATABASE AND SYNC ENGINE ---
+        let dbLocal = [];
+
+        function loadMilitantsDB() {
+            const stored = localStorage.getItem('epica_militantes_db');
+            if (stored) {
+                try {
+                    dbLocal = JSON.parse(stored);
+                } catch(e) {
+                    dbLocal = [];
+                }
+            } else {
+                dbLocal = [];
+            }
+            renderMilitantsTable();
+        }
+
+        function saveMilitantsToLocalStorage() {
+            localStorage.setItem('epica_militantes_db', JSON.stringify(dbLocal));
+        }
+
+        async function handleMilitantRegistration(event) {
+            event.preventDefault();
+            const name = document.getElementById('reg-name').value;
+            const cedula = document.getElementById('reg-cedula').value;
+            const phone = document.getElementById('reg-phone').value;
+            const email = document.getElementById('reg-email').value;
+            const age = document.getElementById('reg-age').value;
+            const profession = document.getElementById('reg-profession').value;
+            const preference = document.getElementById('reg-militant-pref').value;
+
+            const randomCode = Math.floor(1000 + Math.random() * 9000);
+            const rawCedula = cedula.replace(/\D/g, "");
+            const prefix = rawCedula ? rawCedula.substring(rawCedula.length - 3) : "CCS";
+            const nodeId = `EP-CCS-${prefix}-${randomCode}`;
+
+            const newMilitante = {
+                id: nodeId,
+                name,
+                cedula,
+                phone,
+                email,
+                age,
+                profession,
+                preference,
+                timestamp: new Date().toISOString()
+            };
+
+            dbLocal.unshift(newMilitante);
+            saveMilitantsToLocalStorage();
+            renderMilitantsTable();
+
+            const gitConfig = getGitHubConfig();
+            let syncStatusText = `<span class="text-red-500 font-bold">Desactivado (Solo Local)</span>`;
+            
+            if (gitConfig.token && gitConfig.user && gitConfig.repo) {
+                syncStatusText = `<span class="text-amber-500 font-bold">Iniciando...</span>`;
+                const success = await syncWithGitHubIssues(gitConfig, newMilitante);
+                if (success) {
+                    syncStatusText = `<span class="text-epica-mint font-bold">Sincronizado con GitHub</span>`;
+                    showToast("Registro guardado en GitHub con éxito.");
+                } else {
+                    syncStatusText = `<span class="text-red-500 font-bold">Error de Conexión</span>`;
+                    showToast("Error de conexión a GitHub, guardado localmente.", "error");
+                }
+            } else {
+                showToast("Militante guardado en base de datos local de la caché.");
+            }
+
+            document.getElementById('db-registration-form').classList.add('hidden');
+            const successDiv = document.getElementById('db-registration-success');
+            successDiv.classList.remove('hidden');
+
+            document.getElementById('success-nodo-id').textContent = nodeId;
+            document.getElementById('success-github-sync').innerHTML = `SYNC GITHUB: ${syncStatusText}`;
+        }
+
+        async function syncWithGitHubIssues(config, militante) {
+            const url = `https://api.github.com/repos/${config.user}/${config.repo}/issues`;
+            const issueBody = `
+### Registro de Nuevo Militante - ÉPICA
+
+- **Nombre:** ${militante.name}
+- **Cédula:** ${militante.cedula}
+- **Teléfono:** ${militante.phone}
+- **Email:** ${militante.email}
+- **Edad:** ${militante.age}
+- **Profesión:** ${militante.profession}
+- **Rol:** ${militante.preference}
+- **Identificador Nodo:** ${militante.id}
+- **Fecha de Registro:** ${militante.timestamp}
+            `;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `token ${config.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        title: `Registro Militante - ${militante.id} (${militante.name})`,
+                        body: issueBody,
+                        labels: ['militante-registro']
+                    })
+                });
+
+                return response.ok;
+            } catch (error) {
+                console.error("GitHub API Error: ", error);
+                return false;
+            }
+        }
+
+        function saveGitHubConfig(event) {
+            event.preventDefault();
+            const user = document.getElementById('git-user').value.trim();
+            const repo = document.getElementById('git-repo').value.trim();
+            const token = document.getElementById('git-token').value.trim();
+
+            const config = { user, repo, token };
+            localStorage.setItem('epica_git_config', JSON.stringify(config));
+            showToast("Configuración de GitHub guardada.");
+        }
+
+        function getGitHubConfig() {
+            const stored = localStorage.getItem('epica_git_config');
+            if (stored) {
+                try {
+                    return JSON.parse(stored);
+                } catch(e) {
+                    return { user: '', repo: '', token: '' };
+                }
+            }
+            return { user: '', repo: '', token: '' };
+        }
+
+        function loadGitHubConfigInputs() {
+            const config = getGitHubConfig();
+            document.getElementById('git-user').value = config.user || '';
+            document.getElementById('git-repo').value = config.repo || '';
+            document.getElementById('git-token').value = config.token || '';
+        }
+
+        function resetRegistrationForm() {
+            document.getElementById('db-registration-success').classList.add('hidden');
+            const form = document.getElementById('db-registration-form');
+            form.classList.remove('hidden');
+            form.reset();
+        }
+
+        function renderMilitantsTable() {
+            const body = document.getElementById('militants-table-body');
+            body.innerHTML = '';
+
+            if (dbLocal.length === 0) {
+                body.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="p-6 text-center text-slate-400">
+                            Ningún militante registrado aún en esta base de datos local.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            dbLocal.forEach((mil, index) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="p-3 font-mono font-bold text-slate-900">${mil.id}</td>
+                    <td class="p-3 font-semibold text-slate-800">${mil.name}</td>
+                    <td class="p-3 text-slate-500">${mil.cedula}</td>
+                    <td class="p-3 text-slate-500">${mil.phone}</td>
+                    <td class="p-3 text-slate-500">${mil.profession}</td>
+                    <td class="p-3 text-right">
+                        <button onclick="deleteMilitant(${index})" class="p-1 rounded hover:bg-red-50 text-red-500 transition">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        function deleteMilitant(index) {
+            dbLocal.splice(index, 1);
+            saveMilitantsToLocalStorage();
+            renderMilitantsTable();
+            showToast("Registro eliminado.", "info");
+        }
+
+        function clearDatabase() {
+            dbLocal = [];
+            saveMilitantsToLocalStorage();
+            renderMilitantsTable();
+            showToast("Base de datos limpia.", "info");
+        }
+
+        function exportDatabase(format) {
+            if (dbLocal.length === 0) {
+                showToast("No hay datos para exportar.", "error");
+                return;
+            }
+
+            if (format === 'csv') {
+                const headers = ["Nodo ID", "Nombre", "Cedula", "Telefono", "Email", "Edad", "Profesion", "Militante", "Fecha"];
+                const rows = dbLocal.map(mil => [
+                    `"${mil.id}"`,
+                    `"${mil.name}"`,
+                    `"${mil.cedula}"`,
+                    `"${mil.phone}"`,
+                    `"${mil.email}"`,
+                    mil.age,
+                    `"${mil.profession}"`,
+                    `"${mil.preference}"`,
+                    `"${mil.timestamp}"`
+                ]);
+                const csvContent = "data:text/csv;charset=utf-8," 
+                    + headers.join(",") + "\n" 
+                    + rows.map(e => e.join(",")).join("\n");
+                
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "base_datos_militantes_epica.csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showToast("Base de datos exportada en formato CSV.");
+            }
+        }
+
+        // --- PITCH DECK SYSTEM LOGIC ---
+        let activeDeckSlide = 1;
+        const totalDeckSlides = 5;
+
+        const slidesPresenterNotes = {
+            1: `<h5 class="font-bold text-epica-cyan uppercase tracking-wider mb-2">Exposición Lámina 1: Portada</h5>
+                <p>"Estimado inversor, gracias por darnos su tiempo. Hoy no venimos a pedir su apoyo para una campaña callejera inútil o banderas de plástico. Venimos a presentarle ÉPICA: una propuesta para resolver técnicamente la burocracia que asfixia a sus empresas."</p>
+                <p class="mt-2 font-semibold text-slate-400">Objetivo: Plantear el contraste directo entre el modelo ineficiente tradicional y la ingeniería institucional.</p>`,
+            2: `<h5 class="font-bold text-epica-cyan uppercase tracking-wider mb-2">Exposición Lámina 2: Doctrina</h5>
+                <p>"Operamos en el Centro Neutral. Esto no es indecisión; es pragmatismo puro. Creemos en una Meritocracia Estricta para asignar ministerios, y en el autofinanciamiento total: por estatutos, ÉPICA no acepta un centavo del erario público."</p>`,
+            3: `<h5 class="font-bold text-epica-cyan uppercase tracking-wider mb-2">Exposición Lámina 3: Proyectos</h5>
+                <p>"Nuestros politólogos ya están diseñando el programa 'Estado Cero Papel' que agilizará los trámites aduaneros e impuestos municipales de sus sectores corporativos en un 60%, reduciendo drásticamente la 'matraca' y la corrupción."</p>`,
+            4: `<h5 class="font-bold text-epica-cyan uppercase tracking-wider mb-2">Exposición Lámina 4: Destino del Capital</h5>
+                <p>"Su aporte es Capital Semilla Tecnológico. El 100% de los fondos se destina al desarrollo de la infraestructura de software de los Nodos, servidores en la nube de alta seguridad y las investigaciones técnicas de campo de nuestros especialistas."</p>`,
+            5: `<h5 class="font-bold text-epica-cyan uppercase tracking-wider mb-2">Exposición Lámina 5: Cierre</h5>
+                <p>"Les invitamos a ser Aliados Técnicos Fundadores. Agendemos una reunión de solo 15 minutos en persona o por Zoom para detallarles las proyecciones presupuestarias y mostrarles la arquitectura interna. ÉPICA: Mente Clara, Orden Real."</p>`
+        };
+
+        function showDeckSlide(num) {
+            document.querySelectorAll('.slide-item').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`deck-slide-${num}`).classList.remove('hidden');
+            
+            document.getElementById('deck-slide-indicator').textContent = `Diapositiva ${num} / ${totalDeckSlides}`;
+            activeDeckSlide = num;
+
+            document.getElementById('speaker-notes-container').innerHTML = slidesPresenterNotes[num];
+        }
+
+        function prevDeckSlide() {
+            let prev = activeDeckSlide - 1;
+            if (prev < 1) prev = totalDeckSlides;
+            showDeckSlide(prev);
+        }
+
+        function nextDeckSlide() {
+            let next = activeDeckSlide + 1;
+            if (next > totalDeckSlides) next = 1;
+            showDeckSlide(next);
+        }
+
+        function toggleSpeakerNotes() {
+            const panel = document.getElementById('speaker-notes-panel');
+            const btnText = document.getElementById('speaker-notes-btn-text');
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                btnText.textContent = 'Ocultar Notas';
+            } else {
+                panel.classList.add('hidden');
+                btnText.textContent = 'Ver Notas del Orador';
+            }
+        }
+
+        function runSimulator(val) {
+            document.getElementById('sim-percentage').textContent = `${val}%`;
+            const daysSaved = Math.round((val / 100) * 36);
+            const roi = ((val / 100) * 5 + 1).toFixed(1);
+
+            document.getElementById('sim-days').textContent = `${daysSaved} Días`;
+            document.getElementById('sim-roi').textContent = `${roi}x`;
+        }
+
+        function sendPitchInquiry() {
+            const email = document.getElementById('pitch-investor-email').value;
+            if (!email) {
+                showToast("Por favor, ingrese un medio de contacto.", "error");
+                return;
+            }
+            showToast(`¡Solicitud enviada! Nos comunicaremos con ${email} de forma segura.`);
+            document.getElementById('pitch-investor-email').value = '';
+        }
+
+        // --- INFOGRAFÍA & MATCHER LOGIC ---
+        function runMatcher(type) {
+            const output = document.getElementById('matcher-output');
+            
+            if (type === 'arquitecto') {
+                output.innerHTML = `
+                    <div class="space-y-2 text-left">
+                        <h4 class="font-extrabold text-sm text-epica-cyan uppercase tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-city"></i> Perfil: Arquitecto Institucional</h4>
+                        <p class="text-xs text-slate-500">Tu mente está enfocada en el diseño organizativo. En ÉPICA serás responsable de liderar las auditorías de 'Estado Cero Papel', optimizando el flujo de procesos en alcaldías y aduanas nacionales.</p>
+                        <button onclick="showSection('registro')" class="w-full mt-3 py-2 bg-epica-cyan text-white text-xs font-bold rounded-lg hover:brightness-110 transition">Unirme a la Red en este Rol</button>
+                    </div>
+                `;
+            } else if (type === 'analista') {
+                output.innerHTML = `
+                    <div class="space-y-2 text-left">
+                        <h4 class="font-extrabold text-sm text-epica-mint uppercase tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-chart-pie"></i> Perfil: Analista de Datos</h4>
+                        <p class="text-xs text-slate-500">Te guías por la evidencia científica. Tu rol principal en ÉPICA será procesar la información censal de los Nodos Regionales para medir el impacto socioeconómico real y justificar los programas municipales.</p>
+                        <button onclick="showSection('registro')" class="w-full mt-3 py-2 bg-epica-mint text-white text-xs font-bold rounded-lg hover:brightness-110 transition">Unirme a la Red en este Rol</button>
+                    </div>
+                `;
+            } else if (type === 'gestor') {
+                output.innerHTML = `
+                    <div class="space-y-2 text-left">
+                        <h4 class="font-extrabold text-sm text-teal-500 uppercase tracking-wider flex items-center gap-1.5"><i class="fa-solid fa-hands-holding-child"></i> Perfil: Gestor de Conflictos</h4>
+                        <p class="text-xs text-slate-500">Posees diplomacia e inteligencia de negociación. Liderarás los Nodos de diálogo de ÉPICA, facilitando el desarrollo de acuerdos con el sector empresarial e institucional del Estado.</p>
+                        <button onclick="showSection('registro')" class="w-full mt-3 py-2 bg-teal-500 text-white text-xs font-bold rounded-lg hover:brightness-110 transition">Unirme a la Red en este Rol</button>
+                    </div>
+                `;
+            }
+            showToast("Perfil de Habilidades Evaluado con Éxito");
+        }
+
+        // --- KNOWLEDGE BASE & INTERACTIVE MEDIA TRAINING ARENA ---
+        const documentsDB = {
+            'manual-entrenamiento': {
+                title: "Manual de Despliegue Mediático (Simulador de Arena)",
+                content: `
+                    <div class="space-y-4">
+                        <p class="font-bold text-epica-cyan">DIRECTRIZ DE VOCERO ÉPICA:</p>
+                        <p class="italic text-slate-400">"No atacamos al político ni al ministro, atacamos la obsolescencia y la ineficiencia de su oficina. Nuestro discurso es técnico y pragmático."</p>
+                        
+                        <!-- Interactive TV Simulator Box inside document -->
+                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-700 text-white space-y-4 shadow-xl">
+                            <div class="flex items-center gap-2 border-b border-slate-800 pb-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+                                <h5 class="text-xs font-bold text-red-500 tracking-wider">SIMULADOR EN VIVO: ENTREVISTA EN VENEVISIÓN</h5>
+                            </div>
+                            
+                            <!-- Chat simulation status -->
+                            <div class="space-y-3">
+                                <div id="sim-prompt-box" class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/50 text-xs leading-relaxed">
+                                    <span class="font-bold text-red-400">Periodista:</span> "Ustedes hablan de un Centro Neutral. En un país tan polarizado como Venezuela, los neutros siempre son vistos como cómplices del gobierno por omisión. ¿No es esto cobardía política para evitar conflictos?"
+                                </div>
+                                <div id="sim-analysis-box" class="hidden p-3 rounded-xl text-xs leading-relaxed">
+                                    <!-- Populated on response selection -->
+                                </div>
+                            </div>
+
+                            <!-- Options Grid -->
+                            <div id="sim-options-grid" class="grid gap-2 text-left">
+                                <button onclick="selectSimResponse('confrontational')" class="w-full p-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700/50 rounded-lg text-left text-[11px] transition">
+                                    🔴 "Nosotros estamos firmemente en contra de la opresión y de este gobierno incompetente que ha destruido el país."
+                                </button>
+                                <button onclick="selectSimResponse('evasive')" class="w-full p-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700/50 rounded-lg text-left text-[11px] transition">
+                                    🟡 "No queremos hablar de eso, preferimos enfocarnos únicamente en la tecnología y en nuestras propuestas de software."
+                                </button>
+                                <button onclick="selectSimResponse('epica')" class="w-full p-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-700/50 rounded-lg text-left text-[11px] transition">
+                                    🟢 "La neutralidad no es apatía, es un pragmatismo hiperactivo. Para un sistema o para el ciudadano común que necesita un trámite rápido, la ideología de izquierda o derecha es irrelevante; lo que importa es la eficiencia técnica."
+                                </button>
+                            </div>
+
+                            <button onclick="resetTVSimulator()" class="text-[10px] text-slate-400 hover:text-white underline font-bold">Reiniciar Simulador</button>
+                        </div>
+                    </div>
+                `
+            },
+            'manifiesto-politologo': {
+                title: "El Rol del Politólogo como Arquitecto de Estado",
+                content: `
+                    <p class="font-bold text-epica-mint">CONVOCATORIA NACIONAL A POLITÓLOGOS Y POLITÓLOGAS:</p>
+                    <p class="text-slate-500">"El Estado venezolano no puede seguir en manos de personas sin formación científica. ÉPICA es la plataforma de acción de los científicos políticos."</p>
+                    
+                    <div class="mt-4 space-y-3">
+                        <h5 class="font-bold text-slate-900 text-xs">¿Qué es un Politólogo para nosotros?</h5>
+                        <p class="text-slate-400">Es un ingeniero de sistemas institucionales. Comprende las relaciones de poder, evalúa el impacto de las leyes y modela presupuestos usando el método cuantitativo científico.</p>
+                        
+                        <h5 class="font-bold text-slate-900 text-xs">Nuestro Objetivo Común:</h5>
+                        <p class="text-slate-400">Llamamos a todos los politólogos del país a asumir los Nodos Digitales. Es hora de pasar de la teoría de pizarrón a la construcción de políticas públicas funcionales.</p>
+                    </div>
+                `
+            },
+            'guia-github-pages': {
+                title: "Guía de Despliegue Permanente en GitHub",
+                content: `
+                    <p class="font-bold text-teal-500">PROCESO DE PUBLICACIÓN DEL PORTAL ÉPICA (100% GRATUITO):</p>
+                    <p class="text-slate-500">Para asegurar la total independencia y gratuidad del portal a largo plazo, utilizaremos <strong>GitHub Pages</strong>:</p>
+                    
+                    <ol class="list-decimal list-inside space-y-2 mt-3 text-slate-400">
+                        <li>Crea un repositorio público en tu cuenta de GitHub con el nombre <code class="text-epica-cyan font-mono">tu-usuario.github.io</code></li>
+                        <li>Sube este único archivo <code class="text-epica-cyan font-mono">index.html</code> directamente a la raíz del repositorio.</li>
+                        <li>Ve a la pestaña <strong>Settings</strong> > <strong>Pages</strong>, en 'Branch' selecciona <strong>main</strong> y haz clic en <strong>Save</strong>.</li>
+                        <li>¡Listo! Tu portal estará en vivo y disponible a nivel mundial en menos de 1 minuto sin costo de servidores.</li>
+                    </ol>
+                `
+            }
+        };
+
+        let selectedDocKey = 'manual-entrenamiento';
+
+        function readDoc(key) {
+            selectedDocKey = key;
+            const doc = documentsDB[key];
+            document.getElementById('reader-title').textContent = doc.title;
+            document.getElementById('reader-content').innerHTML = doc.content;
+            
+            document.querySelectorAll('.doc-card').forEach(card => card.classList.remove('border-epica-cyan'));
+            event.currentTarget.classList.add('border-epica-cyan');
+        }
+
+        // --- INTERACTIVE MEDIA TRAINING GAME ACTIONS ---
+        function selectSimResponse(answerType) {
+            const analysisBox = document.getElementById('sim-analysis-box');
+            analysisBox.classList.remove('hidden', 'bg-red-950', 'bg-yellow-950', 'bg-emerald-950');
+
+            if (answerType === 'confrontational') {
+                analysisBox.classList.add('bg-red-950', 'text-red-200', 'border', 'border-red-800');
+                analysisBox.innerHTML = `
+                    <strong>🚫 Análisis de Vocería ÉPICA:</strong>
+                    <p class="mt-1"><strong>ERROR:</strong> Caíste en la trampa del periodista. Al atacar frontalmente al gobierno, destruyes los puentes institucionales para el programa "Estado Cero Papel" y alienas a tus aliados pro-chavistas o moderados en el sector público.</p>
+                `;
+            } else if (answerType === 'evasive') {
+                analysisBox.classList.add('bg-yellow-950', 'text-yellow-200', 'border', 'border-yellow-800');
+                analysisBox.innerHTML = `
+                    <strong>⚠️ Análisis de Vocería ÉPICA:</strong>
+                    <p class="mt-1"><strong>DEFICIENTE:</strong> Tu respuesta parece esquiva o cobarde. Los votantes interpretan la evasión absoluta como falta de convicción. Hay que defender la neutralidad con fuerza conceptual, no huyendo.</p>
+                `;
+            } else if (answerType === 'epica') {
+                analysisBox.classList.add('bg-emerald-950', 'text-emerald-200', 'border', 'border-emerald-800');
+                analysisBox.innerHTML = `
+                    <strong>✅ ÉXITO ROTUNDO (Estilo ÉPICA):</strong>
+                    <p class="mt-1"><strong>EXCELENTE:</strong> Reencuadraste la pregunta usando Aikido Político. La neutralidad no es apatía; es el balance para la eficiencia. Protegiste tus alianzas con el sector público y demostraste madurez técnica de estadista.</p>
+                `;
+                showToast("¡Respuesta perfecta! Doctrina ÉPICA aplicada.");
+            }
+        }
+
+        function resetTVSimulator() {
+            const analysisBox = document.getElementById('sim-analysis-box');
+            analysisBox.classList.add('hidden');
+            showToast("Simulador reiniciado. Practica de nuevo.");
+        }
+
+        function copyDocContent() {
+            const container = document.getElementById('reader-content');
+            const range = document.createRange();
+            range.selectNode(container);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            try {
+                document.execCommand('copy');
+                showToast("Texto copiado al portapapeles con éxito.");
+            } catch (err) {
+                showToast("Error al copiar texto.", "error");
+            }
+            window.getSelection().removeAllRanges();
+        }
+
+        function filterDocs() {
+            const query = document.getElementById('doc-search-input').value.toLowerCase();
+            document.querySelectorAll('.doc-card').forEach(card => {
+                const searchKeywords = card.getAttribute('data-title').toLowerCase();
+                if (searchKeywords.includes(query)) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        window.onload = function() {
+            showDeckSlide(1);
+            readDoc('manual-entrenamiento');
+            loadMilitantsDB();
+            loadGitHubConfigInputs();
+            showToast("Portal de Comando de ÉPICA Iniciado Exitosamente", "info");
+        }
+    </script>
+</body>
+</html>
