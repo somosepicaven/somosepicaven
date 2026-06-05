@@ -1275,6 +1275,23 @@
         </div>
     </div>
 
+    <!-- CUSTOM CONFIRMATION DIALOG MODAL -->
+    <div id="confirm-modal" class="fixed inset-0 z-[110] bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="glass-premium-dark max-w-sm w-full rounded-2xl p-6 border border-slate-800 space-y-6 text-center">
+            <div class="w-12 h-12 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center text-red-500 text-xl mx-auto">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div class="space-y-1">
+                <h4 class="font-extrabold text-white text-base font-display" id="confirm-title">¿Confirmar Acción?</h4>
+                <p class="text-xs text-slate-400" id="confirm-msg">Esta acción no se puede deshacer de ninguna forma.</p>
+            </div>
+            <div class="flex gap-3">
+                <button id="confirm-cancel-btn" class="flex-1 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-850 text-slate-300 font-bold text-xs transition">Cancelar</button>
+                <button id="confirm-accept-btn" class="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-550 text-white font-extrabold text-xs transition">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- COMPREHENSIVE JAVASCRIPT ARCHITECTURE -->
     <script>
         // Core Router for Single Page Application (SPA)
@@ -1347,6 +1364,24 @@
                 setTimeout(() => toast.remove(), 500);
             }, 4500);
         }
+
+        // Custom Confirm Logic
+        let confirmCallback = null;
+        function showCustomConfirm(title, msg, onConfirm) {
+            document.getElementById('confirm-title').textContent = title;
+            document.getElementById('confirm-msg').textContent = msg;
+            confirmCallback = onConfirm;
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+        function closeCustomConfirm() {
+            document.getElementById('confirm-modal').classList.add('hidden');
+            confirmCallback = null;
+        }
+        document.getElementById('confirm-cancel-btn').addEventListener('click', closeCustomConfirm);
+        document.getElementById('confirm-accept-btn').addEventListener('click', () => {
+            if (confirmCallback) confirmCallback();
+            closeCustomConfirm();
+        });
 
         // --- INTERACTIVE MAP REGIONS DATABASE ---
         const mapRegionsDB = {
@@ -1512,83 +1547,99 @@
 
         async function handleMilitantRegistration(event) {
             event.preventDefault();
-            const name = document.getElementById('reg-name').value;
-            const cedula = document.getElementById('reg-cedula').value;
-            const phone = document.getElementById('reg-phone').value;
-            const email = document.getElementById('reg-email').value;
-            const age = document.getElementById('reg-age').value;
-            const prefMilitant = document.getElementById('reg-militant-pref').value;
-            
-            const occupationStatus = document.getElementById('reg-occupation-status').value;
-            const studyPlace = document.getElementById('reg-study-place').value || "";
-            const workPlace = document.getElementById('reg-work-place').value || "";
-            
-            const whyEpica = document.getElementById('reg-why-epica').value;
-            const aspirations = document.getElementById('reg-aspirations').value;
-            const ethicsStatus = document.getElementById('reg-ethics-status').value;
+            try {
+                const name = document.getElementById('reg-name').value;
+                const cedula = document.getElementById('reg-cedula').value;
+                const phone = document.getElementById('reg-phone').value;
+                const email = document.getElementById('reg-email').value;
+                const age = document.getElementById('reg-age').value;
+                
+                const prefMilitantEl = document.getElementById('reg-militant-pref');
+                const prefMilitant = prefMilitantEl ? prefMilitantEl.value : 'Militante';
+                
+                const occupationStatus = document.getElementById('reg-occupation-status').value;
+                const studyPlace = document.getElementById('reg-study-place').value || "";
+                const workPlace = document.getElementById('reg-work-place').value || "";
+                
+                const whyEpica = document.getElementById('reg-why-epica').value;
+                const aspirations = document.getElementById('reg-aspirations').value;
+                const ethicsStatus = document.getElementById('reg-ethics-status').value;
 
-            if (!base64PDFData) {
-                showToast("Es obligatorio cargar su Autobiografía en formato PDF.", "error");
-                return;
-            }
-
-            const randomCode = Math.floor(1000 + Math.random() * 9000);
-            const rawCedula = cedula.replace(/\D/g, "");
-            const prefix = rawCedula ? rawCedula.substring(rawCedula.length - 3) : "CCS";
-            const nodeId = `EP-CCS-${prefix}-${randomCode}`;
-
-            const newMilitante = {
-                id: nodeId,
-                name,
-                cedula,
-                phone,
-                email,
-                age,
-                prefMilitant,
-                occupationStatus,
-                studyPlace,
-                workPlace,
-                whyEpica,
-                aspirations,
-                ethicsStatus,
-                pdfName: base64PDFName,
-                pdfBase64: base64PDFData,
-                timestamp: new Date().toISOString()
-            };
-
-            dbLocal.unshift(newMilitante);
-            saveMilitantsToLocalStorage();
-            renderMilitantsTable();
-
-            const gitConfig = getGitHubConfig();
-            let syncStatusText = `<span class="text-red-500 font-bold">Desactivado (Solo Local)</span>`;
-            
-            if (gitConfig.token && gitConfig.user && gitConfig.repo) {
-                syncStatusText = `<span class="text-amber-500 font-bold">Iniciando...</span>`;
-                const success = await syncWithGitHubIssues(gitConfig, newMilitante);
-                if (success) {
-                    syncStatusText = `<span class="text-epica-mint font-bold">Sincronizado con GitHub</span>`;
-                    showToast("Registro y Ficha de Mando guardados en la nube con éxito.");
-                } else {
-                    syncStatusText = `<span class="text-red-500 font-bold">Error de Conexión</span>`;
-                    showToast("Error de conexión a la nube de GitHub, guardado localmente.", "error");
+                if (!base64PDFData) {
+                    showToast("Es obligatorio cargar su Autobiografía en formato PDF.", "error");
+                    return;
                 }
-            } else {
-                showToast("Militante guardado localmente en base de datos de caché segura.");
+
+                const randomCode = Math.floor(1000 + Math.random() * 9000);
+                const rawCedula = cedula.replace(/\D/g, "");
+                const prefix = rawCedula ? rawCedula.substring(rawCedula.length - 3) : "CCS";
+                const nodeId = `EP-CCS-${prefix}-${randomCode}`;
+
+                const newMilitante = {
+                    id: nodeId,
+                    name,
+                    cedula,
+                    phone,
+                    email,
+                    age,
+                    prefMilitant,
+                    occupationStatus,
+                    studyPlace,
+                    workPlace,
+                    whyEpica,
+                    aspirations,
+                    ethicsStatus,
+                    pdfName: base64PDFName,
+                    pdfBase64: base64PDFData,
+                    timestamp: new Date().toISOString()
+                };
+
+                dbLocal.unshift(newMilitante);
+                saveMilitantsToLocalStorage();
+                renderMilitantsTable();
+
+                const gitConfig = getGitHubConfig();
+                let syncStatusText = `<span class="text-red-500 font-bold">Desactivado (Solo Local)</span>`;
+                
+                if (gitConfig.token && gitConfig.user && gitConfig.repo) {
+                    syncStatusText = `<span class="text-amber-500 font-bold">Iniciando...</span>`;
+                    const success = await syncWithGitHubIssues(gitConfig, newMilitante);
+                    if (success) {
+                        syncStatusText = `<span class="text-epica-mint font-bold">Sincronizado con GitHub</span>`;
+                        showToast("Registro y Ficha de Mando guardados en la nube con éxito.");
+                    } else {
+                        syncStatusText = `<span class="text-red-500 font-bold">Error de Conexión</span>`;
+                        showToast("Error de conexión a la nube de GitHub, guardado localmente.", "error");
+                    }
+                } else {
+                    showToast("Militante guardado localmente en base de datos de caché segura.");
+                }
+
+                document.getElementById('db-registration-form').classList.add('hidden');
+                const successDiv = document.getElementById('db-registration-success');
+                successDiv.classList.remove('hidden');
+
+                document.getElementById('success-nodo-id').textContent = nodeId;
+                document.getElementById('success-github-sync').innerHTML = `SYNC NUBE: ${syncStatusText}`;
+            } catch (err) {
+                console.error(err);
+                showToast("Ocurrió un problema de ejecución al procesar el formulario.", "error");
             }
-
-            document.getElementById('db-registration-form').classList.add('hidden');
-            const successDiv = document.getElementById('db-registration-success');
-            successDiv.classList.remove('hidden');
-
-            document.getElementById('success-nodo-id').textContent = nodeId;
-            document.getElementById('success-github-sync').innerHTML = `SYNC NUBE: ${syncStatusText}`;
         }
 
         async function syncWithGitHubIssues(config, militante) {
-            const url = `https://api.github.com/repos/${config.user}/${config.repo}/issues`;
+            let user = (config.user || "").trim();
+            let repo = (config.repo || "").trim();
+            // Sanitización: Quita cualquier barra / que el usuario meta por accidente
+            if (repo.endsWith('/')) {
+                repo = repo.slice(0, -1);
+            }
+            if (repo.startsWith('/')) {
+                repo = repo.slice(1);
+            }
             
-            // For security and cleanliness, we provide the metadata of PDF to Github and the encrypted base64 string
+            const url = `https://api.github.com/repos/${user}/${repo}/issues`;
+            
             const issueBody = `
 ### Registro de Nuevo Militante - ÉPICA Mando Central
 
@@ -1613,14 +1664,13 @@
 #### Autobiografía Adjunta
 - **Archivo PDF:** ${militante.pdfName}
 - **Cifrado en la Nube:** Activo
-- **Base64 String:** (Verificado y guardado internamente)
             `;
 
             try {
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `token ${config.token}`,
+                        'Authorization': `token ${config.token.trim()}`,
                         'Accept': 'application/vnd.github.v3+json',
                         'Content-Type': 'application/json'
                     },
@@ -1640,9 +1690,15 @@
 
         function saveGitHubConfig(event) {
             event.preventDefault();
-            const user = document.getElementById('git-user').value.trim();
-            const repo = document.getElementById('git-repo').value.trim();
-            const token = document.getElementById('git-token').value.trim();
+            let user = document.getElementById('git-user').value.trim();
+            let repo = document.getElementById('git-repo').value.trim();
+            let token = document.getElementById('git-token').value.trim();
+
+            // Sanitizar repositorio inmediatamente para corregir el bug visual del slash
+            if (repo.endsWith('/')) {
+                repo = repo.slice(0, -1);
+            }
+            document.getElementById('git-repo').value = repo;
 
             const config = { user, repo, token };
             localStorage.setItem('epica_git_config_v3', JSON.stringify(config));
@@ -1721,21 +1777,29 @@
         }
 
         function deleteMilitant(index) {
-            if (confirm("¿Está seguro de eliminar esta ficha de militante de su registro local?")) {
-                dbLocal.splice(index, 1);
-                saveMilitantsToLocalStorage();
-                renderMilitantsTable();
-                showToast("Registro eliminado.", "info");
-            }
+            showCustomConfirm(
+                "¿Eliminar Ficha?", 
+                "¿Está seguro de eliminar esta ficha de militante de su registro local?", 
+                () => {
+                    dbLocal.splice(index, 1);
+                    saveMilitantsToLocalStorage();
+                    renderMilitantsTable();
+                    showToast("Registro eliminado.", "info");
+                }
+            );
         }
 
         function clearDatabase() {
-            if (confirm("¿Está seguro de purgar absolutamente toda la base de datos local de ÉPICA?")) {
-                dbLocal = [];
-                saveMilitantsToLocalStorage();
-                renderMilitantsTable();
-                showToast("Base de datos limpia.", "info");
-            }
+            showCustomConfirm(
+                "¿Purgar Base de Datos?", 
+                "¿Está seguro de purgar absolutamente toda la base de datos local de ÉPICA?", 
+                () => {
+                    dbLocal = [];
+                    saveMilitantsToLocalStorage();
+                    renderMilitantsTable();
+                    showToast("Base de datos limpia.", "info");
+                }
+            );
         }
 
         // Detail Modal View
@@ -2016,14 +2080,18 @@
         let selectedDocKey = 'manual-entrenamiento';
 
         // Read selected doc
-        function readDoc(key) {
+        function readDoc(key, element = null) {
             selectedDocKey = key;
             const doc = documentsDB[key];
+            if (!doc) return;
+            
             document.getElementById('reader-title').textContent = doc.title;
             document.getElementById('reader-content').innerHTML = doc.content;
             
             document.querySelectorAll('.doc-card').forEach(card => card.classList.remove('border-epica-cyan'));
-            event.currentTarget.classList.add('border-epica-cyan');
+            if (element) {
+                element.classList.add('border-epica-cyan');
+            }
         }
 
         // --- INTERACTIVE MEDIA TRAINING GAME ACTIONS ---
@@ -2089,7 +2157,7 @@
         // BOOTSTRAP INITIALIZATION
         window.onload = function() {
             showDeckSlide(1);
-            readDoc('manual-entrenamiento');
+            readDoc('manual-entrenamiento', document.querySelector('.doc-card'));
             loadMilitantsDB();
             loadGitHubConfigInputs();
             showToast("Portal de Comando de ÉPICA Iniciado en Negro Profundo", "info");
