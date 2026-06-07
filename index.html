@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ÉPICA | Ecosistema de Mando e Ingeniería Pública</title>
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <!-- FontAwesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -97,17 +100,24 @@
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: #06b6d4;
         }
+        /* Fix para renderizado de SVG oculto */
+        .svg-defs-container {
+            width: 0;
+            height: 0;
+            position: absolute;
+            visibility: hidden;
+        }
     </style>
 
-    <!-- Importación asíncrona de módulos Firebase -->
+    <!-- Importación asíncrona de módulos Firebase (INCLUYENDO getApps para evitar duplicados) -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Exponer puente Firebase de manera global
+        // Exponer puente Firebase de manera global asegurando disponibilidad de getApps
         window.FirebaseBridge = {
-            initializeApp, getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, signInWithPopup,
+            initializeApp, getApps, getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, signInWithPopup,
             getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, getDocs
         };
 
@@ -121,9 +131,9 @@
     <!-- TOAST NOTIFICATION SYSTEM -->
     <div id="toast-container" class="fixed top-24 right-6 z-[100] flex flex-col gap-3 pointer-events-none max-w-sm w-full"></div>
 
-    <!-- LOGO COMPONENT AS VECTOR SVG -->
-    <div class="hidden">
-        <svg id="epica-isotype" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- LOGO COMPONENT AS VECTOR SVG (CORRECCIÓN DE RENDERIZADO CON SYMBOL) -->
+    <svg class="svg-defs-container" xmlns="http://www.w3.org/2000/svg">
+        <symbol id="epica-isotype" viewBox="0 0 100 100">
             <defs>
                 <linearGradient id="gradient-cyan-mint" x1="15" y1="15" x2="85" y2="75" gradientUnits="userSpaceOnUse">
                     <stop offset="0%" stop-color="#06b6d4"/>
@@ -136,8 +146,8 @@
             <line x1="50" y1="15" x2="50" y2="85" stroke="url(#gradient-cyan-mint)" stroke-width="1.5" stroke-dasharray="2 2" opacity="0.8"/>
             <path d="M42 58 L50 48 L58 58" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M50 48 L50 72" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>
-        </svg>
-    </div>
+        </symbol>
+    </svg>
 
     <!-- NAVIGATION BAR -->
     <nav class="fixed top-0 w-full z-50 bg-[#000000]/95 border-b border-slate-900 py-3.5 px-6 md:px-12 flex justify-between items-center backdrop-blur-md">
@@ -181,7 +191,7 @@
         </div>
 
         <div class="hidden sm:flex items-center space-x-2.5">
-            <span id="nav-cloud-status" class="text-[9px] bg-red-950/40 border border-red-900/30 text-red-400 font-mono px-2 py-0.5 rounded-md flex items-center gap-1">
+            <span id="nav-cloud-status" class="text-[9px] bg-red-950/40 border border-red-900/30 text-red-400 font-mono px-2 py-0.5 rounded-md flex items-center gap-1 transition-all">
                 <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> SIN NUBE
             </span>
             <span id="nav-user-badge" class="hidden text-[10px] bg-epica-cyan/15 border border-epica-cyan/30 text-epica-cyan font-mono px-2.5 py-1 rounded-lg"></span>
@@ -253,8 +263,9 @@
                 <div class="lg:col-span-5 flex justify-center">
                     <div class="glass-premium-dark p-8 rounded-3xl w-full max-w-sm flex flex-col items-center justify-center text-center space-y-6 relative overflow-hidden">
                         <div class="absolute -top-10 -right-10 w-32 h-32 bg-epica-cyan/5 rounded-full blur-2xl"></div>
-                        <div class="w-40 h-40 p-2 rounded-2xl bg-slate-950 border border-slate-900 shadow-2xl relative z-10 flex items-center justify-center">
-                            <svg class="w-32 h-32"><use href="#epica-isotype"/></svg>
+                        <div class="w-40 h-40 p-3 rounded-2xl bg-slate-950 border border-slate-900 shadow-2xl relative z-10 flex items-center justify-center">
+                            <!-- Logo Renderizado Limpio -->
+                            <svg class="w-32 h-32 drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]"><use href="#epica-isotype"/></svg>
                         </div>
                         <div class="space-y-1 relative z-10">
                             <h3 class="text-2xl font-black text-white tracking-wider font-display">ÉPICA</h3>
@@ -278,37 +289,37 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4">
-                    <div class="p-5 rounded-2xl bg-slate-950 border border-slate-900 flex flex-col justify-between">
+                    <div class="p-5 rounded-2xl bg-slate-950 border border-slate-900 flex flex-col justify-between hover:border-epica-cyan/30 transition-colors">
                         <div class="space-y-2">
                             <span class="text-[10px] text-epica-cyan font-bold font-mono">DIRECCIÓN CENTRAL</span>
                             <h4 class="text-sm font-bold text-white">Secretaría Ejecutiva</h4>
                             <p class="text-xs text-slate-400">Garante del rumbo estratégico nacional y la dirección técnica de los ecosistemas.</p>
                         </div>
-                        <span class="text-[10px] text-slate-600 mt-4">Nivel Estratégico 01</span>
+                        <span class="text-[10px] text-slate-600 mt-4 font-mono">Nivel Estratégico 01</span>
                     </div>
-                    <div class="p-5 rounded-2xl bg-slate-950 border border-slate-900 flex flex-col justify-between">
+                    <div class="p-5 rounded-2xl bg-slate-950 border border-slate-900 flex flex-col justify-between hover:border-epica-mint/30 transition-colors">
                         <div class="space-y-2">
                             <span class="text-[10px] text-epica-mint font-bold font-mono">ACCIÓN TERRITORIAL</span>
                             <h4 class="text-sm font-bold text-white">Consejo Federal de Nodos</h4>
                             <p class="text-xs text-slate-400">Coordina la federación de datos de los nodos en tiempo real sin infraestructura física inútil.</p>
                         </div>
-                        <span class="text-[10px] text-slate-600 mt-4">Nivel Estratégico 02</span>
+                        <span class="text-[10px] text-slate-600 mt-4 font-mono">Nivel Estratégico 02</span>
                     </div>
-                    <div class="p-5 rounded-2xl bg-slate-950 border border-slate-900 flex flex-col justify-between">
+                    <div class="p-5 rounded-2xl bg-slate-950 border border-slate-900 flex flex-col justify-between hover:border-purple-500/30 transition-colors">
                         <div class="space-y-2">
                             <span class="text-[10px] text-purple-400 font-bold font-mono">CONTRALORÍA ÉTICA</span>
                             <h4 class="text-sm font-bold text-white">Comisión de Disciplina</h4>
                             <p class="text-xs text-slate-400">Vigila y audita el cumplimiento estricto del Centro Neutral y la transparencia financiera.</p>
                         </div>
-                        <span class="text-[10px] text-slate-600 mt-4">Nivel Estratégico 03</span>
+                        <span class="text-[10px] text-slate-600 mt-4 font-mono">Nivel Estratégico 03</span>
                     </div>
-                    <div class="p-5 rounded-2xl bg-slate-950 border border-slate-900 flex flex-col justify-between">
+                    <div class="p-5 rounded-2xl bg-slate-950 border border-slate-900 flex flex-col justify-between hover:border-amber-500/30 transition-colors">
                         <div class="space-y-2">
                             <span class="text-[10px] text-amber-500 font-bold font-mono">FUERZAS TÁCTICAS</span>
                             <h4 class="text-sm font-bold text-white">Brigadas Académicas</h4>
                             <p class="text-xs text-slate-400">Frente técnico integrado por politólogos e ingenieros modelando sistemas legislativos.</p>
                         </div>
-                        <span class="text-[10px] text-slate-600 mt-4">Nivel Estratégico 04</span>
+                        <span class="text-[10px] text-slate-600 mt-4 font-mono">Nivel Estratégico 04</span>
                     </div>
                 </div>
             </div>
@@ -373,7 +384,7 @@
                             <div>
                                 <h4 id="region-name" class="font-extrabold text-white font-display">Nodo Central (Distrito Capital)</h4>
                                 <p id="region-status" class="text-[10px] text-amber-400 font-bold uppercase tracking-widest font-mono">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Planificación y Diseño Técnico
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse inline-block align-middle mr-1"></span> Planificación y Diseño Técnico
                                 </p>
                             </div>
                         </div>
@@ -968,7 +979,7 @@
             <div class="grid lg:grid-cols-12 gap-8">
                 <!-- CLOUD SYNC CONFIGURATION -->
                 <div class="lg:col-span-5 space-y-6">
-                    <!-- FIREBASE CONFIG (SOLUCIONA LA CONEXION A LA NUBE DESDE GITHUB PAGES) -->
+                    <!-- FIREBASE CONFIG -->
                     <div class="glass-dark p-6 rounded-3xl border border-slate-800 space-y-4">
                         <div class="flex items-center space-x-3 pb-2 border-b border-slate-800">
                             <div class="p-2 rounded-lg bg-orange-950/20 text-orange-400 text-sm border border-orange-900/40">
@@ -1236,21 +1247,7 @@
 
     <!-- CORE LOGIC FRAMEWORK -->
     <script>
-        // Funciones requeridas antes del onload para evitar errores
-        function readDoc(key, element) {
-            selectedDocKey = key;
-            const doc = documentsDB[key];
-            if (!doc) return;
-
-            document.getElementById('reader-title').textContent = doc.title;
-            document.getElementById('reader-content').innerHTML = doc.content;
-
-            document.querySelectorAll('.doc-card').forEach(card => card.classList.remove('border-epica-cyan'));
-            if (element) {
-                element.classList.add('border-epica-cyan');
-            }
-        }
-        
+        // VARIABLES GLOBALES
         let dbLocal = [];
         let base64PDFData = "";
         let base64PDFName = "";
@@ -1271,7 +1268,7 @@
             { id: "TX-7312", amount: "Fondo Público", desc: "Investigación Meritocrática", sig: "0x39f4...77bc" },
         ];
 
-        // Lista de preguntas dinámicas para evitar trampas en el laboratorio de oratoria
+        // Lista de preguntas dinámicas
         const oratoryQuestions = [
             {
                 prompt: "Nicole Alexandra (Periodista): 'Ustedes proponen un Centro Neutral. En una Venezuela tan polarizada, ¿no es la neutralidad una cobardía corporativa para evitar el debate de fondo?'",
@@ -1296,801 +1293,7 @@
         ];
         let currentOratoryIndex = 0;
 
-        // Inicialización inteligente de Firebase (Puente / Local)
-        window.onFirebaseBridgeReady = function() {
-            try {
-                // 1. Prioridad: Revisar configuración manual en localStorage (Solución para GitHub Pages)
-                let config = getFirebaseConfig();
-                if (!config) {
-                    // 2. Fallback: Revisar configuración inyectada por el preview del sandbox
-                    if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-                        config = JSON.parse(__firebase_config);
-                        appId = typeof __app_id !== 'undefined' ? __app_id : 'epica-mando-central';
-                    }
-                }
-
-                if (config && window.FirebaseBridge) {
-                    const app = window.FirebaseBridge.initializeApp(config);
-                    firebaseDB = window.FirebaseBridge.getFirestore(app);
-                    firebaseAuth = window.FirebaseBridge.getAuth(app);
-                    isFirebaseActive = true;
-                    updateCloudStatus(true);
-                    initRealtimeDatabaseSync();
-                } else {
-                    updateCloudStatus(false);
-                }
-            } catch (e) {
-                console.error("Fallo de inicialización de Firebase:", e);
-                updateCloudStatus(false);
-            }
-        };
-
-        function updateCloudStatus(active) {
-            const statusEl = document.getElementById('nav-cloud-status');
-            if (active) {
-                statusEl.className = "text-[9px] bg-emerald-950/40 border border-emerald-900/30 text-epica-mint font-mono px-2 py-0.5 rounded-md flex items-center gap-1";
-                statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-epica-mint animate-ping"></span> CONECTADO NUBE`;
-            } else {
-                statusEl.className = "text-[9px] bg-red-950/40 border border-red-900/30 text-red-400 font-mono px-2 py-0.5 rounded-md flex items-center gap-1";
-                statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> SIN NUBE`;
-            }
-        }
-
-        // Autenticar Firebase y enlazar Listener en tiempo real
-        async function initRealtimeDatabaseSync() {
-            if (!isFirebaseActive) return;
-            try {
-                let user;
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    const cred = await window.FirebaseBridge.signInWithCustomToken(firebaseAuth, __initial_auth_token);
-                    user = cred.user;
-                } else {
-                    const cred = await window.FirebaseBridge.signInAnonymously(firebaseAuth);
-                    user = cred.user;
-                }
-
-                if (!user) return;
-
-                const collectionRef = window.FirebaseBridge.collection(firebaseDB, 'artifacts', appId, 'public', 'data', 'militantes');
-                
-                window.FirebaseBridge.onSnapshot(collectionRef, (snapshot) => {
-                    const temp = [];
-                    snapshot.forEach(doc => {
-                        temp.push(doc.data());
-                    });
-                    dbLocal = temp.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                    saveMilitantsToLocalStorage(false);
-                    renderMilitantsTable();
-                }, (err) => {
-                    console.error("Error en Snapshot de Firebase:", err);
-                });
-
-            } catch (err) {
-                console.error("Excepción en autenticación de Firebase:", err);
-            }
-        }
-
-        function saveMilitantsToLocalStorage(saveToLocalOnly = true) {
-            localStorage.setItem('epica_militantes_db_v4', JSON.stringify(dbLocal));
-        }
-
-        // NAVIGATION SWITCH
-        function showSection(id) {
-            if (id === 'admin-db') {
-                if (!activeUser || activeUser.name !== "Roberto") {
-                    showToast("Acceso denegado. Se requiere credencial Súper de Administrador.", "error");
-                    showSection('home');
-                    return;
-                }
-            }
-
-            document.querySelectorAll('.section-content').forEach(sec => {
-                sec.classList.remove('active');
-            });
-            const activeSection = document.getElementById(id);
-            if (activeSection) {
-                activeSection.classList.add('active');
-            }
-
-            // Resaltar barra de navegación
-            document.querySelectorAll('.nav-link').forEach(link => {
-                if (link.getAttribute('data-section') === id) {
-                    link.classList.remove('text-slate-400');
-                    link.classList.add('text-epica-cyan', 'bg-slate-900', 'border', 'border-slate-800');
-                } else {
-                    link.classList.add('text-slate-400');
-                    link.classList.remove('text-epica-cyan', 'bg-slate-900', 'border', 'border-slate-800');
-                }
-            });
-
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function toggleMobileNav() {
-            const mobileMenu = document.getElementById('mobile-nav');
-            const menuIcon = document.getElementById('menu-icon');
-            if (mobileMenu.classList.contains('hidden')) {
-                mobileMenu.classList.remove('hidden');
-                menuIcon.className = "fa-solid fa-xmark";
-            } else {
-                mobileMenu.classList.add('hidden');
-                menuIcon.className = "fa-solid fa-bars";
-            }
-        }
-
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `p-4 rounded-xl border flex items-center gap-3 shadow-2xl transition duration-500 transform translate-y-10 opacity-0 pointer-events-auto bg-slate-950 border-slate-800`;
-            
-            let color = 'text-epica-cyan';
-            let icon = 'fa-shield-halved';
-            if (type === 'error') {
-                color = 'text-red-500';
-                icon = 'fa-triangle-exclamation';
-            } else if (type === 'info') {
-                color = 'text-epica-mint';
-                icon = 'fa-circle-info';
-            }
-
-            toast.innerHTML = `
-                <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 ${color}"><i class="fa-solid ${icon}"></i></div>
-                <div class="text-xs text-slate-200 flex-grow font-semibold">${message}</div>
-                <button class="text-slate-500 hover:text-white" onclick="this.parentElement.remove()"><i class="fa-solid fa-xmark"></i></button>
-            `;
-            
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.classList.remove('translate-y-10', 'opacity-0');
-            }, 50);
-
-            setTimeout(() => {
-                toast.classList.add('translate-y-10', 'opacity-0');
-                setTimeout(() => toast.remove(), 500);
-            }, 4500);
-        }
-
-        let confirmCallback = null;
-        function showCustomConfirm(title, msg, onConfirm) {
-            document.getElementById('confirm-title').textContent = title;
-            document.getElementById('confirm-msg').textContent = msg;
-            confirmCallback = onConfirm;
-            document.getElementById('confirm-modal').classList.remove('hidden');
-        }
-        function closeCustomConfirm() {
-            document.getElementById('confirm-modal').classList.add('hidden');
-            confirmCallback = null;
-        }
-        document.getElementById('confirm-cancel-btn').addEventListener('click', closeCustomConfirm);
-        document.getElementById('confirm-accept-btn').addEventListener('click', () => {
-            if (confirmCallback) confirmCallback();
-            closeCustomConfirm();
-        });
-
-        // ESTRICTO: GOOGLE AUTH SIN SIMULACIONES (SOLO ACCESO REAL O FALLO)
-        async function handleGoogleSignIn() {
-            showToast("Iniciando autenticación real con Google...", "info");
-            if (isFirebaseActive && firebaseAuth && window.FirebaseBridge) {
-                try {
-                    const provider = new window.FirebaseBridge.GoogleAuthProvider();
-                    const result = await window.FirebaseBridge.signInWithPopup(firebaseAuth, provider);
-                    const user = result.user;
-                    
-                    const loggedGoogleUser = {
-                        name: user.displayName || "Usuario Google",
-                        email: user.email || "correo@google.com",
-                        cedula: "Sincronizado vía Google",
-                        role: "Militante",
-                        occupationStatus: "Ninguna",
-                        nodeId: `EP-GGL-${user.uid.substring(0, 5).toUpperCase()}`
-                    };
-                    
-                    document.getElementById('reg-name').value = loggedGoogleUser.name;
-                    document.getElementById('reg-email').value = loggedGoogleUser.email;
-                    document.getElementById('google-btn-text').textContent = `Conectado como ${loggedGoogleUser.name}`;
-                    
-                    switchAuthTab('register');
-                    showToast("Sincronización con Google exitosa. Completa tus datos faltantes.");
-                } catch (error) {
-                    console.error("Fallo OAuth:", error);
-                    showToast("Autenticación con Google cancelada o fallida.", "error");
-                }
-            } else {
-                showToast("Error: La conexión a la nube (Firebase) no está configurada o no hay red disponible. Configure las credenciales de nube en Mando DB.", "error");
-            }
-        }
-
-        // ESTRICTO: MANUAL LOGIN (SIN INVITADOS SANDBOX)
-        function handleManualLogin(event) {
-            event.preventDefault();
-            const emailOrUser = document.getElementById('login-email').value.trim();
-            const pass = document.getElementById('login-pass').value;
-
-            // ROBERTO SUPER ADMIN EXCLUSIVO (Backdoor de seguridad para arranque)
-            if (emailOrUser === "roberto" && pass === "robertodou1") {
-                const superAdminUser = {
-                    name: "Roberto",
-                    email: "roberto@somosepica.org",
-                    cedula: "V-26300400",
-                    role: "Administrador",
-                    occupationStatus: "Ambas",
-                    studyPlace: "UCV",
-                    workPlace: "Súper Administrador Fundador",
-                    nodeId: "EP-CCS-001"
-                };
-                loginAs(superAdminUser);
-                showToast("Mando Central de Datos desbloqueado de forma exitosa.");
-                return;
-            }
-
-            const existing = dbLocal.find(u => u.email === emailOrUser || u.name === emailOrUser);
-            if (existing) {
-                // En un entorno de producción real, aquí se validaría el hash del password con Firebase Auth.
-                loginAs(existing);
-                showToast(`¡Sesión iniciada! Bienvenido ${existing.name}`);
-            } else {
-                showToast("Credenciales inválidas o usuario no registrado en el sistema. Acceso denegado.", "error");
-            }
-        }
-
-        function triggerPasswordRecovery() {
-            const email = document.getElementById('login-email').value;
-            if (!email) {
-                showToast("Por favor, ingresa tu correo para enviarte instrucciones.", "error");
-                return;
-            }
-            showToast(`Correo de recuperación enviado de forma cifrada a ${email}`);
-        }
-
-        function loginAs(user) {
-            activeUser = user;
-            document.getElementById('nav-user-badge').textContent = `${user.name} [${user.role}]`;
-            document.getElementById('nav-user-badge').classList.remove('hidden');
-            document.getElementById('nav-logout-btn').classList.remove('hidden');
-            
-            if (user.name === "Roberto" || user.role === "Administrador") {
-                document.getElementById('nav-admin-db-btn').classList.remove('hidden');
-                document.getElementById('mobile-nav-admin-db').classList.remove('hidden');
-            } else {
-                document.getElementById('nav-admin-db-btn').classList.add('hidden');
-                document.getElementById('mobile-nav-admin-db').classList.add('hidden');
-            }
-
-            document.getElementById('nav-reg-btn').classList.add('hidden');
-            showSection('home');
-        }
-
-        function logoutUser() {
-            activeUser = null;
-            document.getElementById('nav-user-badge').classList.add('hidden');
-            document.getElementById('nav-logout-btn').classList.add('hidden');
-            document.getElementById('nav-admin-db-btn').classList.add('hidden');
-            document.getElementById('mobile-nav-admin-db').classList.add('hidden');
-            document.getElementById('nav-reg-btn').classList.remove('hidden');
-
-            showToast("Sesión cerrada correctamente.", "info");
-            showSection('home');
-        }
-
-        function switchAuthTab(tab) {
-            const loginBtn = document.getElementById('auth-tab-login');
-            const registerBtn = document.getElementById('auth-tab-register');
-            const loginForm = document.getElementById('form-auth-login');
-            const registerForm = document.getElementById('form-auth-register');
-
-            if (tab === 'login') {
-                loginBtn.classList.add('border-epica-cyan', 'text-white');
-                loginBtn.classList.remove('border-transparent', 'text-slate-500');
-                registerBtn.classList.remove('border-epica-cyan', 'text-white');
-                registerBtn.classList.add('border-transparent', 'text-slate-500');
-                loginForm.classList.remove('hidden');
-                registerForm.classList.add('hidden');
-            } else {
-                registerBtn.classList.add('border-epica-cyan', 'text-white');
-                registerBtn.classList.remove('border-transparent', 'text-slate-500');
-                loginBtn.classList.remove('border-epica-cyan', 'text-white');
-                loginBtn.classList.add('border-transparent', 'text-slate-500');
-                registerForm.classList.remove('hidden');
-                loginForm.classList.add('hidden');
-            }
-        }
-
-        function toggleOccupationFields(value) {
-            const wrapEstudia = document.getElementById('wrapper-estudia');
-            const wrapTrabaja = document.getElementById('wrapper-trabaja');
-            if (value === 'Trabaja') {
-                wrapTrabaja.classList.remove('hidden');
-                wrapEstudia.classList.add('hidden');
-            } else if (value === 'Estudia') {
-                wrapEstudia.classList.remove('hidden');
-                wrapTrabaja.classList.add('hidden');
-            } else if (value === 'Ambas') {
-                wrapEstudia.classList.remove('hidden');
-                wrapTrabaja.classList.remove('hidden');
-            } else {
-                wrapEstudia.classList.add('hidden');
-                wrapTrabaja.classList.add('hidden');
-            }
-        }
-
-        function processPDFFile(input) {
-            const file = input.files[0];
-            if (!file) return;
-
-            if (file.type !== "application/pdf") {
-                showToast("El archivo debe ser un formato PDF válido.", "error");
-                input.value = "";
-                return;
-            }
-
-            if (file.size > 18874368) {
-                showToast(`El PDF excede el límite de 18 MB`, "error");
-                input.value = "";
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                base64PDFData = e.target.result;
-                base64PDFName = file.name;
-                base64PDFSize = (file.size / (1024 * 1024)).toFixed(2) + " MB";
-
-                document.getElementById('pdf-preview-box').classList.remove('hidden');
-                document.getElementById('pdf-preview-name').textContent = file.name;
-                document.getElementById('pdf-preview-size').textContent = base64PDFSize;
-                
-                document.getElementById('pdf-upload-icon').className = "fa-solid fa-file-pdf text-2xl text-epica-mint mb-1 animate-pulse";
-                document.getElementById('pdf-upload-text').innerHTML = `<span class="text-epica-mint font-bold font-sans">¡PDF Cargado con éxito!</span>`;
-                showToast("Autobiografía PDF procesada correctamente.");
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function removePDFFile() {
-            base64PDFData = "";
-            base64PDFName = "";
-            base64PDFSize = "";
-            document.getElementById('reg-pdf-autobiography').value = "";
-            document.getElementById('pdf-preview-box').classList.add('hidden');
-            document.getElementById('pdf-upload-icon').className = "fa-solid fa-cloud-arrow-up text-2xl text-slate-500 mb-1";
-            document.getElementById('pdf-upload-text').innerHTML = `<span class="font-bold">Cargar PDF</span> o arrastrar archivo`;
-            showToast("Documento de autobiografía removido.", "info");
-        }
-
-        // SYNC GITHUB
-        async function syncToGitHubCloud(newMilitant) {
-            const config = getGitHubConfig();
-            if (!config.user || !config.repo || !config.token) {
-                return false;
-            }
-
-            const owner = config.user;
-            const repo = config.repo;
-            const token = config.token;
-            const path = "public/data/militantes.json"; 
-            const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-
-            try {
-                showToast("Sincronizando con el repositorio en GitHub...", "info");
-                
-                let existingData = [];
-                let sha = null;
-
-                const getRes = await fetch(url, {
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Accept": "application/vnd.github.v3+json"
-                    }
-                });
-
-                if (getRes.ok) {
-                    const fileInfo = await getRes.json();
-                    sha = fileInfo.sha;
-                    const decodedContent = decodeURIComponent(escape(atob(fileInfo.content.replace(/\n/g, ''))));
-                    existingData = JSON.parse(decodedContent);
-                }
-
-                const exists = existingData.some(m => m.id === newMilitant.id);
-                if (!exists) {
-                    existingData.unshift(newMilitant);
-                }
-
-                const contentStr = JSON.stringify(existingData, null, 2);
-                const updatedContentBase64 = btoa(unescape(encodeURIComponent(contentStr)));
-
-                const putRes = await fetch(url, {
-                    method: "PUT",
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                        "Accept": "application/vnd.github.v3+json"
-                    },
-                    body: JSON.stringify({
-                        message: `ÉPICA: Registro de Militante ${newMilitant.name} (${newMilitant.id})`,
-                        content: updatedContentBase64,
-                        sha: sha || undefined
-                    })
-                });
-
-                if (putRes.ok) {
-                    showToast("¡Base de datos en la nube de GitHub actualizada!");
-                    dbLocal = existingData;
-                    saveMilitantsToLocalStorage(false);
-                    renderMilitantsTable();
-                    return true;
-                }
-                return false;
-            } catch (error) {
-                console.error("Fallo del servidor de GitHub Pages:", error);
-                return false;
-            }
-        }
-
-        async function handleManualRegister(event) {
-            event.preventDefault();
-            
-            const name = document.getElementById('reg-name').value.trim();
-            const cedula = document.getElementById('reg-cedula').value.trim();
-            const phone = document.getElementById('reg-phone').value.trim();
-            const email = document.getElementById('reg-email').value.trim();
-            const age = document.getElementById('reg-age').value;
-            const role = document.getElementById('reg-role').value;
-            const pref = document.getElementById('reg-militant-pref').value;
-            const occupationStatus = document.getElementById('reg-occupation-status').value;
-            const studyPlace = document.getElementById('reg-study-place').value || "No aplica";
-            const workPlace = document.getElementById('reg-work-place').value || "No aplica";
-            const whyEpica = document.getElementById('reg-why-epica').value;
-            const aspirations = document.getElementById('reg-aspirations').value;
-
-            if (!base64PDFData) {
-                showToast("Por favor, adjunta tu Autobiografía en PDF para completar el registro.", "error");
-                return;
-            }
-
-            const randomCode = Math.floor(1000 + Math.random() * 9000);
-            const rawCedula = cedula.replace(/\D/g, "");
-            const prefix = rawCedula ? rawCedula.substring(rawCedula.length - 3) : "CCS";
-            const nodeId = `EP-CCS-${prefix}-${randomCode}`;
-
-            const newMilitant = {
-                id: nodeId,
-                name,
-                cedula,
-                phone,
-                email,
-                age,
-                role,
-                pref,
-                occupationStatus,
-                studyPlace,
-                workPlace,
-                whyEpica,
-                aspirations,
-                pdfName: base64PDFName,
-                pdfSize: base64PDFSize,
-                pdfBase64: base64PDFData,
-                timestamp: new Date().toISOString()
-            };
-
-            const syncedCloud = await syncToGitHubCloud(newMilitant);
-
-            if (!syncedCloud) {
-                if (isFirebaseActive && firebaseAuth.currentUser) {
-                    try {
-                        const docRef = window.FirebaseBridge.doc(firebaseDB, 'artifacts', appId, 'public', 'data', 'militantes', nodeId);
-                        await window.FirebaseBridge.setDoc(docRef, newMilitant);
-                        showToast("Militante guardado en la nube con Firebase Firestore.");
-                    } catch (e) {
-                        console.error(e);
-                        dbLocal.unshift(newMilitant);
-                        saveMilitantsToLocalStorage();
-                    }
-                } else {
-                    dbLocal.unshift(newMilitant);
-                    saveMilitantsToLocalStorage();
-                }
-                renderMilitantsTable();
-            }
-
-            // Registrar en el ledger (Híbrido)
-            ledgerTransactions.unshift({
-                id: `TX-${randomCode}`,
-                amount: "Aporte Mixto",
-                desc: `Ingreso de Nodo ${nodeId}`,
-                sig: "0x" + Math.random().toString(16).substr(2, 8) + "...ff7c"
-            });
-            renderLedger();
-
-            document.getElementById('form-auth-register').classList.add('hidden');
-            const successDiv = document.getElementById('db-registration-success');
-            successDiv.classList.remove('hidden');
-
-            document.getElementById('success-nodo-id').textContent = nodeId;
-            document.getElementById('success-role-id').textContent = role;
-            
-            loginAs(newMilitant);
-        }
-
-        function resetRegistrationForm() {
-            document.getElementById('db-registration-success').classList.add('hidden');
-            const form = document.getElementById('form-auth-register');
-            form.classList.remove('hidden');
-            form.reset();
-            removePDFFile();
-        }
-
-        // --- GITHUB CONFIGS ---
-        function validateRepoInput(input) {
-            const warningSpan = document.getElementById('git-repo-warning');
-            if (input.value.endsWith('/')) {
-                input.value = input.value.slice(0, -1);
-                warningSpan.classList.remove('hidden');
-                setTimeout(() => warningSpan.classList.add('hidden'), 3000);
-            }
-        }
-
-        function saveGitHubConfig(event) {
-            event.preventDefault();
-            const user = document.getElementById('git-user').value.trim();
-            let repo = document.getElementById('git-repo').value.trim();
-            const token = document.getElementById('git-token').value.trim();
-
-            if (repo.endsWith('/')) repo = repo.slice(0, -1);
-
-            const config = { user, repo, token };
-            localStorage.setItem('epica_git_config_v4', JSON.stringify(config));
-            showToast("Configuración de Sincronización GitHub guardada.");
-        }
-
-        function getGitHubConfig() {
-            const stored = localStorage.getItem('epica_git_config_v4');
-            return stored ? JSON.parse(stored) : { user: '', repo: '', token: '' };
-        }
-
-        function loadGitHubConfigInputs() {
-            const config = getGitHubConfig();
-            document.getElementById('git-user').value = config.user || '';
-            document.getElementById('git-repo').value = config.repo || '';
-            document.getElementById('git-token').value = config.token || '';
-        }
-
-        // --- FIREBASE MANUAL CONFIG ---
-        function saveFirebaseConfig(event) {
-            event.preventDefault();
-            const config = {
-                apiKey: document.getElementById('fb-apiKey').value.trim(),
-                authDomain: document.getElementById('fb-authDomain').value.trim(),
-                projectId: document.getElementById('fb-projectId').value.trim(),
-                appId: document.getElementById('fb-appId').value.trim()
-            };
-            localStorage.setItem('epica_fb_custom_config', JSON.stringify(config));
-            showToast("Configuración de Firebase guardada. Recargando para conectar...", "info");
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
-        }
-
-        function getFirebaseConfig() {
-            const stored = localStorage.getItem('epica_fb_custom_config');
-            return stored ? JSON.parse(stored) : null;
-        }
-
-        function loadFirebaseConfigInputs() {
-            const config = getFirebaseConfig();
-            if (config) {
-                document.getElementById('fb-apiKey').value = config.apiKey || '';
-                document.getElementById('fb-authDomain').value = config.authDomain || '';
-                document.getElementById('fb-projectId').value = config.projectId || '';
-                document.getElementById('fb-appId').value = config.appId || '';
-            }
-        }
-
-        // LOAD DATABASE
-        function loadMilitantsDB() {
-            const stored = localStorage.getItem('epica_militantes_db_v4');
-            if (stored) {
-                try { dbLocal = JSON.parse(stored); } catch (e) { dbLocal = []; }
-            } else {
-                dbLocal = [];
-            }
-            renderMilitantsTable();
-        }
-
-        function renderMilitantsTable() {
-            const body = document.getElementById('militants-table-body');
-            body.innerHTML = '';
-
-            if (dbLocal.length === 0) {
-                body.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="p-6 text-center text-slate-500 bg-black/40 font-mono">
-                            Ningún militante registrado aún en esta base de datos.
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            dbLocal.forEach((mil, index) => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-900/60 transition border-b border-slate-900";
-                
-                let ocupacionTexto = mil.occupationStatus || "No declarada";
-                if (mil.occupationStatus === 'Trabaja') ocupacionTexto = `Trabaja en ${mil.workPlace}`;
-                else if (mil.occupationStatus === 'Estudia') ocupacionTexto = `Estudia en ${mil.studyPlace}`;
-                else if (mil.occupationStatus === 'Ambas') ocupacionTexto = `${mil.workPlace} / ${mil.studyPlace}`;
-
-                tr.innerHTML = `
-                    <td class="p-3 font-mono font-bold text-epica-cyan">${mil.id}</td>
-                    <td class="p-3 font-semibold text-white">${mil.name}</td>
-                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono ${mil.role === 'Administrador' ? 'bg-amber-400/10 text-amber-400 border border-amber-400/25' : 'bg-epica-cyan/10 text-epica-cyan border border-epica-cyan/25'}">${mil.role}</span></td>
-                    <td class="p-3 text-slate-400 truncate max-w-[150px]" title="${ocupacionTexto}">${ocupacionTexto}</td>
-                    <td class="p-3 text-center">
-                        <button onclick="openDetailModal(${index})" class="px-2.5 py-1 rounded bg-epica-cyan/10 hover:bg-epica-cyan/20 text-epica-cyan font-bold transition text-[10px] uppercase font-mono">
-                            Ver Ficha
-                        </button>
-                    </td>
-                    <td class="p-3 text-right">
-                        <button onclick="deleteMilitant('${mil.id}', ${index})" class="p-1 rounded hover:bg-red-950/40 text-red-500 transition">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </td>
-                `;
-                body.appendChild(tr);
-            });
-        }
-
-        async function deleteMilitant(nodeId, index) {
-            showCustomConfirm(
-                "¿Eliminar Ficha?", 
-                "Esta acción removerá el registro del militante local y en la nube definitivamente.", 
-                async () => {
-                    if (isFirebaseActive && firebaseAuth.currentUser) {
-                        try {
-                            const docRef = window.FirebaseBridge.doc(firebaseDB, 'artifacts', appId, 'public', 'data', 'militantes', nodeId);
-                            await window.FirebaseBridge.deleteDoc(docRef);
-                        } catch (e) {
-                            console.error("Fallo al eliminar de Firebase:", e);
-                        }
-                    }
-                    dbLocal.splice(index, 1);
-                    saveMilitantsToLocalStorage();
-                    renderMilitantsTable();
-                    showToast("Ficha removida correctamente.");
-                }
-            );
-        }
-
-        function clearDatabase() {
-            showCustomConfirm(
-                "¿Purgar Base de Datos?", 
-                "Esta acción removerá de forma irreversible toda la base de datos de militantes local.", 
-                () => {
-                    dbLocal = [];
-                    saveMilitantsToLocalStorage();
-                    renderMilitantsTable();
-                    showToast("Base de datos local limpia.", "info");
-                }
-            );
-        }
-
-        function exportDatabase(format) {
-            if (dbLocal.length === 0) {
-                showToast("No hay datos cargados para exportar.", "error");
-                return;
-            }
-
-            if (format === 'csv') {
-                const headers = ["Nodo ID", "Nombre", "Cedula", "Telefono", "Email", "Edad", "Rol", "Preferencia", "Ocupacion", "Lugar Estudios", "Lugar Trabajo", "Fecha"];
-                const rows = dbLocal.map(mil => [
-                    `"${mil.id}"`, `"${mil.name}"`, `"${mil.cedula}"`, `"${mil.phone}"`, `"${mil.email}"`, mil.age, `"${mil.role}"`, `"${mil.pref}"`,
-                    `"${mil.occupationStatus}"`, `"${mil.studyPlace || ''}"`, `"${mil.workPlace || ''}"`, `"${mil.timestamp || ''}"`
-                ]);
-                const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
-                const encodedUri = encodeURI(csvContent);
-                const link = document.createElement("a");
-                link.setAttribute("href", encodedUri);
-                link.setAttribute("download", "militantes_epica_mando.csv");
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                showToast("Base de datos exportada.");
-            }
-        }
-
-        // DETAILS
-        function openDetailModal(index) {
-            const mil = dbLocal[index];
-            if (!mil) return;
-
-            document.getElementById('modal-nodo').textContent = mil.id;
-            document.getElementById('modal-name').textContent = mil.name;
-            document.getElementById('modal-cedula').textContent = mil.cedula;
-            document.getElementById('modal-phone').textContent = mil.phone;
-            document.getElementById('modal-email').textContent = mil.email;
-            document.getElementById('modal-age').textContent = mil.age + " años";
-            document.getElementById('modal-role').textContent = mil.role;
-            
-            let ocupacionTexto = mil.occupationStatus || "No declarada";
-            if (mil.occupationStatus === 'Trabaja') ocupacionTexto = `Trabaja en: ${mil.workPlace}`;
-            else if (mil.occupationStatus === 'Estudia') ocupacionTexto = `Estudia en: ${mil.studyPlace}`;
-            else if (mil.occupationStatus === 'Ambas') ocupacionTexto = `Estudia en: ${mil.studyPlace} y trabaja en: ${mil.workPlace}`;
-            document.getElementById('modal-occupation').textContent = ocupacionTexto;
-
-            document.getElementById('modal-why').textContent = mil.whyEpica || "Sin respuesta";
-            document.getElementById('modal-aspirations').textContent = mil.aspirations || "Sin respuesta";
-
-            const pdfWrapper = document.getElementById('modal-pdf-wrapper');
-            if (mil.pdfBase64) {
-                pdfWrapper.classList.remove('hidden');
-                document.getElementById('modal-pdf-size').textContent = mil.pdfSize || "No especificado";
-                
-                const btn = document.getElementById('modal-pdf-download-btn');
-                btn.onclick = () => {
-                    const link = document.createElement("a");
-                    link.href = mil.pdfBase64;
-                    link.download = mil.pdfName || "Autobiografia.pdf";
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                };
-            } else {
-                pdfWrapper.classList.add('hidden');
-            }
-
-            document.getElementById('detail-modal').classList.remove('hidden');
-        }
-
-        function closeDetailModal() {
-            document.getElementById('detail-modal').classList.add('hidden');
-        }
-
-        // MAP REGIONS
-        const mapRegionsDB = {
-            'central': {
-                name: "Nodo Central (Distrito Capital, Miranda, La Guaira)",
-                status: "Fase: Planificación y Desarrollo Técnico",
-                militants: "452 Registrados",
-                cells: "En Maquetación",
-                desc: "Coordinando la infraestructura de pruebas para el piloto del programa 'Estado Cero Papel' en el Distrito Capital y de optimización de aduanas en el Puerto de La Guaira."
-            },
-            'occidente': {
-                name: "Nodo Occidental (Zulia, Falcón, Lara, Yaracuy)",
-                status: "Fase: Desarrollo y Captación de Politólogos",
-                militants: "312 Registrados",
-                cells: "En Maquetación",
-                desc: "Planteando la estructura de digitalización de permisos aduaneros de la mano con las cámaras de comercio e industriales locales del Centro-Occidente."
-            },
-            'oriente': {
-                name: "Nodo Oriental (Anzoátegui, Monagas, Sucre, Delta Amacuro)",
-                status: "Fase: Maquetación y Diseño de Nodos Regionales",
-                militants: "185 Registrados",
-                cells: "En Maquetación",
-                desc: "Estudio para la digitalización tributaria, facilitando la auditoría de subsidios de fomento y recaudación para el desarrollo productivo y pesquero local."
-            },
-            'andes': {
-                name: "Nodo Andes (Mérida, Táchira, Trujillo)",
-                status: "Fase: Planificación Estratégica",
-                militants: "220 Registrados",
-                cells: "En Maquetación",
-                desc: "Propuesto para coordinar el diseño de políticas de intercambio y vialidad digital en zonas agrícolas y fronterizas, facilitando la sinergia comercial directa."
-            }
-        };
-
-        function selectMapRegion(regionKey) {
-            const data = mapRegionsDB[regionKey];
-            if (!data) return;
-
-            document.getElementById('region-name').textContent = data.name;
-            document.getElementById('region-status').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> ${data.status}`;
-            document.getElementById('region-militants').textContent = data.militants;
-            document.getElementById('region-cells').textContent = data.cells;
-            document.getElementById('region-desc').textContent = data.desc;
-
-            showToast(`Mapeando coordenadas del Nodo: ${regionKey.toUpperCase()}`, "info");
-        }
-
-        // DOSSIER SLIDES (Híbrido)
+        // Notas del orador
         const slidesPresenterNotes = {
             1: `<h5>Slide 1: Apertura Corporativa</h5><p>"Bienvenidos a la presentación de ÉPICA. Venimos a plantear un modelo de Estado como un software integrado, pragmático y de alta eficiencia."</p>`,
             2: `<h5>Slide 2: Centro Neutral</h5><p>"Dejamos atrás las ideologías estériles para enfocarnos en un rigor estrictamente técnico, meritocrático y equilibrado."</p>`,
@@ -2099,134 +1302,6 @@
             5: `<h5>Slide 5: Retorno de Valor</h5><p>"Ofrecemos un retorno institucional que propicia un libre mercado estable y con plena seguridad jurídica."</p>`,
             6: `<h5>Slide 6: Co-inversión Privada y Pública</h5><p>"Con este simulador híbrido puedes ver de forma transparente cómo se distribuyen tanto los subsidios públicos como el capital privado."</p>`
         };
-
-        function showDeckSlide(num) {
-            document.querySelectorAll('.slide-item').forEach(s => s.classList.add('hidden'));
-            const activeSlide = document.getElementById(`deck-slide-${num}`);
-            if (activeSlide) activeSlide.classList.remove('hidden');
-            
-            document.getElementById('deck-slide-indicator').textContent = `Diapositiva ${num} / ${totalDeckSlides}`;
-            document.getElementById('deck-slide-title').textContent = `Diapositiva ${num}: ` + (
-                num === 1 ? "Portada Ejecutiva" :
-                num === 2 ? "Estructura de Centro Neutral" :
-                num === 3 ? "Ingeniería en Marcha" :
-                num === 4 ? "Sinergia de Recursos" :
-                num === 5 ? "Inversión Tecnológica" : "Presupuestos e Impacto"
-            );
-            activeDeckSlide = num;
-
-            document.getElementById('speaker-notes-container').innerHTML = slidesPresenterNotes[num];
-        }
-
-        function prevDeckSlide() {
-            let prev = activeDeckSlide - 1;
-            if (prev < 1) prev = totalDeckSlides;
-            showDeckSlide(prev);
-        }
-
-        function nextDeckSlide() {
-            let next = activeDeckSlide + 1;
-            if (next > totalDeckSlides) next = 1;
-            showDeckSlide(next);
-        }
-
-        function toggleSpeakerNotes() {
-            const panel = document.getElementById('speaker-notes-panel');
-            const btnText = document.getElementById('speaker-notes-btn-text');
-            if (panel.classList.contains('hidden')) {
-                panel.classList.remove('hidden');
-                btnText.textContent = 'Ocultar Notas';
-            } else {
-                panel.classList.add('hidden');
-                btnText.textContent = 'Notas del Orador';
-            }
-        }
-
-        // Budget Calculator Slide 6
-        function runBudgetCalculator() {
-            const amount = parseFloat(document.getElementById('invest-amount').value) || 0;
-            const ratioPub = parseFloat(document.getElementById('ratio-slider').value) || 0;
-            const ratioPriv = 100 - ratioPub;
-
-            document.getElementById('label-ratio-pub').textContent = `${ratioPub}% Pub`;
-            document.getElementById('label-ratio-priv').textContent = `${ratioPriv}% Priv`;
-
-            // Calcular asignaciones
-            const socialFund = amount * (ratioPub / 100);
-            const privateFund = amount * (ratioPriv / 100);
-
-            // Subsidio va a desarrollo social y educación, Privado va a Infraestructura de datos
-            const socialAlloc = socialFund * 0.8; 
-            const infraAlloc = privateFund * 0.8;
-            const scholarAlloc = (socialFund * 0.2) + (privateFund * 0.1);
-            const opsAlloc = (privateFund * 0.1);
-
-            document.getElementById('invest-social').textContent = `USD ${socialAlloc.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
-            document.getElementById('invest-scholar').textContent = `USD ${scholarAlloc.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
-            document.getElementById('invest-infra').textContent = `USD ${infraAlloc.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
-            document.getElementById('invest-ops').textContent = `USD ${opsAlloc.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
-
-            const daysSaved = Math.min(45, Math.round((amount / 10000) * 15 + 10));
-            document.getElementById('invest-days').textContent = `Reducción de ${daysSaved} días de trámites`;
-        }
-
-        // ROL POLITÓLOGO SKILLS MATCHERS
-        function runSkillsMatcher() {
-            const type = document.getElementById('matcher-role-select').value;
-            const name = document.getElementById('matcher-name-input').value.trim() || "Científico Político";
-            const uni = document.getElementById('matcher-uni-input').value.trim() || "Universidad No Especificada";
-            const output = document.getElementById('matcher-output');
-
-            let roleName, desc, skills, colorClass;
-
-            if (type === 'arquitecto') {
-                roleName = "ARQUITECTO DE SISTEMAS";
-                colorClass = "text-epica-cyan border-cyan-800 bg-cyan-950";
-                desc = "Liderazgo del diseño y despliegue de la transición al programa <em>Estado Cero Papel</em>. Auditoría de flujos y modernización de trámites a escala municipal.";
-                skills = "Modelado institucional, legal-tech, automatización administrativa, análisis relacional de procesos.";
-            } else if (type === 'analista') {
-                roleName = "ANALISTA CUANTITATIVO";
-                colorClass = "text-epica-mint border-emerald-800 bg-emerald-950";
-                desc = "Procesamiento de datos estadísticos de participación ciudadana regional a nivel de los Nodos. Diseño de algoritmos para priorización de recursos locales.";
-                skills = "Econometría, análisis geoespacial de datos, Python, R, modelado presupuestario dinámico.";
-            } else if (type === 'mediador') {
-                roleName = "MEDIADOR INSTITUCIONAL";
-                colorClass = "text-purple-400 border-purple-800 bg-purple-950";
-                desc = "Articulación de consensos entre el sector empresarial, gubernamental y civil bajo los lineamientos estratégicos de Centro Neutral.";
-                skills = "Teoría de juegos aplicada, resolución de conflictos, economía política sectorial, negociación estratégica.";
-            } else if (type === 'publicas') {
-                roleName = "ESPECIALISTA EN POLÍTICAS PÚBLICAS";
-                colorClass = "text-blue-400 border-blue-800 bg-blue-950";
-                desc = "Diseño exhaustivo, redacción legislativa y auditoría de marcos normativos para asegurar que cada política pública responda a diagnósticos reales y no ideológicos.";
-                skills = "Diseño legislativo, evaluación de impacto, gerencia pública, planificación estratégica.";
-            } else if (type === 'electoral') {
-                roleName = "DIRECTOR DE INTELIGENCIA ELECTORAL";
-                colorClass = "text-orange-400 border-orange-800 bg-orange-950";
-                desc = "Investigación, segmentación y optimización algorítmica de estrategias de penetración electoral utilizando ciencia de datos para maximizar el alcance del movimiento.";
-                skills = "Big Data electoral, segmentación psicográfica, investigación de opinión pública, estrategia territorial.";
-            }
-
-            output.innerHTML = `
-                <div class="space-y-4 relative z-10">
-                    <div class="flex flex-col sm:flex-row justify-between items-start border-b border-slate-800 pb-3 gap-2">
-                        <div>
-                            <span class="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-wider">CREDENCIAL DE ASOCIACIÓN DE ÉPICA</span>
-                            <h4 class="font-bold text-white text-lg mt-0.5 uppercase">${name}</h4>
-                            <p class="text-[10px] text-slate-500 font-mono mt-1"><i class="fa-solid fa-graduation-cap"></i> ${uni}</p>
-                        </div>
-                        <span class="text-[10px] px-2 py-0.5 rounded border font-mono ${colorClass}">${roleName}</span>
-                    </div>
-                    <p class="text-xs text-slate-300 leading-relaxed">
-                        <strong class="text-white">Área de Impacto:</strong> ${desc}
-                    </p>
-                    <div class="text-[10px] font-mono text-slate-400 bg-black/40 p-2.5 rounded border border-slate-900">
-                        <strong class="text-white">Competencias Clave:</strong> ${skills}
-                    </div>
-                </div>
-            `;
-            
-            showToast("Credencial Científica generada exitosamente.", "info");
-        }
 
         const documentsDB = {
             'manual-entrenamiento': {
@@ -2273,16 +1348,766 @@
             }
         };
 
+        // UI & NAVIGATION FUNCTIONS (Declaradas al tope para evitar errores de referencia)
+        function updateCloudStatus(active) {
+            const statusEl = document.getElementById('nav-cloud-status');
+            if (active) {
+                statusEl.className = "text-[9px] bg-emerald-950/40 border border-emerald-900/30 text-epica-mint font-mono px-2 py-0.5 rounded-md flex items-center gap-1 transition-all";
+                statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-epica-mint animate-ping"></span> CONECTADO NUBE`;
+            } else {
+                statusEl.className = "text-[9px] bg-red-950/40 border border-red-900/30 text-red-400 font-mono px-2 py-0.5 rounded-md flex items-center gap-1 transition-all";
+                statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> SIN NUBE`;
+            }
+        }
+
+        function showDeckSlide(num) {
+            document.querySelectorAll('.slide-item').forEach(s => s.classList.add('hidden'));
+            const activeSlide = document.getElementById(`deck-slide-${num}`);
+            if (activeSlide) activeSlide.classList.remove('hidden');
+            
+            document.getElementById('deck-slide-indicator').textContent = `Diapositiva ${num} / ${totalDeckSlides}`;
+            document.getElementById('deck-slide-title').textContent = `Diapositiva ${num}: ` + (
+                num === 1 ? "Portada Ejecutiva" :
+                num === 2 ? "Estructura de Centro Neutral" :
+                num === 3 ? "Ingeniería en Marcha" :
+                num === 4 ? "Sinergia de Recursos" :
+                num === 5 ? "Inversión Tecnológica" : "Presupuestos e Impacto"
+            );
+            activeDeckSlide = num;
+            document.getElementById('speaker-notes-container').innerHTML = slidesPresenterNotes[num];
+        }
+
+        function prevDeckSlide() {
+            let prev = activeDeckSlide - 1;
+            if (prev < 1) prev = totalDeckSlides;
+            showDeckSlide(prev);
+        }
+
+        function nextDeckSlide() {
+            let next = activeDeckSlide + 1;
+            if (next > totalDeckSlides) next = 1;
+            showDeckSlide(next);
+        }
+
+        function toggleSpeakerNotes() {
+            const panel = document.getElementById('speaker-notes-panel');
+            const btnText = document.getElementById('speaker-notes-btn-text');
+            if (panel.classList.contains('hidden')) {
+                panel.classList.remove('hidden');
+                btnText.textContent = 'Ocultar Notas';
+            } else {
+                panel.classList.add('hidden');
+                btnText.textContent = 'Notas del Orador';
+            }
+        }
+
+        function readDoc(key, element) {
+            const doc = documentsDB[key];
+            if (!doc) return;
+            document.getElementById('reader-title').textContent = doc.title;
+            document.getElementById('reader-content').innerHTML = doc.content;
+            document.querySelectorAll('.doc-card').forEach(card => card.classList.remove('border-epica-cyan'));
+            if (element) {
+                element.classList.add('border-epica-cyan');
+            }
+        }
+
+        // FIREBASE INITIALIZATION & SYNC
+        window.onFirebaseBridgeReady = function() {
+            try {
+                let config = getFirebaseConfig();
+                if (!config) {
+                    if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                        config = JSON.parse(__firebase_config);
+                        appId = typeof __app_id !== 'undefined' ? __app_id : 'epica-mando-central';
+                    }
+                }
+
+                if (config && window.FirebaseBridge) {
+                    // PREVENCIÓN DE ERROR "DUPLICATE APP": Verificar si ya existe una app iniciada
+                    const apps = window.FirebaseBridge.getApps();
+                    const app = apps.length === 0 ? window.FirebaseBridge.initializeApp(config) : apps[0];
+                    
+                    firebaseDB = window.FirebaseBridge.getFirestore(app);
+                    firebaseAuth = window.FirebaseBridge.getAuth(app);
+                    isFirebaseActive = true;
+                    
+                    updateCloudStatus(true);
+                    initRealtimeDatabaseSync();
+                } else {
+                    updateCloudStatus(false);
+                }
+            } catch (e) {
+                console.error("Fallo de inicialización de Firebase:", e);
+                updateCloudStatus(false);
+            }
+        };
+
+        async function initRealtimeDatabaseSync() {
+            if (!isFirebaseActive) return;
+            try {
+                let user;
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    const cred = await window.FirebaseBridge.signInWithCustomToken(firebaseAuth, __initial_auth_token);
+                    user = cred.user;
+                } else {
+                    const cred = await window.FirebaseBridge.signInAnonymously(firebaseAuth);
+                    user = cred.user;
+                }
+
+                if (!user) return;
+                const collectionRef = window.FirebaseBridge.collection(firebaseDB, 'artifacts', appId, 'public', 'data', 'militantes');
+                
+                window.FirebaseBridge.onSnapshot(collectionRef, (snapshot) => {
+                    const temp = [];
+                    snapshot.forEach(doc => {
+                        temp.push(doc.data());
+                    });
+                    dbLocal = temp.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+                    saveMilitantsToLocalStorage(false);
+                    renderMilitantsTable();
+                }, (err) => {
+                    console.error("Error en Snapshot de Firebase:", err);
+                });
+            } catch (err) {
+                console.error("Excepción en autenticación de Firebase:", err);
+            }
+        }
+
+        function saveMilitantsToLocalStorage(saveToLocalOnly = true) {
+            localStorage.setItem('epica_militantes_db_v4', JSON.stringify(dbLocal));
+        }
+
+        function showSection(id) {
+            if (id === 'admin-db') {
+                if (!activeUser || activeUser.name !== "Roberto") {
+                    showToast("Acceso denegado. Se requiere credencial Súper de Administrador.", "error");
+                    showSection('home');
+                    return;
+                }
+            }
+            document.querySelectorAll('.section-content').forEach(sec => sec.classList.remove('active'));
+            const activeSection = document.getElementById(id);
+            if (activeSection) activeSection.classList.add('active');
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('data-section') === id) {
+                    link.classList.remove('text-slate-400');
+                    link.classList.add('text-epica-cyan', 'bg-slate-900', 'border', 'border-slate-800');
+                } else {
+                    link.classList.add('text-slate-400');
+                    link.classList.remove('text-epica-cyan', 'bg-slate-900', 'border', 'border-slate-800');
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMobileNav() {
+            const mobileMenu = document.getElementById('mobile-nav');
+            const menuIcon = document.getElementById('menu-icon');
+            if (mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.remove('hidden');
+                menuIcon.className = "fa-solid fa-xmark";
+            } else {
+                mobileMenu.classList.add('hidden');
+                menuIcon.className = "fa-solid fa-bars";
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `p-4 rounded-xl border flex items-center gap-3 shadow-2xl transition duration-500 transform translate-y-10 opacity-0 pointer-events-auto bg-slate-950 border-slate-800`;
+            
+            let color = 'text-epica-cyan', icon = 'fa-shield-halved';
+            if (type === 'error') { color = 'text-red-500'; icon = 'fa-triangle-exclamation'; }
+            else if (type === 'info') { color = 'text-epica-mint'; icon = 'fa-circle-info'; }
+
+            toast.innerHTML = `
+                <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800 ${color}"><i class="fa-solid ${icon}"></i></div>
+                <div class="text-xs text-slate-200 flex-grow font-semibold">${message}</div>
+                <button class="text-slate-500 hover:text-white" onclick="this.parentElement.remove()"><i class="fa-solid fa-xmark"></i></button>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-y-10', 'opacity-0'), 50);
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            }, 4500);
+        }
+
+        let confirmCallback = null;
+        function showCustomConfirm(title, msg, onConfirm) {
+            document.getElementById('confirm-title').textContent = title;
+            document.getElementById('confirm-msg').textContent = msg;
+            confirmCallback = onConfirm;
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+        function closeCustomConfirm() {
+            document.getElementById('confirm-modal').classList.add('hidden');
+            confirmCallback = null;
+        }
+        document.getElementById('confirm-cancel-btn').addEventListener('click', closeCustomConfirm);
+        document.getElementById('confirm-accept-btn').addEventListener('click', () => {
+            if (confirmCallback) confirmCallback();
+            closeCustomConfirm();
+        });
+
+        // AUTHENTICATION FLOWS
+        async function handleGoogleSignIn() {
+            showToast("Iniciando autenticación real con Google...", "info");
+            if (isFirebaseActive && firebaseAuth && window.FirebaseBridge) {
+                try {
+                    const provider = new window.FirebaseBridge.GoogleAuthProvider();
+                    const result = await window.FirebaseBridge.signInWithPopup(firebaseAuth, provider);
+                    const user = result.user;
+                    
+                    const loggedGoogleUser = {
+                        name: user.displayName || "Usuario Google",
+                        email: user.email || "correo@google.com",
+                        cedula: "Sincronizado vía Google",
+                        role: "Militante",
+                        occupationStatus: "Ninguna",
+                        nodeId: `EP-GGL-${user.uid.substring(0, 5).toUpperCase()}`
+                    };
+                    
+                    document.getElementById('reg-name').value = loggedGoogleUser.name;
+                    document.getElementById('reg-email').value = loggedGoogleUser.email;
+                    document.getElementById('google-btn-text').textContent = `Conectado como ${loggedGoogleUser.name}`;
+                    
+                    switchAuthTab('register');
+                    showToast("Sincronización con Google exitosa. Completa tus datos faltantes.");
+                } catch (error) {
+                    console.error("Fallo OAuth:", error);
+                    showToast("Autenticación con Google cancelada o fallida.", "error");
+                }
+            } else {
+                showToast("Error: La conexión a la nube (Firebase) no está configurada o no hay red disponible. Configure las credenciales de nube en Mando DB.", "error");
+            }
+        }
+
+        function handleManualLogin(event) {
+            event.preventDefault();
+            const emailOrUser = document.getElementById('login-email').value.trim();
+            const pass = document.getElementById('login-pass').value;
+
+            if (emailOrUser === "roberto" && pass === "robertodou1") {
+                const superAdminUser = {
+                    name: "Roberto", email: "roberto@somosepica.org", cedula: "V-26300400",
+                    role: "Administrador", occupationStatus: "Ambas", studyPlace: "UCV",
+                    workPlace: "Súper Administrador Fundador", nodeId: "EP-CCS-001"
+                };
+                loginAs(superAdminUser);
+                showToast("Mando Central de Datos desbloqueado de forma exitosa.");
+                return;
+            }
+
+            const existing = dbLocal.find(u => u.email === emailOrUser || u.name === emailOrUser);
+            if (existing) {
+                loginAs(existing);
+                showToast(`¡Sesión iniciada! Bienvenido ${existing.name}`);
+            } else {
+                showToast("Credenciales inválidas o usuario no registrado en el sistema. Acceso denegado.", "error");
+            }
+        }
+
+        function triggerPasswordRecovery() {
+            const email = document.getElementById('login-email').value;
+            if (!email) {
+                showToast("Por favor, ingresa tu correo para enviarte instrucciones.", "error");
+                return;
+            }
+            showToast(`Correo de recuperación enviado de forma cifrada a ${email}`);
+        }
+
+        function loginAs(user) {
+            activeUser = user;
+            document.getElementById('nav-user-badge').textContent = `${user.name} [${user.role}]`;
+            document.getElementById('nav-user-badge').classList.remove('hidden');
+            document.getElementById('nav-logout-btn').classList.remove('hidden');
+            
+            if (user.name === "Roberto" || user.role === "Administrador") {
+                document.getElementById('nav-admin-db-btn').classList.remove('hidden');
+                document.getElementById('mobile-nav-admin-db').classList.remove('hidden');
+            } else {
+                document.getElementById('nav-admin-db-btn').classList.add('hidden');
+                document.getElementById('mobile-nav-admin-db').classList.add('hidden');
+            }
+            document.getElementById('nav-reg-btn').classList.add('hidden');
+            showSection('home');
+        }
+
+        function logoutUser() {
+            activeUser = null;
+            document.getElementById('nav-user-badge').classList.add('hidden');
+            document.getElementById('nav-logout-btn').classList.add('hidden');
+            document.getElementById('nav-admin-db-btn').classList.add('hidden');
+            document.getElementById('mobile-nav-admin-db').classList.add('hidden');
+            document.getElementById('nav-reg-btn').classList.remove('hidden');
+            showToast("Sesión cerrada correctamente.", "info");
+            showSection('home');
+        }
+
+        function switchAuthTab(tab) {
+            const loginBtn = document.getElementById('auth-tab-login');
+            const registerBtn = document.getElementById('auth-tab-register');
+            const loginForm = document.getElementById('form-auth-login');
+            const registerForm = document.getElementById('form-auth-register');
+
+            if (tab === 'login') {
+                loginBtn.classList.add('border-epica-cyan', 'text-white');
+                loginBtn.classList.remove('border-transparent', 'text-slate-500');
+                registerBtn.classList.remove('border-epica-cyan', 'text-white');
+                registerBtn.classList.add('border-transparent', 'text-slate-500');
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+            } else {
+                registerBtn.classList.add('border-epica-cyan', 'text-white');
+                registerBtn.classList.remove('border-transparent', 'text-slate-500');
+                loginBtn.classList.remove('border-epica-cyan', 'text-white');
+                loginBtn.classList.add('border-transparent', 'text-slate-500');
+                registerForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+            }
+        }
+
+        function toggleOccupationFields(value) {
+            const wrapEstudia = document.getElementById('wrapper-estudia');
+            const wrapTrabaja = document.getElementById('wrapper-trabaja');
+            if (value === 'Trabaja') { wrapTrabaja.classList.remove('hidden'); wrapEstudia.classList.add('hidden'); }
+            else if (value === 'Estudia') { wrapEstudia.classList.remove('hidden'); wrapTrabaja.classList.add('hidden'); }
+            else if (value === 'Ambas') { wrapEstudia.classList.remove('hidden'); wrapTrabaja.classList.remove('hidden'); }
+            else { wrapEstudia.classList.add('hidden'); wrapTrabaja.classList.add('hidden'); }
+        }
+
+        function processPDFFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            if (file.type !== "application/pdf") {
+                showToast("El archivo debe ser un formato PDF válido.", "error");
+                input.value = ""; return;
+            }
+            if (file.size > 18874368) {
+                showToast(`El PDF excede el límite de 18 MB`, "error");
+                input.value = ""; return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                base64PDFData = e.target.result;
+                base64PDFName = file.name;
+                base64PDFSize = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+
+                document.getElementById('pdf-preview-box').classList.remove('hidden');
+                document.getElementById('pdf-preview-name').textContent = file.name;
+                document.getElementById('pdf-preview-size').textContent = base64PDFSize;
+                
+                document.getElementById('pdf-upload-icon').className = "fa-solid fa-file-pdf text-2xl text-epica-mint mb-1 animate-pulse";
+                document.getElementById('pdf-upload-text').innerHTML = `<span class="text-epica-mint font-bold font-sans">¡PDF Cargado con éxito!</span>`;
+                showToast("Autobiografía PDF procesada correctamente.");
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removePDFFile() {
+            base64PDFData = ""; base64PDFName = ""; base64PDFSize = "";
+            document.getElementById('reg-pdf-autobiography').value = "";
+            document.getElementById('pdf-preview-box').classList.add('hidden');
+            document.getElementById('pdf-upload-icon').className = "fa-solid fa-cloud-arrow-up text-2xl text-slate-500 mb-1";
+            document.getElementById('pdf-upload-text').innerHTML = `<span class="font-bold">Cargar PDF</span> o arrastrar archivo`;
+            showToast("Documento de autobiografía removido.", "info");
+        }
+
+        async function syncToGitHubCloud(newMilitant) {
+            const config = getGitHubConfig();
+            if (!config.user || !config.repo || !config.token) return false;
+
+            const url = `https://api.github.com/repos/${config.user}/${config.repo}/contents/public/data/militantes.json`;
+
+            try {
+                showToast("Sincronizando con el repositorio en GitHub...", "info");
+                let existingData = [], sha = null;
+
+                const getRes = await fetch(url, { headers: { "Authorization": `Bearer ${config.token}`, "Accept": "application/vnd.github.v3+json" } });
+                if (getRes.ok) {
+                    const fileInfo = await getRes.json();
+                    sha = fileInfo.sha;
+                    existingData = JSON.parse(decodeURIComponent(escape(atob(fileInfo.content.replace(/\n/g, '')))));
+                }
+
+                if (!existingData.some(m => m.id === newMilitant.id)) existingData.unshift(newMilitant);
+
+                const updatedContentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(existingData, null, 2))));
+                const putRes = await fetch(url, {
+                    method: "PUT",
+                    headers: { "Authorization": `Bearer ${config.token}`, "Content-Type": "application/json", "Accept": "application/vnd.github.v3+json" },
+                    body: JSON.stringify({ message: `ÉPICA: Registro de Militante ${newMilitant.name} (${newMilitant.id})`, content: updatedContentBase64, sha: sha || undefined })
+                });
+
+                if (putRes.ok) {
+                    showToast("¡Base de datos en la nube de GitHub actualizada!");
+                    dbLocal = existingData;
+                    saveMilitantsToLocalStorage(false);
+                    renderMilitantsTable();
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                console.error("Fallo del servidor de GitHub Pages:", error);
+                return false;
+            }
+        }
+
+        async function handleManualRegister(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('reg-name').value.trim();
+            const cedula = document.getElementById('reg-cedula').value.trim();
+            const phone = document.getElementById('reg-phone').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const age = document.getElementById('reg-age').value;
+            const role = document.getElementById('reg-role').value;
+            const pref = document.getElementById('reg-militant-pref').value;
+            const occupationStatus = document.getElementById('reg-occupation-status').value;
+            const studyPlace = document.getElementById('reg-study-place').value || "No aplica";
+            const workPlace = document.getElementById('reg-work-place').value || "No aplica";
+            const whyEpica = document.getElementById('reg-why-epica').value;
+            const aspirations = document.getElementById('reg-aspirations').value;
+
+            if (!base64PDFData) {
+                showToast("Por favor, adjunta tu Autobiografía en PDF para completar el registro.", "error");
+                return;
+            }
+
+            const rawCedula = cedula.replace(/\D/g, "");
+            const prefix = rawCedula ? rawCedula.substring(rawCedula.length - 3) : "CCS";
+            const nodeId = `EP-CCS-${prefix}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+            const newMilitant = {
+                id: nodeId, name, cedula, phone, email, age, role, pref, occupationStatus,
+                studyPlace, workPlace, whyEpica, aspirations, pdfName: base64PDFName,
+                pdfSize: base64PDFSize, pdfBase64: base64PDFData, timestamp: new Date().toISOString()
+            };
+
+            const syncedCloud = await syncToGitHubCloud(newMilitant);
+
+            if (!syncedCloud) {
+                if (isFirebaseActive && firebaseAuth.currentUser) {
+                    try {
+                        const docRef = window.FirebaseBridge.doc(firebaseDB, 'artifacts', appId, 'public', 'data', 'militantes', nodeId);
+                        await window.FirebaseBridge.setDoc(docRef, newMilitant);
+                        showToast("Militante guardado en la nube con Firebase Firestore.");
+                    } catch (e) {
+                        console.error(e);
+                        dbLocal.unshift(newMilitant); saveMilitantsToLocalStorage();
+                    }
+                } else {
+                    dbLocal.unshift(newMilitant); saveMilitantsToLocalStorage();
+                }
+                renderMilitantsTable();
+            }
+
+            ledgerTransactions.unshift({
+                id: `TX-${nodeId.substring(nodeId.length-4)}`, amount: "Aporte Mixto",
+                desc: `Ingreso de Nodo ${nodeId}`, sig: "0x" + Math.random().toString(16).substr(2, 8) + "...ff7c"
+            });
+            renderLedger();
+
+            document.getElementById('form-auth-register').classList.add('hidden');
+            const successDiv = document.getElementById('db-registration-success');
+            successDiv.classList.remove('hidden');
+            document.getElementById('success-nodo-id').textContent = nodeId;
+            document.getElementById('success-role-id').textContent = role;
+            
+            loginAs(newMilitant);
+        }
+
+        function resetRegistrationForm() {
+            document.getElementById('db-registration-success').classList.add('hidden');
+            const form = document.getElementById('form-auth-register');
+            form.classList.remove('hidden');
+            form.reset();
+            removePDFFile();
+        }
+
+        // --- GITHUB CONFIGS ---
+        function validateRepoInput(input) {
+            const warningSpan = document.getElementById('git-repo-warning');
+            if (input.value.endsWith('/')) {
+                input.value = input.value.slice(0, -1);
+                warningSpan.classList.remove('hidden');
+                setTimeout(() => warningSpan.classList.add('hidden'), 3000);
+            }
+        }
+
+        function saveGitHubConfig(event) {
+            event.preventDefault();
+            const config = {
+                user: document.getElementById('git-user').value.trim(),
+                repo: document.getElementById('git-repo').value.trim().replace(/\/$/, ""),
+                token: document.getElementById('git-token').value.trim()
+            };
+            localStorage.setItem('epica_git_config_v4', JSON.stringify(config));
+            showToast("Configuración de Sincronización GitHub guardada.");
+        }
+
+        function getGitHubConfig() {
+            const stored = localStorage.getItem('epica_git_config_v4');
+            return stored ? JSON.parse(stored) : { user: '', repo: '', token: '' };
+        }
+
+        function loadGitHubConfigInputs() {
+            const config = getGitHubConfig();
+            document.getElementById('git-user').value = config.user || '';
+            document.getElementById('git-repo').value = config.repo || '';
+            document.getElementById('git-token').value = config.token || '';
+        }
+
+        // --- FIREBASE MANUAL CONFIG ---
+        function saveFirebaseConfig(event) {
+            event.preventDefault();
+            const config = {
+                apiKey: document.getElementById('fb-apiKey').value.trim(),
+                authDomain: document.getElementById('fb-authDomain').value.trim(),
+                projectId: document.getElementById('fb-projectId').value.trim(),
+                appId: document.getElementById('fb-appId').value.trim()
+            };
+            localStorage.setItem('epica_fb_custom_config', JSON.stringify(config));
+            showToast("Configuración de Firebase guardada. Recargando para conectar...", "info");
+            setTimeout(() => window.location.reload(), 1000);
+        }
+
+        function getFirebaseConfig() {
+            const stored = localStorage.getItem('epica_fb_custom_config');
+            return stored ? JSON.parse(stored) : null;
+        }
+
+        function loadFirebaseConfigInputs() {
+            const config = getFirebaseConfig();
+            if (config) {
+                document.getElementById('fb-apiKey').value = config.apiKey || '';
+                document.getElementById('fb-authDomain').value = config.authDomain || '';
+                document.getElementById('fb-projectId').value = config.projectId || '';
+                document.getElementById('fb-appId').value = config.appId || '';
+            }
+        }
+
+        // DATABASE OPERATIONS
+        function loadMilitantsDB() {
+            const stored = localStorage.getItem('epica_militantes_db_v4');
+            try { dbLocal = stored ? JSON.parse(stored) : []; } catch (e) { dbLocal = []; }
+            renderMilitantsTable();
+        }
+
+        function renderMilitantsTable() {
+            const body = document.getElementById('militants-table-body');
+            body.innerHTML = '';
+            if (dbLocal.length === 0) {
+                body.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 bg-black/40 font-mono">Ningún militante registrado aún en esta base de datos.</td></tr>`;
+                return;
+            }
+            dbLocal.forEach((mil, index) => {
+                let ocupacionTexto = mil.occupationStatus || "No declarada";
+                if (mil.occupationStatus === 'Trabaja') ocupacionTexto = `Trabaja en ${mil.workPlace}`;
+                else if (mil.occupationStatus === 'Estudia') ocupacionTexto = `Estudia en ${mil.studyPlace}`;
+                else if (mil.occupationStatus === 'Ambas') ocupacionTexto = `${mil.workPlace} / ${mil.studyPlace}`;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-900/60 transition border-b border-slate-900";
+                tr.innerHTML = `
+                    <td class="p-3 font-mono font-bold text-epica-cyan">${mil.id}</td>
+                    <td class="p-3 font-semibold text-white">${mil.name}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono ${mil.role === 'Administrador' ? 'bg-amber-400/10 text-amber-400 border border-amber-400/25' : 'bg-epica-cyan/10 text-epica-cyan border border-epica-cyan/25'}">${mil.role}</span></td>
+                    <td class="p-3 text-slate-400 truncate max-w-[150px]" title="${ocupacionTexto}">${ocupacionTexto}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="openDetailModal(${index})" class="px-2.5 py-1 rounded bg-epica-cyan/10 hover:bg-epica-cyan/20 text-epica-cyan font-bold transition text-[10px] uppercase font-mono">
+                            Ver Ficha
+                        </button>
+                    </td>
+                    <td class="p-3 text-right">
+                        <button onclick="deleteMilitant('${mil.id}', ${index})" class="p-1 rounded hover:bg-red-950/40 text-red-500 transition">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                `;
+                body.appendChild(tr);
+            });
+        }
+
+        async function deleteMilitant(nodeId, index) {
+            showCustomConfirm("¿Eliminar Ficha?", "Esta acción removerá el registro del militante local y en la nube definitivamente.", async () => {
+                if (isFirebaseActive && firebaseAuth.currentUser) {
+                    try {
+                        const docRef = window.FirebaseBridge.doc(firebaseDB, 'artifacts', appId, 'public', 'data', 'militantes', nodeId);
+                        await window.FirebaseBridge.deleteDoc(docRef);
+                    } catch (e) { console.error("Fallo al eliminar de Firebase:", e); }
+                }
+                dbLocal.splice(index, 1);
+                saveMilitantsToLocalStorage();
+                renderMilitantsTable();
+                showToast("Ficha removida correctamente.");
+            });
+        }
+
+        function clearDatabase() {
+            showCustomConfirm("¿Purgar Base de Datos?", "Esta acción removerá de forma irreversible toda la base de datos de militantes local.", () => {
+                dbLocal = []; saveMilitantsToLocalStorage(); renderMilitantsTable();
+                showToast("Base de datos local limpia.", "info");
+            });
+        }
+
+        function exportDatabase(format) {
+            if (dbLocal.length === 0) { showToast("No hay datos cargados para exportar.", "error"); return; }
+            if (format === 'csv') {
+                const headers = ["Nodo ID", "Nombre", "Cedula", "Telefono", "Email", "Edad", "Rol", "Preferencia", "Ocupacion", "Lugar Estudios", "Lugar Trabajo", "Fecha"];
+                const rows = dbLocal.map(mil => [`"${mil.id}"`, `"${mil.name}"`, `"${mil.cedula}"`, `"${mil.phone}"`, `"${mil.email}"`, mil.age, `"${mil.role}"`, `"${mil.pref}"`, `"${mil.occupationStatus}"`, `"${mil.studyPlace || ''}"`, `"${mil.workPlace || ''}"`, `"${mil.timestamp || ''}"`]);
+                const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "militantes_epica_mando.csv");
+                document.body.appendChild(link); link.click(); document.body.removeChild(link);
+                showToast("Base de datos exportada.");
+            }
+        }
+
+        function openDetailModal(index) {
+            const mil = dbLocal[index];
+            if (!mil) return;
+
+            document.getElementById('modal-nodo').textContent = mil.id;
+            document.getElementById('modal-name').textContent = mil.name;
+            document.getElementById('modal-cedula').textContent = mil.cedula;
+            document.getElementById('modal-phone').textContent = mil.phone;
+            document.getElementById('modal-email').textContent = mil.email;
+            document.getElementById('modal-age').textContent = mil.age + " años";
+            document.getElementById('modal-role').textContent = mil.role;
+            
+            let ocupacionTexto = mil.occupationStatus || "No declarada";
+            if (mil.occupationStatus === 'Trabaja') ocupacionTexto = `Trabaja en: ${mil.workPlace}`;
+            else if (mil.occupationStatus === 'Estudia') ocupacionTexto = `Estudia en: ${mil.studyPlace}`;
+            else if (mil.occupationStatus === 'Ambas') ocupacionTexto = `Estudia en: ${mil.studyPlace} y trabaja en: ${mil.workPlace}`;
+            document.getElementById('modal-occupation').textContent = ocupacionTexto;
+            document.getElementById('modal-why').textContent = mil.whyEpica || "Sin respuesta";
+            document.getElementById('modal-aspirations').textContent = mil.aspirations || "Sin respuesta";
+
+            const pdfWrapper = document.getElementById('modal-pdf-wrapper');
+            if (mil.pdfBase64) {
+                pdfWrapper.classList.remove('hidden');
+                document.getElementById('modal-pdf-size').textContent = mil.pdfSize || "No especificado";
+                document.getElementById('modal-pdf-download-btn').onclick = () => {
+                    const link = document.createElement("a");
+                    link.href = mil.pdfBase64;
+                    link.download = mil.pdfName || "Autobiografia.pdf";
+                    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+                };
+            } else { pdfWrapper.classList.add('hidden'); }
+            document.getElementById('detail-modal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() { document.getElementById('detail-modal').classList.add('hidden'); }
+
+        const mapRegionsDB = {
+            'central': { name: "Nodo Central (Distrito Capital, Miranda, La Guaira)", status: "Fase: Planificación y Desarrollo Técnico", militants: "452 Registrados", cells: "En Maquetación", desc: "Coordinando la infraestructura de pruebas para el piloto del programa 'Estado Cero Papel' en el Distrito Capital y de optimización de aduanas en el Puerto de La Guaira." },
+            'occidente': { name: "Nodo Occidental (Zulia, Falcón, Lara, Yaracuy)", status: "Fase: Desarrollo y Captación de Politólogos", militants: "312 Registrados", cells: "En Maquetación", desc: "Planteando la estructura de digitalización de permisos aduaneros de la mano con las cámaras de comercio e industriales locales del Centro-Occidente." },
+            'oriente': { name: "Nodo Oriental (Anzoátegui, Monagas, Sucre, Delta Amacuro)", status: "Fase: Maquetación y Diseño de Nodos Regionales", militants: "185 Registrados", cells: "En Maquetación", desc: "Estudio para la digitalización tributaria, facilitando la auditoría de subsidios de fomento y recaudación para el desarrollo productivo y pesquero local." },
+            'andes': { name: "Nodo Andes (Mérida, Táchira, Trujillo)", status: "Fase: Planificación Estratégica", militants: "220 Registrados", cells: "En Maquetación", desc: "Propuesto para coordinar el diseño de políticas de intercambio y vialidad digital en zonas agrícolas y fronterizas, facilitando la sinergia comercial directa." }
+        };
+
+        function selectMapRegion(regionKey) {
+            const data = mapRegionsDB[regionKey];
+            if (!data) return;
+            document.getElementById('region-name').textContent = data.name;
+            document.getElementById('region-status').innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse inline-block align-middle mr-1"></span> ${data.status}`;
+            document.getElementById('region-militants').textContent = data.militants;
+            document.getElementById('region-cells').textContent = data.cells;
+            document.getElementById('region-desc').textContent = data.desc;
+            showToast(`Mapeando coordenadas del Nodo: ${regionKey.toUpperCase()}`, "info");
+        }
+
+        function runBudgetCalculator() {
+            const amount = parseFloat(document.getElementById('invest-amount').value) || 0;
+            const ratioPub = parseFloat(document.getElementById('ratio-slider').value) || 0;
+            const ratioPriv = 100 - ratioPub;
+
+            document.getElementById('label-ratio-pub').textContent = `${ratioPub}% Pub`;
+            document.getElementById('label-ratio-priv').textContent = `${ratioPriv}% Priv`;
+
+            const socialFund = amount * (ratioPub / 100);
+            const privateFund = amount * (ratioPriv / 100);
+
+            const socialAlloc = socialFund * 0.8; 
+            const infraAlloc = privateFund * 0.8;
+            const scholarAlloc = (socialFund * 0.2) + (privateFund * 0.1);
+            const opsAlloc = (privateFund * 0.1);
+
+            document.getElementById('invest-social').textContent = `USD ${socialAlloc.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+            document.getElementById('invest-scholar').textContent = `USD ${scholarAlloc.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+            document.getElementById('invest-infra').textContent = `USD ${infraAlloc.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+            document.getElementById('invest-ops').textContent = `USD ${opsAlloc.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
+
+            const daysSaved = Math.min(45, Math.round((amount / 10000) * 15 + 10));
+            document.getElementById('invest-days').textContent = `Reducción de ${daysSaved} días de trámites`;
+        }
+
+        function runSkillsMatcher() {
+            const type = document.getElementById('matcher-role-select').value;
+            const name = document.getElementById('matcher-name-input').value.trim() || "Científico Político";
+            const uni = document.getElementById('matcher-uni-input').value.trim() || "Universidad No Especificada";
+            const output = document.getElementById('matcher-output');
+
+            let roleName, desc, skills, colorClass;
+
+            if (type === 'arquitecto') {
+                roleName = "ARQUITECTO DE SISTEMAS"; colorClass = "text-epica-cyan border-cyan-800 bg-cyan-950";
+                desc = "Liderazgo del diseño y despliegue de la transición al programa <em>Estado Cero Papel</em>. Auditoría de flujos y modernización de trámites a escala municipal.";
+                skills = "Modelado institucional, legal-tech, automatización administrativa, análisis relacional de procesos.";
+            } else if (type === 'analista') {
+                roleName = "ANALISTA CUANTITATIVO"; colorClass = "text-epica-mint border-emerald-800 bg-emerald-950";
+                desc = "Procesamiento de datos estadísticos de participación ciudadana regional a nivel de los Nodos. Diseño de algoritmos para priorización de recursos locales.";
+                skills = "Econometría, análisis geoespacial de datos, Python, R, modelado presupuestario dinámico.";
+            } else if (type === 'mediador') {
+                roleName = "MEDIADOR INSTITUCIONAL"; colorClass = "text-purple-400 border-purple-800 bg-purple-950";
+                desc = "Articulación de consensos entre el sector empresarial, gubernamental y civil bajo los lineamientos estratégicos de Centro Neutral.";
+                skills = "Teoría de juegos aplicada, resolución de conflictos, economía política sectorial, negociación estratégica.";
+            } else if (type === 'publicas') {
+                roleName = "ESPECIALISTA EN POLÍTICAS PÚBLICAS"; colorClass = "text-blue-400 border-blue-800 bg-blue-950";
+                desc = "Diseño exhaustivo, redacción legislativa y auditoría de marcos normativos para asegurar que cada política pública responda a diagnósticos reales y no ideológicos.";
+                skills = "Diseño legislativo, evaluación de impacto, gerencia pública, planificación estratégica.";
+            } else if (type === 'electoral') {
+                roleName = "DIRECTOR DE INTELIGENCIA ELECTORAL"; colorClass = "text-orange-400 border-orange-800 bg-orange-950";
+                desc = "Investigación, segmentación y optimización algorítmica de estrategias de penetración electoral utilizando ciencia de datos para maximizar el alcance del movimiento.";
+                skills = "Big Data electoral, segmentación psicográfica, investigación de opinión pública, estrategia territorial.";
+            }
+
+            output.innerHTML = `
+                <div class="space-y-4 relative z-10">
+                    <div class="flex flex-col sm:flex-row justify-between items-start border-b border-slate-800 pb-3 gap-2">
+                        <div>
+                            <span class="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-wider">CREDENCIAL DE ASOCIACIÓN DE ÉPICA</span>
+                            <h4 class="font-bold text-white text-lg mt-0.5 uppercase">${name}</h4>
+                            <p class="text-[10px] text-slate-500 font-mono mt-1"><i class="fa-solid fa-graduation-cap"></i> ${uni}</p>
+                        </div>
+                        <span class="text-[10px] px-2 py-0.5 rounded border font-mono ${colorClass}">${roleName}</span>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed"><strong class="text-white">Área de Impacto:</strong> ${desc}</p>
+                    <div class="text-[10px] font-mono text-slate-400 bg-black/40 p-2.5 rounded border border-slate-900">
+                        <strong class="text-white">Competencias Clave:</strong> ${skills}
+                    </div>
+                </div>
+            `;
+            showToast("Credencial Científica generada exitosamente.", "info");
+        }
+
         function generateRandomOratoryQuestion() {
             currentOratoryIndex = Math.floor(Math.random() * oratoryQuestions.length);
             const questionData = oratoryQuestions[currentOratoryIndex];
-            
             const promptEl = document.getElementById('sim-oratory-prompt-text');
             if (promptEl) {
                 promptEl.textContent = questionData.prompt;
                 document.getElementById('user-oratory-text').value = "";
                 document.getElementById('oratory-feedback').classList.add('hidden');
-                showToast("Nueva pregunta aleatoria cargada. Responde sin memorizar.");
             }
         }
 
@@ -2291,42 +2116,23 @@
             const feedback = document.getElementById('oratory-feedback');
             
             if (!input || !input.value.trim()) {
-                showToast("Por favor, escribe una respuesta para calificar.", "error");
-                return;
+                showToast("Por favor, escribe una respuesta para calificar.", "error"); return;
             }
 
             const text = input.value.toLowerCase();
             feedback.classList.remove('hidden', 'bg-red-950/40', 'bg-emerald-950/40');
 
             const current = oratoryQuestions[currentOratoryIndex];
-            const forbiddenWords = current.forbidden;
-            const strategicWords = current.strategic;
+            const foundForbidden = current.forbidden.filter(w => text.includes(w));
+            const foundStrategic = current.strategic.filter(w => text.includes(w));
 
-            let foundForbidden = forbiddenWords.filter(w => text.includes(w));
-            let foundStrategic = strategicWords.filter(w => text.includes(w));
-
-            let score = 50;
-            score += foundStrategic.length * 15;
-            score -= foundForbidden.length * 20;
+            let score = 50 + (foundStrategic.length * 15) - (foundForbidden.length * 20);
             score = Math.max(0, Math.min(100, score));
 
-            let grade = 'F';
-            let colorClass = 'bg-red-950/40 border-red-900/40 text-red-200';
-            let comment = "";
+            let grade = 'F', colorClass = 'bg-red-950/40 border-red-900/40 text-red-200', comment = "Insuficiente. Caíste en la trampa retórica polarizante o no incluiste los términos técnicos necesarios que definen a nuestro movimiento.";
 
-            if (score >= 90) {
-                grade = 'A+';
-                colorClass = 'bg-emerald-950/40 border-emerald-900/40 text-emerald-200';
-                comment = "¡Excelente! Utilizaste los lineamientos correctos de Centro Neutral. Evitaste la polarización, incorporando términos pragmáticos e ingenieriles.";
-            } else if (score >= 70) {
-                grade = 'B';
-                colorClass = 'bg-emerald-950/20 border-emerald-900/20 text-slate-200';
-                comment = "Aprobado. Mostraste un tono razonable, pero para un mejor desempeño incorpora términos clave doctrinarios en tu defensa.";
-            } else {
-                grade = 'F';
-                colorClass = 'bg-red-950/40 border-red-900/40 text-red-200';
-                comment = "Insuficiente. Caíste en la trampa retórica polarizante o no incluiste los términos técnicos necesarios que definen a nuestro movimiento.";
-            }
+            if (score >= 90) { grade = 'A+'; colorClass = 'bg-emerald-950/40 border-emerald-900/40 text-emerald-200'; comment = "¡Excelente! Utilizaste los lineamientos correctos de Centro Neutral. Evitaste la polarización, incorporando términos pragmáticos e ingenieriles."; }
+            else if (score >= 70) { grade = 'B'; colorClass = 'bg-emerald-950/20 border-emerald-900/20 text-slate-200'; comment = "Aprobado. Mostraste un tono razonable, pero para un mejor desempeño incorpora términos clave doctrinarios en tu defensa."; }
 
             feedback.className = `p-4 border rounded-xl text-xs space-y-1.5 transition ${colorClass} font-sans`;
             feedback.innerHTML = `
@@ -2347,12 +2153,7 @@
         function filterDocs() {
             const query = document.getElementById('doc-search-input').value.toLowerCase();
             document.querySelectorAll('.doc-card').forEach(card => {
-                const searchKeywords = card.getAttribute('data-title').toLowerCase();
-                if (searchKeywords.includes(query)) {
-                    card.classList.remove('hidden');
-                } else {
-                    card.classList.add('hidden');
-                }
+                card.classList.toggle('hidden', !card.getAttribute('data-title').toLowerCase().includes(query));
             });
         }
 
@@ -2373,7 +2174,6 @@
             }
         }
 
-        // LEDGER GENERATOR
         function renderLedger() {
             const container = document.getElementById('ledger-container');
             container.innerHTML = '';
@@ -2393,7 +2193,6 @@
         function simulateIncomingTransactions() {
             setInterval(() => {
                 const idNum = Math.floor(1000 + Math.random() * 9000);
-                const randomAmount = (Math.random() * 400 + 40).toFixed(2);
                 const sigs = ["0x3a4b", "0x56c1", "0x98d4", "0xef32", "0x12dc", "0x8a7f"];
                 const isPub = Math.random() > 0.5;
                 
@@ -2421,10 +2220,7 @@
             renderLedger();
             simulateIncomingTransactions();
             
-            // Forzar inicialización de oratoria anti-trampas
-            setTimeout(() => {
-                generateRandomOratoryQuestion();
-            }, 500);
+            setTimeout(() => { generateRandomOratoryQuestion(); }, 500);
 
             if (window.onFirebaseBridgeReady) {
                 window.onFirebaseBridgeReady();
