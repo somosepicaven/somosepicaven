@@ -987,7 +987,7 @@
                             </div>
                             <div>
                                 <h3 class="font-bold text-white text-sm">Conexión de Nube Firebase</h3>
-                                <p class="text-[9px] text-slate-400">Configura tus credenciales del proyecto de Firebase aquí para conexión real externa.</p>
+                                <p class="text-[9px] text-slate-400">Tus credenciales estáticas de proyecto-epica están configuradas como fallback principal por defecto.</p>
                             </div>
                         </div>
 
@@ -1043,7 +1043,7 @@
                             </div>
                             <div>
                                 <label class="block text-[9px] font-extrabold text-slate-400 uppercase font-mono mb-1">Personal Access Token (PAT)</label>
-                                <input type="password" id="git-token" required placeholder="Ej. ghp_Lp12iOk7..." class="w-full glass-input rounded-xl px-3 py-2 text-[11px] focus:outline-none transition font-sans">
+                                <input type="password" id="git-token" required placeholder="Ingresa tu token aquí..." class="w-full glass-input rounded-xl px-3 py-2 text-[11px] focus:outline-none transition font-sans">
                             </div>
 
                             <button type="submit" class="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs border border-slate-800 transition flex items-center justify-center gap-1.5 font-sans">
@@ -1348,7 +1348,7 @@
             }
         };
 
-        // UI & NAVIGATION FUNCTIONS (Declaradas al tope para evitar errores de referencia)
+        // UI & NAVIGATION FUNCTIONS
         function updateCloudStatus(active) {
             const statusEl = document.getElementById('nav-cloud-status');
             if (active) {
@@ -1412,19 +1412,42 @@
             }
         }
 
-        // FIREBASE INITIALIZATION & SYNC
+        // =====================================================================
+        // CREDENCIALES HARDCODED: SOLUCIÓN DEFINITIVA DE CONEXIÓN
+        // =====================================================================
+        const DEFAULT_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyChLLOgR4OTRwcswYyo0Y1JASf5jp8CTTc",
+            authDomain: "proyecto-epica-c3d2d.firebaseapp.com",
+            projectId: "proyecto-epica-c3d2d",
+            storageBucket: "proyecto-epica-c3d2d.firebasestorage.app",
+            messagingSenderId: "827017252574",
+            appId: "1:827017252574:web:7b8d5d839e12eb0c3efc4f",
+            measurementId: "G-WJNVBJYWJ8"
+        };
+
+        const DEFAULT_GITHUB_CONFIG = {
+            user: "somosepicaven",
+            repo: "somosepicaven",
+            token: "" // Token purgado del código por seguridad. Usa la pestaña Mando DB si lo necesitas temporalmente.
+        };
+
+        function getFirebaseConfig() {
+            const stored = localStorage.getItem('epica_fb_custom_config');
+            return stored ? JSON.parse(stored) : DEFAULT_FIREBASE_CONFIG;
+        }
+
+        function getGitHubConfig() {
+            const stored = localStorage.getItem('epica_git_config_v4');
+            return stored ? JSON.parse(stored) : DEFAULT_GITHUB_CONFIG;
+        }
+
+        // --- FIREBASE INITIALIZATION & SYNC ---
         window.onFirebaseBridgeReady = function() {
             try {
+                // Siempre obtendrá tu configuración hardcodeada por defecto
                 let config = getFirebaseConfig();
-                if (!config) {
-                    if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-                        config = JSON.parse(__firebase_config);
-                        appId = typeof __app_id !== 'undefined' ? __app_id : 'epica-mando-central';
-                    }
-                }
 
                 if (config && window.FirebaseBridge) {
-                    // PREVENCIÓN DE ERROR "DUPLICATE APP": Verificar si ya existe una app iniciada
                     const apps = window.FirebaseBridge.getApps();
                     const app = apps.length === 0 ? window.FirebaseBridge.initializeApp(config) : apps[0];
                     
@@ -1432,7 +1455,6 @@
                     firebaseAuth = window.FirebaseBridge.getAuth(app);
                     isFirebaseActive = true;
                     
-                    updateCloudStatus(true);
                     initRealtimeDatabaseSync();
                 } else {
                     updateCloudStatus(false);
@@ -1447,15 +1469,39 @@
             if (!isFirebaseActive) return;
             try {
                 let user;
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    const cred = await window.FirebaseBridge.signInWithCustomToken(firebaseAuth, __initial_auth_token);
-                    user = cred.user;
-                } else {
-                    const cred = await window.FirebaseBridge.signInAnonymously(firebaseAuth);
-                    user = cred.user;
+                try {
+                    // INTENTO DE AUTENTICACIÓN CON RESPALDO (FALLBACK)
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        try {
+                            const cred = await window.FirebaseBridge.signInWithCustomToken(firebaseAuth, __initial_auth_token);
+                            user = cred.user;
+                        } catch (tokenErr) {
+                            console.warn("Token del entorno incompatible con el proyecto personalizado. Intentando acceso anónimo...", tokenErr);
+                            const cred = await window.FirebaseBridge.signInAnonymously(firebaseAuth);
+                            user = cred.user;
+                        }
+                    } else {
+                        const cred = await window.FirebaseBridge.signInAnonymously(firebaseAuth);
+                        user = cred.user;
+                    }
+                } catch (authErr) {
+                    console.error("Firebase Auth Error Capturado:", authErr);
+                    
+                    // MANEJO ESPECÍFICO DEL ERROR 400 (auth/configuration-not-found)
+                    if (authErr.code === 'auth/configuration-not-found' || authErr.code === 'auth/operation-not-allowed') {
+                        showToast("⚠️ FIREBASE: Debes activar el inicio de sesión 'Anónimo' en Firebase > Authentication > Sign-in method.", "error");
+                    } else {
+                        showToast("Fallo de Autenticación Firebase: " + authErr.message, "error");
+                    }
+                    updateCloudStatus(false);
+                    return; // Abortar sincronización en tiempo real si falla el Auth
                 }
 
                 if (!user) return;
+                
+                updateCloudStatus(true); // Solo mostrar conectado si pasó la autenticación
+
+                // Mantenemos la ruta estricta requerida por el estándar de la plataforma
                 const collectionRef = window.FirebaseBridge.collection(firebaseDB, 'artifacts', appId, 'public', 'data', 'militantes');
                 
                 window.FirebaseBridge.onSnapshot(collectionRef, (snapshot) => {
@@ -1470,7 +1516,8 @@
                     console.error("Error en Snapshot de Firebase:", err);
                 });
             } catch (err) {
-                console.error("Excepción en autenticación de Firebase:", err);
+                console.error("Excepción general en sincronización:", err);
+                updateCloudStatus(false);
             }
         }
 
@@ -1517,7 +1564,7 @@
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = `p-4 rounded-xl border flex items-center gap-3 shadow-2xl transition duration-500 transform translate-y-10 opacity-0 pointer-events-auto bg-slate-950 border-slate-800`;
+            toast.className = `p-4 rounded-xl border flex items-center gap-3 shadow-2xl transition duration-500 transform translate-y-10 opacity-0 pointer-events-auto bg-slate-950 border-slate-800 z-[999]`;
             
             let color = 'text-epica-cyan', icon = 'fa-shield-halved';
             if (type === 'error') { color = 'text-red-500'; icon = 'fa-triangle-exclamation'; }
@@ -1530,10 +1577,13 @@
             `;
             container.appendChild(toast);
             setTimeout(() => toast.classList.remove('translate-y-10', 'opacity-0'), 50);
+            
+            // Si es un error crítico, mostrarlo por más tiempo
+            const duration = type === 'error' ? 8000 : 4500;
             setTimeout(() => {
                 toast.classList.add('translate-y-10', 'opacity-0');
                 setTimeout(() => toast.remove(), 500);
-            }, 4500);
+            }, duration);
         }
 
         let confirmCallback = null;
@@ -1719,6 +1769,7 @@
             showToast("Documento de autobiografía removido.", "info");
         }
 
+        // --- GITHUB SYNC ---
         async function syncToGitHubCloud(newMilitant) {
             const config = getGitHubConfig();
             if (!config.user || !config.repo || !config.token) return false;
@@ -1730,10 +1781,18 @@
                 let existingData = [], sha = null;
 
                 const getRes = await fetch(url, { headers: { "Authorization": `Bearer ${config.token}`, "Accept": "application/vnd.github.v3+json" } });
+                
+                if (getRes.status === 401 || getRes.status === 403) {
+                    showToast("Error GitHub: Token revocado o inválido. El sistema continuará trabajando con Firebase.", "error");
+                    return false;
+                }
+
                 if (getRes.ok) {
                     const fileInfo = await getRes.json();
                     sha = fileInfo.sha;
                     existingData = JSON.parse(decodeURIComponent(escape(atob(fileInfo.content.replace(/\n/g, '')))));
+                } else if (getRes.status !== 404) {
+                    return false;
                 }
 
                 if (!existingData.some(m => m.id === newMilitant.id)) existingData.unshift(newMilitant);
@@ -1759,6 +1818,7 @@
             }
         }
 
+        // --- REGISTRATION LOGIC ---
         async function handleManualRegister(event) {
             event.preventDefault();
             
@@ -1790,20 +1850,24 @@
                 pdfSize: base64PDFSize, pdfBase64: base64PDFData, timestamp: new Date().toISOString()
             };
 
+            // Intentar GitHub primero (Fallback)
             const syncedCloud = await syncToGitHubCloud(newMilitant);
 
+            // Fallback a Firebase si GitHub falla (Que fallará si no hay token válido)
             if (!syncedCloud) {
                 if (isFirebaseActive && firebaseAuth.currentUser) {
                     try {
                         const docRef = window.FirebaseBridge.doc(firebaseDB, 'artifacts', appId, 'public', 'data', 'militantes', nodeId);
                         await window.FirebaseBridge.setDoc(docRef, newMilitant);
-                        showToast("Militante guardado en la nube con Firebase Firestore.");
+                        showToast("Militante guardado en la nube con Firebase Firestore exitosamente.", "info");
                     } catch (e) {
                         console.error(e);
                         dbLocal.unshift(newMilitant); saveMilitantsToLocalStorage();
+                        showToast("ATENCIÓN: Tu usuario fue creado de forma local debido a un error de red o permisos.", "error");
                     }
                 } else {
                     dbLocal.unshift(newMilitant); saveMilitantsToLocalStorage();
+                    showToast("Atención: Firebase bloqueó el acceso o no está activo. Guardado de forma local temporalmente.", "error");
                 }
                 renderMilitantsTable();
             }
@@ -1831,7 +1895,7 @@
             removePDFFile();
         }
 
-        // --- GITHUB CONFIGS ---
+        // --- GITHUB CONFIGS MANDO DB ---
         function validateRepoInput(input) {
             const warningSpan = document.getElementById('git-repo-warning');
             if (input.value.endsWith('/')) {
@@ -1852,11 +1916,6 @@
             showToast("Configuración de Sincronización GitHub guardada.");
         }
 
-        function getGitHubConfig() {
-            const stored = localStorage.getItem('epica_git_config_v4');
-            return stored ? JSON.parse(stored) : { user: '', repo: '', token: '' };
-        }
-
         function loadGitHubConfigInputs() {
             const config = getGitHubConfig();
             document.getElementById('git-user').value = config.user || '';
@@ -1864,23 +1923,22 @@
             document.getElementById('git-token').value = config.token || '';
         }
 
-        // --- FIREBASE MANUAL CONFIG ---
+        // --- FIREBASE MANUAL CONFIG MANDO DB ---
         function saveFirebaseConfig(event) {
             event.preventDefault();
-            const config = {
+            const formValues = {
                 apiKey: document.getElementById('fb-apiKey').value.trim(),
                 authDomain: document.getElementById('fb-authDomain').value.trim(),
                 projectId: document.getElementById('fb-projectId').value.trim(),
                 appId: document.getElementById('fb-appId').value.trim()
             };
-            localStorage.setItem('epica_fb_custom_config', JSON.stringify(config));
+            
+            // Hacemos un merge para no perder storageBucket o measurementId
+            const mergedConfig = { ...DEFAULT_FIREBASE_CONFIG, ...formValues };
+            localStorage.setItem('epica_fb_custom_config', JSON.stringify(mergedConfig));
+            
             showToast("Configuración de Firebase guardada. Recargando para conectar...", "info");
             setTimeout(() => window.location.reload(), 1000);
-        }
-
-        function getFirebaseConfig() {
-            const stored = localStorage.getItem('epica_fb_custom_config');
-            return stored ? JSON.parse(stored) : null;
         }
 
         function loadFirebaseConfigInputs() {
@@ -2220,7 +2278,10 @@
             renderLedger();
             simulateIncomingTransactions();
             
-            setTimeout(() => { generateRandomOratoryQuestion(); }, 500);
+            // Forzar inicialización de oratoria anti-trampas
+            setTimeout(() => {
+                generateRandomOratoryQuestion();
+            }, 500);
 
             if (window.onFirebaseBridgeReady) {
                 window.onFirebaseBridgeReady();
