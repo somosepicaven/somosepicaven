@@ -796,25 +796,6 @@
                     <button id="auth-tab-register" onclick="switchAuthTab('register')" class="flex-1 py-2 text-center border-b-2 border-transparent text-slate-500 font-semibold text-sm hover:text-slate-300 transition font-sans">Crear Cuenta Oficial</button>
                 </div>
 
-                <!-- Google OAuth -->
-                <div class="space-y-4 mb-6">
-                    <button onclick="handleGoogleSignIn()" class="w-full py-3 px-4 rounded-xl bg-white text-black hover:bg-slate-100 font-bold text-sm transition flex items-center justify-center gap-3 shadow-xl">
-                        <svg class="w-5 h-5" viewBox="0 0 24 24">
-                            <path fill="#EA4335" d="M12 5.04c1.66 0 3.2.57 4.38 1.69l3.27-3.27C17.67 1.51 14.98 1 12 1 7.35 1 3.37 3.67 1.39 7.56l3.89 3.02C6.21 7.37 8.87 5.04 12 5.04z"/>
-                            <path fill="#4285F4" d="M23.49 12.27c0-.81-.07-1.59-.2-2.36H12v4.51h6.43c-.28 1.44-1.09 2.67-2.31 3.49l3.58 2.78c2.1-1.94 3.79-4.8 3.79-8.42z"/>
-                            <path fill="#FBBC05" d="M5.28 14.54c-.24-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29L1.39 6.94C.5 8.72 0 10.7 0 12s.5 3.28 1.39 5.06l3.89-2.52z"/>
-                            <path fill="#34A853" d="M12 23c3.24 0 5.97-1.07 7.96-2.91l-3.58-2.78c-.99.66-2.26 1.06-3.88 1.06-3.13 0-5.79-2.33-6.73-5.54L1.39 16.35C3.37 20.33 7.35 23 12 23z"/>
-                        </svg>
-                        <span id="google-btn-text">Sincronizar y Acceder con Google</span>
-                    </button>
-                    
-                    <div class="flex items-center my-4">
-                        <div class="flex-grow border-t border-slate-900"></div>
-                        <span class="px-3 text-[10px] text-slate-500 uppercase font-bold tracking-widest font-mono">O accede de forma manual</span>
-                        <div class="flex-grow border-t border-slate-900"></div>
-                    </div>
-                </div>
-
                 <!-- LOGIN FORM -->
                 <form id="form-auth-login" onsubmit="handleManualLogin(event)" class="space-y-4">
                     <div>
@@ -829,7 +810,7 @@
                         <input type="password" id="login-pass" required placeholder="••••••••" class="w-full glass-input rounded-xl px-4 py-3 text-sm focus:outline-none transition">
                     </div>
                     <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-epica-cyan to-epica-mint text-black font-extrabold text-sm transition shadow-lg shadow-cyan-500/10 hover:brightness-110 font-sans">
-                        Entrar de Forma Segura
+                        Entrar a la Nube
                     </button>
                 </form>
 
@@ -945,7 +926,7 @@
                     </div>
 
                     <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-epica-cyan to-epica-mint text-black font-extrabold text-sm transition shadow-lg shadow-cyan-500/10 hover:brightness-110 flex items-center justify-center gap-2 font-sans">
-                        <i class="fa-solid fa-user-check"></i> Registrarme y Sincronizar
+                        <i class="fa-solid fa-user-check"></i> Registrarme y Sincronizar en Nube
                     </button>
                 </form>
 
@@ -963,11 +944,11 @@
                     <div class="border border-slate-800 p-4 rounded-2xl bg-slate-950 font-mono text-xs max-w-sm mx-auto text-left space-y-1">
                         <p class="text-slate-400">ID DE NODO: <span id="success-nodo-id" class="text-white font-bold"></span></p>
                         <p class="text-slate-400">ROL ASIGNADO: <span id="success-role-id" class="text-epica-cyan font-bold"></span></p>
-                        <p class="text-slate-400">PDF STATUS: <span class="text-epica-mint font-bold font-mono">CARGADO</span></p>
+                        <p class="text-slate-400">ESTADO CLOUD: <span class="text-epica-mint font-bold font-mono">SINCRONIZADO</span></p>
                     </div>
                     <div class="flex justify-center gap-4">
                         <button onclick="resetRegistrationForm()" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs font-bold rounded-xl border border-slate-800 transition font-sans">
-                            Nuevo Acceso
+                            Volver al Inicio
                         </button>
                     </div>
                 </div>
@@ -976,97 +957,18 @@
 
         <!-- SECTION 6: SECURE DATABASE CONTROLLER (MANDO DB) -->
         <section id="admin-db" class="section-content space-y-8">
-            <div class="grid lg:grid-cols-12 gap-8">
-                <!-- CLOUD SYNC CONFIGURATION -->
-                <div class="lg:col-span-5 space-y-6">
-                    <!-- FIREBASE CONFIG -->
-                    <div class="glass-dark p-6 rounded-3xl border border-slate-800 space-y-4">
-                        <div class="flex items-center space-x-3 pb-2 border-b border-slate-800">
-                            <div class="p-2 rounded-lg bg-orange-950/20 text-orange-400 text-sm border border-orange-900/40">
-                                <i class="fa-solid fa-fire"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-white text-sm">Conexión de Nube Firebase</h3>
-                                <p class="text-[9px] text-slate-400">Tus credenciales estáticas de proyecto-epica están configuradas como fallback principal por defecto.</p>
-                            </div>
-                        </div>
-
-                        <form id="firebase-config-form" onsubmit="saveFirebaseConfig(event)" class="space-y-3 text-xs">
-                            <div>
-                                <label class="block text-[9px] font-extrabold text-slate-400 uppercase font-mono mb-1">API Key</label>
-                                <input type="text" id="fb-apiKey" required placeholder="AIzaSy..." class="w-full glass-input rounded-xl px-3 py-2 text-[11px] focus:outline-none transition">
-                            </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-[9px] font-extrabold text-slate-400 uppercase font-mono mb-1">Auth Domain</label>
-                                    <input type="text" id="fb-authDomain" required placeholder="proyecto.firebaseapp.com" class="w-full glass-input rounded-xl px-3 py-2 text-[11px] focus:outline-none transition">
-                                </div>
-                                <div>
-                                    <label class="block text-[9px] font-extrabold text-slate-400 uppercase font-mono mb-1">Project ID</label>
-                                    <input type="text" id="fb-projectId" required placeholder="proyecto-id" class="w-full glass-input rounded-xl px-3 py-2 text-[11px] focus:outline-none transition">
-                                </div>
-                            </div>
-                            <div>
-                                <label class="block text-[9px] font-extrabold text-slate-400 uppercase font-mono mb-1">App ID</label>
-                                <input type="text" id="fb-appId" required placeholder="1:123456:web:abcd" class="w-full glass-input rounded-xl px-3 py-2 text-[11px] focus:outline-none transition">
-                            </div>
-
-                            <button type="submit" class="w-full py-2 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-lg shadow-orange-950/40 font-sans">
-                                <i class="fa-solid fa-cloud-arrow-up"></i> Conectar & Guardar Firebase
-                            </button>
-                        </form>
-                    </div>
-
-                    <!-- GITHUB SYNC PANEL -->
-                    <div class="glass-dark p-6 rounded-3xl border border-slate-800 space-y-4">
-                        <div class="flex items-center space-x-3 pb-2 border-b border-slate-800">
-                            <div class="p-2 rounded-lg bg-black text-white text-sm border border-slate-800">
-                                <i class="fa-brands fa-github"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-white text-sm">Sincronización GitHub</h3>
-                                <p class="text-[9px] text-slate-400">Sincroniza tus archivos JSON directamente a tu repositorio de GitHub Pages.</p>
-                            </div>
-                        </div>
-
-                        <form id="github-config-form" onsubmit="saveGitHubConfig(event)" class="space-y-3 text-xs">
-                            <div>
-                                <label class="block text-[9px] font-extrabold text-slate-400 uppercase font-mono mb-1">Usuario de GitHub</label>
-                                <input type="text" id="git-user" required placeholder="Ej. somosepicaven" class="w-full glass-input rounded-xl px-3 py-2 text-[11px] focus:outline-none transition">
-                            </div>
-                            <div>
-                                <div class="flex justify-between items-center mb-1">
-                                    <label class="block text-[9px] font-extrabold text-slate-400 uppercase font-mono">Repositorio</label>
-                                    <span id="git-repo-warning" class="text-[9px] text-amber-400 font-bold hidden animate-pulse"><i class="fa-solid fa-bolt"></i> Sin '/'</span>
-                                </div>
-                                <input type="text" id="git-repo" required placeholder="Ej. somosepicaven.github.io" oninput="validateRepoInput(this)" class="w-full glass-input rounded-xl px-3 py-2 text-[11px] focus:outline-none transition">
-                            </div>
-                            <div>
-                                <label class="block text-[9px] font-extrabold text-slate-400 uppercase font-mono mb-1">Personal Access Token (PAT)</label>
-                                <input type="password" id="git-token" required placeholder="Ingresa tu token aquí..." class="w-full glass-input rounded-xl px-3 py-2 text-[11px] focus:outline-none transition font-sans">
-                            </div>
-
-                            <button type="submit" class="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs border border-slate-800 transition flex items-center justify-center gap-1.5 font-sans">
-                                <i class="fa-solid fa-floppy-disk"></i> Guardar Sincronización GitHub
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
+            <div class="grid lg:grid-cols-1 gap-8">
                 <!-- DYNAMIC DATABASE VIEWER -->
-                <div class="lg:col-span-7 space-y-6 animate-fade-in">
+                <div class="space-y-6 animate-fade-in">
                     <div class="glass-premium-dark p-6 rounded-3xl border border-slate-800 space-y-6">
                         <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-slate-800 pb-4">
                             <div>
                                 <h3 class="font-extrabold text-white font-display text-lg">Militantes Registrados</h3>
-                                <p class="text-xs text-slate-400 font-sans">Panel administrativo global de la base de datos.</p>
+                                <p class="text-xs text-slate-400 font-sans">Panel administrativo global sincronizado 100% en tiempo real con Firebase.</p>
                             </div>
                             <div class="flex items-center gap-2">
                                 <button onclick="exportDatabase('csv')" class="px-3 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-[10px] font-bold transition flex items-center gap-1 font-sans">
                                     <i class="fa-solid fa-download"></i> Exportar CSV
-                                </button>
-                                <button onclick="clearDatabase()" class="px-3 py-2 rounded-lg bg-red-950/20 hover:bg-red-950/40 border border-red-900/30 text-red-400 text-[10px] font-bold transition flex items-center gap-1 font-sans">
-                                    <i class="fa-solid fa-trash-can"></i> Borrar Base
                                 </button>
                             </div>
                         </div>
@@ -1144,19 +1046,32 @@
 
     </main>
 
-    <!-- FOOTER -->
+    <!-- FOOTER CON REDES SOCIALES -->
     <footer class="w-full bg-[#000000] border-t border-slate-850 py-6 px-12 text-center text-slate-500 text-xs">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="text-center md:text-left flex items-center gap-3">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center justify-center md:justify-start gap-3">
                 <div class="w-8 h-8 rounded-lg bg-slate-950 p-1 flex items-center justify-center border border-slate-850">
                     <svg class="w-full h-full"><use href="#epica-isotype"/></svg>
                 </div>
-                <div>
+                <div class="text-left">
                     <p class="font-extrabold text-sm text-white font-display tracking-widest uppercase font-mono">ÉPICA</p>
                     <p class="text-[9px] text-slate-600 uppercase tracking-widest mt-0.5">Mente Clara • Orden Real</p>
                 </div>
             </div>
-            <p class="text-[11px] font-semibold text-epica-mint font-sans">Ecosistema de Mando e Ingeniería Pública. Caracas, Venezuela.</p>
+            
+            <p class="text-[11px] font-semibold text-epica-mint font-sans hidden md:block">Ecosistema de Mando e Ingeniería Pública. Caracas, Venezuela.</p>
+            
+            <div class="flex items-center justify-center gap-5">
+                <a href="https://wa.me/584125694851" target="_blank" class="text-slate-400 hover:text-epica-mint transition-colors text-xl" title="WhatsApp Oficial">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </a>
+                <a href="https://www.instagram.com/somosepicaven/" target="_blank" class="text-slate-400 hover:text-epica-cyan transition-colors text-xl" title="Instagram Oficial">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="https://www.facebook.com/profile.php?id=61590154002042&locale=es_LA" target="_blank" class="text-slate-400 hover:text-blue-500 transition-colors text-xl" title="Facebook Oficial">
+                    <i class="fa-brands fa-facebook"></i>
+                </a>
+            </div>
         </div>
     </footer>
 
@@ -1247,8 +1162,8 @@
 
     <!-- CORE LOGIC FRAMEWORK -->
     <script>
-        // VARIABLES GLOBALES
-        let dbLocal = [];
+        // VARIABLES GLOBALES DE NUBE (Cero LocalStorage)
+        let dbCloud = []; 
         let base64PDFData = "";
         let base64PDFName = "";
         let base64PDFSize = "";
@@ -1260,6 +1175,17 @@
         let firebaseAuth = null;
         let isFirebaseActive = false;
         let appId = "epica-mando-central";
+
+        // CREDENCIALES EXACTAS FIREBASE
+        const FIREBASE_CONFIG = {
+            apiKey: "AIzaSyChLLOgR4OTRwcswYyo0Y1JASf5jp8CTTc",
+            authDomain: "proyecto-epica-c3d2d.firebaseapp.com",
+            projectId: "proyecto-epica-c3d2d",
+            storageBucket: "proyecto-epica-c3d2d.firebasestorage.app",
+            messagingSenderId: "827017252574",
+            appId: "1:827017252574:web:7b8d5d839e12eb0c3efc4f",
+            measurementId: "G-WJNVBJYWJ8"
+        };
 
         // Ledger de transacciones en tiempo real (Híbrido)
         const ledgerTransactions = [
@@ -1356,7 +1282,7 @@
                 statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-epica-mint animate-ping"></span> CONECTADO NUBE`;
             } else {
                 statusEl.className = "text-[9px] bg-red-950/40 border border-red-900/30 text-red-400 font-mono px-2 py-0.5 rounded-md flex items-center gap-1 transition-all";
-                statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> SIN NUBE`;
+                statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> DESCONECTADO`;
             }
         }
 
@@ -1412,44 +1338,12 @@
             }
         }
 
-        // =====================================================================
-        // CREDENCIALES HARDCODED: SOLUCIÓN DEFINITIVA DE CONEXIÓN
-        // =====================================================================
-        const DEFAULT_FIREBASE_CONFIG = {
-            apiKey: "AIzaSyChLLOgR4OTRwcswYyo0Y1JASf5jp8CTTc",
-            authDomain: "proyecto-epica-c3d2d.firebaseapp.com",
-            projectId: "proyecto-epica-c3d2d",
-            storageBucket: "proyecto-epica-c3d2d.firebasestorage.app",
-            messagingSenderId: "827017252574",
-            appId: "1:827017252574:web:7b8d5d839e12eb0c3efc4f",
-            measurementId: "G-WJNVBJYWJ8"
-        };
-
-        const DEFAULT_GITHUB_CONFIG = {
-            user: "somosepicaven",
-            repo: "somosepicaven",
-            token: "" // Token purgado del código por seguridad. Usa la pestaña Mando DB si lo necesitas temporalmente.
-        };
-
-        function getFirebaseConfig() {
-            const stored = localStorage.getItem('epica_fb_custom_config');
-            return stored ? JSON.parse(stored) : DEFAULT_FIREBASE_CONFIG;
-        }
-
-        function getGitHubConfig() {
-            const stored = localStorage.getItem('epica_git_config_v4');
-            return stored ? JSON.parse(stored) : DEFAULT_GITHUB_CONFIG;
-        }
-
         // --- FIREBASE INITIALIZATION & SYNC ---
         window.onFirebaseBridgeReady = function() {
             try {
-                // Siempre obtendrá tu configuración hardcodeada por defecto
-                let config = getFirebaseConfig();
-
-                if (config && window.FirebaseBridge) {
+                if (window.FirebaseBridge) {
                     const apps = window.FirebaseBridge.getApps();
-                    const app = apps.length === 0 ? window.FirebaseBridge.initializeApp(config) : apps[0];
+                    const app = apps.length === 0 ? window.FirebaseBridge.initializeApp(FIREBASE_CONFIG) : apps[0];
                     
                     firebaseDB = window.FirebaseBridge.getFirestore(app);
                     firebaseAuth = window.FirebaseBridge.getAuth(app);
@@ -1470,13 +1364,13 @@
             try {
                 let user;
                 try {
-                    // INTENTO DE AUTENTICACIÓN CON RESPALDO (FALLBACK)
+                    // INTENTO DE AUTENTICACIÓN CON RESPALDO (FALLBACK ANTI-ERRORES)
                     if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                         try {
                             const cred = await window.FirebaseBridge.signInWithCustomToken(firebaseAuth, __initial_auth_token);
                             user = cred.user;
                         } catch (tokenErr) {
-                            console.warn("Token del entorno incompatible con el proyecto personalizado. Intentando acceso anónimo...", tokenErr);
+                            console.log("Aviso: Token interno incompatible, intentando acceso anónimo...");
                             const cred = await window.FirebaseBridge.signInAnonymously(firebaseAuth);
                             user = cred.user;
                         }
@@ -1485,21 +1379,21 @@
                         user = cred.user;
                     }
                 } catch (authErr) {
-                    console.error("Firebase Auth Error Capturado:", authErr);
-                    
-                    // MANEJO ESPECÍFICO DEL ERROR 400 (auth/configuration-not-found)
+                    // FIX: Se elimina console.error para no asustar con letras rojas al fallar por falta de configuración, sólo mostramos el Toast amigable.
                     if (authErr.code === 'auth/configuration-not-found' || authErr.code === 'auth/operation-not-allowed') {
-                        showToast("⚠️ FIREBASE: Debes activar el inicio de sesión 'Anónimo' en Firebase > Authentication > Sign-in method.", "error");
+                        console.warn("Aviso de Firebase: El inicio de sesión 'Anónimo' no está activado en tu consola de Firebase. La plataforma funcionará en modo offline.");
+                        showToast("⚠️ FIREBASE: Debes activar el inicio de sesión 'Anónimo' en Firebase > Authentication.", "error");
                     } else {
-                        showToast("Fallo de Autenticación Firebase: " + authErr.message, "error");
+                        console.warn("Aviso de Firebase:", authErr.message);
+                        showToast("Fallo de conexión a la nube. Verifica tus credenciales.", "error");
                     }
                     updateCloudStatus(false);
-                    return; // Abortar sincronización en tiempo real si falla el Auth
+                    return; 
                 }
 
                 if (!user) return;
                 
-                updateCloudStatus(true); // Solo mostrar conectado si pasó la autenticación
+                updateCloudStatus(true); 
 
                 // Mantenemos la ruta estricta requerida por el estándar de la plataforma
                 const collectionRef = window.FirebaseBridge.collection(firebaseDB, 'artifacts', appId, 'public', 'data', 'militantes');
@@ -1509,8 +1403,8 @@
                     snapshot.forEach(doc => {
                         temp.push(doc.data());
                     });
-                    dbLocal = temp.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                    saveMilitantsToLocalStorage(false);
+                    // Guardamos EXCLUSIVAMENTE en el array en memoria dbCloud, NO en localStorage
+                    dbCloud = temp.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
                     renderMilitantsTable();
                 }, (err) => {
                     console.error("Error en Snapshot de Firebase:", err);
@@ -1519,10 +1413,6 @@
                 console.error("Excepción general en sincronización:", err);
                 updateCloudStatus(false);
             }
-        }
-
-        function saveMilitantsToLocalStorage(saveToLocalOnly = true) {
-            localStorage.setItem('epica_militantes_db_v4', JSON.stringify(dbLocal));
         }
 
         function showSection(id) {
@@ -1578,7 +1468,6 @@
             container.appendChild(toast);
             setTimeout(() => toast.classList.remove('translate-y-10', 'opacity-0'), 50);
             
-            // Si es un error crítico, mostrarlo por más tiempo
             const duration = type === 'error' ? 8000 : 4500;
             setTimeout(() => {
                 toast.classList.add('translate-y-10', 'opacity-0');
@@ -1604,38 +1493,6 @@
         });
 
         // AUTHENTICATION FLOWS
-        async function handleGoogleSignIn() {
-            showToast("Iniciando autenticación real con Google...", "info");
-            if (isFirebaseActive && firebaseAuth && window.FirebaseBridge) {
-                try {
-                    const provider = new window.FirebaseBridge.GoogleAuthProvider();
-                    const result = await window.FirebaseBridge.signInWithPopup(firebaseAuth, provider);
-                    const user = result.user;
-                    
-                    const loggedGoogleUser = {
-                        name: user.displayName || "Usuario Google",
-                        email: user.email || "correo@google.com",
-                        cedula: "Sincronizado vía Google",
-                        role: "Militante",
-                        occupationStatus: "Ninguna",
-                        nodeId: `EP-GGL-${user.uid.substring(0, 5).toUpperCase()}`
-                    };
-                    
-                    document.getElementById('reg-name').value = loggedGoogleUser.name;
-                    document.getElementById('reg-email').value = loggedGoogleUser.email;
-                    document.getElementById('google-btn-text').textContent = `Conectado como ${loggedGoogleUser.name}`;
-                    
-                    switchAuthTab('register');
-                    showToast("Sincronización con Google exitosa. Completa tus datos faltantes.");
-                } catch (error) {
-                    console.error("Fallo OAuth:", error);
-                    showToast("Autenticación con Google cancelada o fallida.", "error");
-                }
-            } else {
-                showToast("Error: La conexión a la nube (Firebase) no está configurada o no hay red disponible. Configure las credenciales de nube en Mando DB.", "error");
-            }
-        }
-
         function handleManualLogin(event) {
             event.preventDefault();
             const emailOrUser = document.getElementById('login-email').value.trim();
@@ -1652,12 +1509,12 @@
                 return;
             }
 
-            const existing = dbLocal.find(u => u.email === emailOrUser || u.name === emailOrUser);
+            const existing = dbCloud.find(u => u.email === emailOrUser || u.name === emailOrUser);
             if (existing) {
                 loginAs(existing);
                 showToast(`¡Sesión iniciada! Bienvenido ${existing.name}`);
             } else {
-                showToast("Credenciales inválidas o usuario no registrado en el sistema. Acceso denegado.", "error");
+                showToast("Credenciales inválidas o usuario no registrado en la Nube. Acceso denegado.", "error");
             }
         }
 
@@ -1769,56 +1626,7 @@
             showToast("Documento de autobiografía removido.", "info");
         }
 
-        // --- GITHUB SYNC ---
-        async function syncToGitHubCloud(newMilitant) {
-            const config = getGitHubConfig();
-            if (!config.user || !config.repo || !config.token) return false;
-
-            const url = `https://api.github.com/repos/${config.user}/${config.repo}/contents/public/data/militantes.json`;
-
-            try {
-                showToast("Sincronizando con el repositorio en GitHub...", "info");
-                let existingData = [], sha = null;
-
-                const getRes = await fetch(url, { headers: { "Authorization": `Bearer ${config.token}`, "Accept": "application/vnd.github.v3+json" } });
-                
-                if (getRes.status === 401 || getRes.status === 403) {
-                    showToast("Error GitHub: Token revocado o inválido. El sistema continuará trabajando con Firebase.", "error");
-                    return false;
-                }
-
-                if (getRes.ok) {
-                    const fileInfo = await getRes.json();
-                    sha = fileInfo.sha;
-                    existingData = JSON.parse(decodeURIComponent(escape(atob(fileInfo.content.replace(/\n/g, '')))));
-                } else if (getRes.status !== 404) {
-                    return false;
-                }
-
-                if (!existingData.some(m => m.id === newMilitant.id)) existingData.unshift(newMilitant);
-
-                const updatedContentBase64 = btoa(unescape(encodeURIComponent(JSON.stringify(existingData, null, 2))));
-                const putRes = await fetch(url, {
-                    method: "PUT",
-                    headers: { "Authorization": `Bearer ${config.token}`, "Content-Type": "application/json", "Accept": "application/vnd.github.v3+json" },
-                    body: JSON.stringify({ message: `ÉPICA: Registro de Militante ${newMilitant.name} (${newMilitant.id})`, content: updatedContentBase64, sha: sha || undefined })
-                });
-
-                if (putRes.ok) {
-                    showToast("¡Base de datos en la nube de GitHub actualizada!");
-                    dbLocal = existingData;
-                    saveMilitantsToLocalStorage(false);
-                    renderMilitantsTable();
-                    return true;
-                }
-                return false;
-            } catch (error) {
-                console.error("Fallo del servidor de GitHub Pages:", error);
-                return false;
-            }
-        }
-
-        // --- REGISTRATION LOGIC ---
+        // --- REGISTRATION LOGIC (100% CLOUD, NO LOCAL) ---
         async function handleManualRegister(event) {
             event.preventDefault();
             
@@ -1850,41 +1658,34 @@
                 pdfSize: base64PDFSize, pdfBase64: base64PDFData, timestamp: new Date().toISOString()
             };
 
-            // Intentar GitHub primero (Fallback)
-            const syncedCloud = await syncToGitHubCloud(newMilitant);
+            // Lógica ESTRICTA de Nube: Si no hay Firebase activo, BLOQUEAR registro. No se guarda local.
+            if (isFirebaseActive && firebaseAuth.currentUser) {
+                try {
+                    const docRef = window.FirebaseBridge.doc(firebaseDB, 'artifacts', appId, 'public', 'data', 'militantes', nodeId);
+                    await window.FirebaseBridge.setDoc(docRef, newMilitant);
+                    showToast("Militante guardado en la nube con Firebase Firestore exitosamente.", "info");
+                    
+                    ledgerTransactions.unshift({
+                        id: `TX-${nodeId.substring(nodeId.length-4)}`, amount: "Aporte Mixto",
+                        desc: `Ingreso de Nodo ${nodeId}`, sig: "0x" + Math.random().toString(16).substr(2, 8) + "...ff7c"
+                    });
+                    renderLedger();
 
-            // Fallback a Firebase si GitHub falla (Que fallará si no hay token válido)
-            if (!syncedCloud) {
-                if (isFirebaseActive && firebaseAuth.currentUser) {
-                    try {
-                        const docRef = window.FirebaseBridge.doc(firebaseDB, 'artifacts', appId, 'public', 'data', 'militantes', nodeId);
-                        await window.FirebaseBridge.setDoc(docRef, newMilitant);
-                        showToast("Militante guardado en la nube con Firebase Firestore exitosamente.", "info");
-                    } catch (e) {
-                        console.error(e);
-                        dbLocal.unshift(newMilitant); saveMilitantsToLocalStorage();
-                        showToast("ATENCIÓN: Tu usuario fue creado de forma local debido a un error de red o permisos.", "error");
-                    }
-                } else {
-                    dbLocal.unshift(newMilitant); saveMilitantsToLocalStorage();
-                    showToast("Atención: Firebase bloqueó el acceso o no está activo. Guardado de forma local temporalmente.", "error");
+                    document.getElementById('form-auth-register').classList.add('hidden');
+                    const successDiv = document.getElementById('db-registration-success');
+                    successDiv.classList.remove('hidden');
+                    document.getElementById('success-nodo-id').textContent = nodeId;
+                    document.getElementById('success-role-id').textContent = role;
+                    
+                    loginAs(newMilitant);
+
+                } catch (e) {
+                    console.error("Fallo al guardar en Firebase:", e);
+                    showToast("Error en Firebase: No se pudo registrar en la nube. Revisa las reglas de seguridad.", "error");
                 }
-                renderMilitantsTable();
+            } else {
+                showToast("Sin conexión a la nube. El registro ha sido bloqueado para proteger la integridad de los datos.", "error");
             }
-
-            ledgerTransactions.unshift({
-                id: `TX-${nodeId.substring(nodeId.length-4)}`, amount: "Aporte Mixto",
-                desc: `Ingreso de Nodo ${nodeId}`, sig: "0x" + Math.random().toString(16).substr(2, 8) + "...ff7c"
-            });
-            renderLedger();
-
-            document.getElementById('form-auth-register').classList.add('hidden');
-            const successDiv = document.getElementById('db-registration-success');
-            successDiv.classList.remove('hidden');
-            document.getElementById('success-nodo-id').textContent = nodeId;
-            document.getElementById('success-role-id').textContent = role;
-            
-            loginAs(newMilitant);
         }
 
         function resetRegistrationForm() {
@@ -1895,77 +1696,15 @@
             removePDFFile();
         }
 
-        // --- GITHUB CONFIGS MANDO DB ---
-        function validateRepoInput(input) {
-            const warningSpan = document.getElementById('git-repo-warning');
-            if (input.value.endsWith('/')) {
-                input.value = input.value.slice(0, -1);
-                warningSpan.classList.remove('hidden');
-                setTimeout(() => warningSpan.classList.add('hidden'), 3000);
-            }
-        }
-
-        function saveGitHubConfig(event) {
-            event.preventDefault();
-            const config = {
-                user: document.getElementById('git-user').value.trim(),
-                repo: document.getElementById('git-repo').value.trim().replace(/\/$/, ""),
-                token: document.getElementById('git-token').value.trim()
-            };
-            localStorage.setItem('epica_git_config_v4', JSON.stringify(config));
-            showToast("Configuración de Sincronización GitHub guardada.");
-        }
-
-        function loadGitHubConfigInputs() {
-            const config = getGitHubConfig();
-            document.getElementById('git-user').value = config.user || '';
-            document.getElementById('git-repo').value = config.repo || '';
-            document.getElementById('git-token').value = config.token || '';
-        }
-
-        // --- FIREBASE MANUAL CONFIG MANDO DB ---
-        function saveFirebaseConfig(event) {
-            event.preventDefault();
-            const formValues = {
-                apiKey: document.getElementById('fb-apiKey').value.trim(),
-                authDomain: document.getElementById('fb-authDomain').value.trim(),
-                projectId: document.getElementById('fb-projectId').value.trim(),
-                appId: document.getElementById('fb-appId').value.trim()
-            };
-            
-            // Hacemos un merge para no perder storageBucket o measurementId
-            const mergedConfig = { ...DEFAULT_FIREBASE_CONFIG, ...formValues };
-            localStorage.setItem('epica_fb_custom_config', JSON.stringify(mergedConfig));
-            
-            showToast("Configuración de Firebase guardada. Recargando para conectar...", "info");
-            setTimeout(() => window.location.reload(), 1000);
-        }
-
-        function loadFirebaseConfigInputs() {
-            const config = getFirebaseConfig();
-            if (config) {
-                document.getElementById('fb-apiKey').value = config.apiKey || '';
-                document.getElementById('fb-authDomain').value = config.authDomain || '';
-                document.getElementById('fb-projectId').value = config.projectId || '';
-                document.getElementById('fb-appId').value = config.appId || '';
-            }
-        }
-
-        // DATABASE OPERATIONS
-        function loadMilitantsDB() {
-            const stored = localStorage.getItem('epica_militantes_db_v4');
-            try { dbLocal = stored ? JSON.parse(stored) : []; } catch (e) { dbLocal = []; }
-            renderMilitantsTable();
-        }
-
+        // DATABASE OPERATIONS (100% NUBE)
         function renderMilitantsTable() {
             const body = document.getElementById('militants-table-body');
             body.innerHTML = '';
-            if (dbLocal.length === 0) {
-                body.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 bg-black/40 font-mono">Ningún militante registrado aún en esta base de datos.</td></tr>`;
+            if (dbCloud.length === 0) {
+                body.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500 bg-black/40 font-mono">Ningún militante registrado aún en la Nube.</td></tr>`;
                 return;
             }
-            dbLocal.forEach((mil, index) => {
+            dbCloud.forEach((mil, index) => {
                 let ocupacionTexto = mil.occupationStatus || "No declarada";
                 if (mil.occupationStatus === 'Trabaja') ocupacionTexto = `Trabaja en ${mil.workPlace}`;
                 else if (mil.occupationStatus === 'Estudia') ocupacionTexto = `Estudia en ${mil.studyPlace}`;
@@ -1984,7 +1723,7 @@
                         </button>
                     </td>
                     <td class="p-3 text-right">
-                        <button onclick="deleteMilitant('${mil.id}', ${index})" class="p-1 rounded hover:bg-red-950/40 text-red-500 transition">
+                        <button onclick="deleteMilitant('${mil.id}')" class="p-1 rounded hover:bg-red-950/40 text-red-500 transition">
                             <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </td>
@@ -1993,45 +1732,40 @@
             });
         }
 
-        async function deleteMilitant(nodeId, index) {
-            showCustomConfirm("¿Eliminar Ficha?", "Esta acción removerá el registro del militante local y en la nube definitivamente.", async () => {
+        async function deleteMilitant(nodeId) {
+            showCustomConfirm("¿Eliminar Ficha?", "Esta acción removerá el registro de la Nube definitivamente.", async () => {
                 if (isFirebaseActive && firebaseAuth.currentUser) {
                     try {
                         const docRef = window.FirebaseBridge.doc(firebaseDB, 'artifacts', appId, 'public', 'data', 'militantes', nodeId);
                         await window.FirebaseBridge.deleteDoc(docRef);
-                    } catch (e) { console.error("Fallo al eliminar de Firebase:", e); }
+                        showToast("Ficha removida correctamente de la Nube.");
+                    } catch (e) { 
+                        console.error("Fallo al eliminar de Firebase:", e); 
+                        showToast("Error al intentar eliminar en la Nube.", "error");
+                    }
+                } else {
+                    showToast("No hay conexión con la Nube para realizar esta acción.", "error");
                 }
-                dbLocal.splice(index, 1);
-                saveMilitantsToLocalStorage();
-                renderMilitantsTable();
-                showToast("Ficha removida correctamente.");
-            });
-        }
-
-        function clearDatabase() {
-            showCustomConfirm("¿Purgar Base de Datos?", "Esta acción removerá de forma irreversible toda la base de datos de militantes local.", () => {
-                dbLocal = []; saveMilitantsToLocalStorage(); renderMilitantsTable();
-                showToast("Base de datos local limpia.", "info");
             });
         }
 
         function exportDatabase(format) {
-            if (dbLocal.length === 0) { showToast("No hay datos cargados para exportar.", "error"); return; }
+            if (dbCloud.length === 0) { showToast("No hay datos cargados para exportar.", "error"); return; }
             if (format === 'csv') {
                 const headers = ["Nodo ID", "Nombre", "Cedula", "Telefono", "Email", "Edad", "Rol", "Preferencia", "Ocupacion", "Lugar Estudios", "Lugar Trabajo", "Fecha"];
-                const rows = dbLocal.map(mil => [`"${mil.id}"`, `"${mil.name}"`, `"${mil.cedula}"`, `"${mil.phone}"`, `"${mil.email}"`, mil.age, `"${mil.role}"`, `"${mil.pref}"`, `"${mil.occupationStatus}"`, `"${mil.studyPlace || ''}"`, `"${mil.workPlace || ''}"`, `"${mil.timestamp || ''}"`]);
+                const rows = dbCloud.map(mil => [`"${mil.id}"`, `"${mil.name}"`, `"${mil.cedula}"`, `"${mil.phone}"`, `"${mil.email}"`, mil.age, `"${mil.role}"`, `"${mil.pref}"`, `"${mil.occupationStatus}"`, `"${mil.studyPlace || ''}"`, `"${mil.workPlace || ''}"`, `"${mil.timestamp || ''}"`]);
                 const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
                 const encodedUri = encodeURI(csvContent);
                 const link = document.createElement("a");
                 link.setAttribute("href", encodedUri);
-                link.setAttribute("download", "militantes_epica_mando.csv");
+                link.setAttribute("download", "militantes_epica_mando_cloud.csv");
                 document.body.appendChild(link); link.click(); document.body.removeChild(link);
-                showToast("Base de datos exportada.");
+                showToast("Base de datos en la nube exportada.");
             }
         }
 
         function openDetailModal(index) {
-            const mil = dbLocal[index];
+            const mil = dbCloud[index];
             if (!mil) return;
 
             document.getElementById('modal-nodo').textContent = mil.id;
@@ -2270,9 +2004,6 @@
         window.onload = function() {
             showDeckSlide(1);
             readDoc('manual-entrenamiento', document.querySelector('.doc-card'));
-            loadMilitantsDB();
-            loadGitHubConfigInputs();
-            loadFirebaseConfigInputs();
             runSkillsMatcher();
             runBudgetCalculator();
             renderLedger();
