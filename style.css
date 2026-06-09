@@ -1,0 +1,189 @@
+:root {
+    --bg-main: #0a0e17;
+    --bg-card: #121824;
+    --bg-darker: #05070b;
+    --text-primary: #e2e8f0;
+    --neon-green: #00ff66;
+    --neon-cyan: #00f0ff;
+    --border-color: #1f293d;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Courier New', Courier, monospace; /* Fuente estilo terminal */
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+/* Header Estilo Consola */
+.system-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--bg-darker);
+}
+
+.logo-core {
+    color: var(--neon-cyan);
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.nav-terminal a {
+    text-decoration: none;
+    color: var(--text-primary);
+    margin-left: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.nav-terminal a:hover, .nav-link-active {
+    color: var(--neon-green) !important;
+}
+
+/* Hero Section */
+.console-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.hero-terminal {
+    padding: 4rem 2rem;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-darker);
+    border-radius: 4px;
+    margin-bottom: 3rem;
+}
+
+.pulse-green {
+    color: var(--neon-green);
+    font-weight: bold;
+    animation: pulse 2s infinite;
+}
+
+.glitch-title {
+    font-size: 2.8rem;
+    color: var(--text-primary);
+    margin: 1rem 0;
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
+.console-text {
+    font-size: 1.1rem;
+    max-width: 800px;
+    margin-bottom: 2rem;
+}
+
+/* Botones */
+.cta-group a {
+    text-decoration: none;
+    padding: 0.8rem 1.8rem;
+    border-radius: 4px;
+    font-weight: bold;
+    display: inline-block;
+    margin-right: 1rem;
+}
+
+.btn-primary {
+    background-color: var(--neon-green);
+    color: var(--bg-darker);
+}
+
+.btn-secondary {
+    border: 1px solid var(--neon-cyan);
+    color: var(--neon-cyan);
+}
+
+/* Grid de Arquitectura */
+.section-core {
+    margin-bottom: 4rem;
+    padding: 2rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.grid-architecture {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.card-tech {
+    background-color: var(--bg-card);
+    padding: 1.5rem;
+    border-radius: 4px;
+    border-left: 4px solid var(--neon-cyan);
+}
+
+.card-tech h3 {
+    color: var(--neon-cyan);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Formularios de Terminal */
+.terminal-form {
+    margin-top: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.terminal-form label {
+    color: var(--neon-cyan);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.terminal-form input, .terminal-form select {
+    background-color: var(--bg-darker);
+    border: 1px solid var(--border-color);
+    padding: 0.8rem;
+    color: var(--text-primary);
+    border-radius: 4px;
+}
+
+.terminal-form input:focus, .terminal-form select:focus {
+    outline: none;
+    border-color: var(--neon-green);
+}
+
+.btn-submit {
+    background-color: transparent;
+    border: 1px solid var(--neon-green);
+    color: var(--neon-green);
+    padding: 1rem 2rem;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.btn-submit:hover {
+    background-color: var(--neon-green);
+    color: var(--bg-darker);
+}
+
+@keyframes pulse {
+    0% { opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { opacity: 0.4; }
+}
