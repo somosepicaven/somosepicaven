@@ -3,130 +3,1013 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ÉPICA | Architecture for Data Interoperability</title>
-    <link rel="stylesheet" href="style.css">
-    <script defer src="app.js"></script>
-</head>
-<body>
+    <title>ÉPICA | Ecosistema de Nodos & Interoperabilidad de Estado</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Space Grotesk & Fira Code -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Space Grotesk', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        obsidian: '#030712',
+                        cyberGray: '#111827',
+                        neonCyan: '#00f0ff',
+                        neonEmerald: '#10b981',
+                        borderGray: '#1f293d'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Cyberpunk Grid Background */
+        .bg-grid {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(31, 41, 61, 0.3) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(31, 41, 61, 0.3) 1px, transparent 1px);
+        }
+        
+        /* Glassmorphism custom blur */
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+        }
 
-    <header class="system-header">
-        <div class="logo-core">ÉPICA // SYSTEM_OS_2026</div>
-        <nav class="nav-terminal">
-            <a href="#arquitectura" class="nav-link">>_ARQUITECTURA</a>
-            <a href="#corporativo" class="nav-link">>_SOLUCIONES_SaaS</a>
-            <a href="#comunidades" class="nav-link">>_CULTURA_7T</a>
-            <a href="#nodos-registro" class="nav-link-active">>_ACTIVAR_NODO</a>
-        </nav>
+        .glass-panel:hover {
+            border-color: rgba(0, 240, 255, 0.4);
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.15);
+        }
+
+        /* Pulsing node animation */
+        @keyframes cyberPulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(2); opacity: 0; }
+            100% { transform: scale(1); opacity: 0; }
+        }
+        
+        .pulse-node-active {
+            position: relative;
+        }
+        .pulse-node-active::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: currentColor;
+            animation: cyberPulse 2s infinite;
+            top: 0;
+            left: 0;
+        }
+
+        /* Custom scrollbar for terminal elements */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #030712;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f293d;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f0ff;
+        }
+
+        /* Scanline effect for high-end terminal look */
+        .scanline {
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.2) 50%
+            );
+            background-size: 100% 4px;
+        }
+    </style>
+</head>
+<body class="bg-obsidian text-slate-100 font-sans min-h-screen selection:bg-neonCyan selection:text-obsidian overflow-x-hidden bg-grid">
+
+    <!-- TOP TELEMETRY BAR & NAVIGATION -->
+    <header class="sticky top-0 z-50 w-full border-b border-borderGray bg-obsidian/90 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                    <span class="font-mono font-bold text-obsidian text-lg">É</span>
+                </div>
+                <div>
+                    <span class="font-bold text-lg tracking-wider bg-gradient-to-r from-neonCyan to-neonEmerald bg-clip-text text-transparent">ÉPICA</span>
+                    <span class="font-mono text-xs text-slate-500 ml-2">v2.6_OS</span>
+                </div>
+            </div>
+            
+            <nav class="hidden md:flex space-x-6 font-mono text-xs tracking-widest text-slate-400">
+                <a href="#nodos" class="hover:text-neonCyan transition-colors">>_TELEMETRIA</a>
+                <a href="#arquitectura" class="hover:text-neonCyan transition-colors">>_ARQUITECTURA</a>
+                <a href="#calculadora" class="hover:text-neonCyan transition-colors">>_CALCULADORA_ROI</a>
+                <a href="#oratoria" class="hover:text-neonCyan transition-colors">>_SIMULADOR_ORATORIA</a>
+                <a href="#ruta" class="hover:text-neonCyan transition-colors">>_RUTA_7T</a>
+                <a href="#mando" class="hover:text-neonCyan transition-colors text-neonEmerald">>_CONSOLA_MANDO</a>
+            </nav>
+
+            <div class="flex items-center space-x-4">
+                <div class="hidden lg:flex flex-col items-end font-mono text-[10px] text-slate-500">
+                    <span>SYS_TIME: <span id="clock" class="text-neonCyan">--:--:--</span></span>
+                    <span>LOC: CARACAS_VENEZUELA</span>
+                </div>
+                <a href="#mando" class="px-3 py-1.5 border border-neonCyan/30 rounded text-xs font-mono text-neonCyan hover:bg-neonCyan/10 transition-all duration-300">
+                    REGISTRAR NODO
+                </a>
+            </div>
+        </div>
     </header>
 
-    <main class="console-container">
-        <section class="hero-terminal">
-            <div class="status-bar">STATUS: <span class="pulse-green">ONLINE</span> // DOMAIN: SUCRE_PILOT_ACTIVE</div>
-            <h1 class="glitch-title">LA RECONSTRUCCIÓN ES TÉCNICA</h1>
-            <p class="console-text">Infraestructura distribuida de interoperabilidad asíncrona y gestión de datos basada en la doctrina <strong>Estado Cero Papel</strong>.</p>
-            <div class="cta-group">
-                <a href="#nodos-registro" class="btn-primary">Desplegar Nodo Local</a>
-                <a href="#corporativo" class="btn-secondary">Dossier de Inversión (SaaS)</a>
-            </div>
-        </section>
+    <!-- HERO CORE DASHBOARD -->
+    <section class="relative py-12 lg:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            <!-- Pitch & Main Slogan -->
+            <div class="lg:col-span-7 space-y-6">
+                <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-neonCyan/30 bg-cyberGray/50 font-mono text-xs text-neonCyan">
+                    <span class="w-2 h-2 rounded-full bg-neonCyan animate-ping"></span>
+                    <span>SISTEMA DE INTEROPERABILIDAD DESCENTRALIZADO ACTIVO</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-none text-white font-sans">
+                    La reconstrucción es <br>
+                    <span class="bg-gradient-to-r from-neonCyan via-teal-400 to-neonEmerald bg-clip-text text-transparent">técnica, no ideológica.</span>
+                </h1>
+                <p class="text-md sm:text-lg text-slate-400 max-w-2xl font-sans">
+                    Establecemos una infraestructura de interoperabilidad asíncrona y bidireccional bajo la doctrina de <strong>Estado Cero Papel</strong>, optimizando flujos de datos comunales y corporativos para erradicar la ineficiencia burocrática en Venezuela.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 pt-2">
+                    <a href="#mando" class="px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-500 to-emerald-500 text-obsidian font-bold hover:shadow-lg hover:shadow-cyan-500/25 transition-all duration-300 text-center">
+                        <i class="fa-solid fa-circle-nodes mr-2"></i> Activar Nodo Comunal
+                    </a>
+                    <a href="#calculadora" class="px-6 py-3 rounded-lg border border-borderGray bg-cyberGray text-slate-300 font-bold hover:border-neonCyan/50 transition-all duration-300 text-center">
+                        <i class="fa-solid fa-calculator mr-2"></i> Simular Ahorro SaaS
+                    </a>
+                </div>
 
-        <section id="arquitectura" class="section-core">
-            <h2>[01] ARQUITECTURA DEL ECOSISTEMA</h2>
-            <div class="grid-architecture">
-                <div class="card-tech">
-                    <h3>Capa de Captura</h3>
-                    <h4>Nodos Digitales Territoriales</h4>
-                    <p>Unidades locales descentralizadas encargadas de capturar, depurar y estructurar requerimientos en formatos universales (.json / .csv).</p>
-                </div>
-                <div class="card-tech">
-                    <h3>Capa de Transmisión</h3>
-                    <h4>Puente de Interoperabilidad</h4>
-                    <p>Conexión asíncrona y bidireccional mediante API REST que transporta datos encriptados libres de redundancia burocrática.</p>
-                </div>
-                <div class="card-tech">
-                    <h3>Capa de Consolidación</h3>
-                    <h4>Mando DB Gerencial</h4>
-                    <p>Panel centralizado NoSQL (RBAC) que procesa variables masivas en matrices de visualización analítica para la alta gerencia.</p>
+                <!-- Live Dashboard Stats Grid -->
+                <div class="grid grid-cols-3 gap-4 pt-6 border-t border-borderGray">
+                    <div>
+                        <div class="font-mono text-xs text-slate-500">NODOS_ACTIVOS</div>
+                        <div class="text-xl sm:text-2xl font-bold text-neonCyan font-mono">142 <span class="text-[10px] text-slate-500">ON</span></div>
+                    </div>
+                    <div>
+                        <div class="font-mono text-xs text-slate-500">TRANSMISIONES_DATA</div>
+                        <div class="text-xl sm:text-2xl font-bold text-neonEmerald font-mono" id="txCount">42.810</div>
+                    </div>
+                    <div>
+                        <div class="font-mono text-xs text-slate-500">PAPEL_SALVADO_KG</div>
+                        <div class="text-xl sm:text-2xl font-bold text-white font-mono" id="paperSaved">11.450 kg</div>
+                    </div>
                 </div>
             </div>
-        </section>
 
-        <section id="corporativo" class="section-core bg-darker">
-            <h2>[02] MODELO CORPORATIVO PRIVADO (SaaS)</h2>
-            <div class="split-container">
-                <div class="text-block">
-                    <p>Optimizamos la gestión organizativa reduciendo hasta un <strong>60% los costos operativos</strong> en consumibles y horas-hombre. ÉPICA suprime el archivo analógico bajo un estricto blindaje legal:</p>
-                    <ul class="legal-list">
-                        <li><strong>Ley de Celeridad de Trámites:</strong> Digitalización y sustanciación por medios electrónicos.</li>
-                        <li><strong>Ley Orgánica de Telecomunicaciones:</strong> Redes unificadas y transmisiones seguras.</li>
-                        <li><strong>Cumplimiento LOCTI (Art. 33):</strong> Proyectos de alta innovación y sustitución de procesos.</li>
+            <!-- Interactive SVG Venezuela Cyber-Map -->
+            <div id="nodos" class="lg:col-span-5 flex justify-center relative">
+                <div class="w-full max-w-md p-6 glass-panel rounded-2xl relative overflow-hidden">
+                    <div class="absolute top-2 left-3 font-mono text-[9px] text-slate-500 flex items-center justify-between w-[92%]">
+                        <span>SYS_RENDER: SOVEREIGN_VENEZUELA_MAP</span>
+                        <span>GRID_LOCK: OK</span>
+                    </div>
+                    
+                    <!-- SVG MAP OF VENEZUELA -->
+                    <svg viewBox="0 0 600 500" class="w-full h-auto text-cyan-500/10 drop-shadow-[0_0_25px_rgba(0,240,255,0.05)] pt-6" stroke="#00f0ff" stroke-width="2.5" fill="none">
+                        <!-- Silhouette of Venezuela -->
+                        <path d="M 120 180 L 160 140 L 220 130 L 260 110 L 310 120 L 350 140 L 410 130 L 460 150 L 510 180 L 550 210 L 530 250 L 510 280 L 460 300 L 440 330 L 450 380 L 420 420 L 380 450 L 360 410 L 340 380 L 290 350 L 240 360 L 220 310 L 190 290 L 150 280 L 110 260 L 100 230 L 100 210 L 120 180 Z" stroke-opacity="0.8" />
+                        <!-- Inside grids -->
+                        <path d="M 220 130 L 240 360 M 120 180 L 460 300 M 150 280 L 410 130 M 260 110 L 290 350 M 350 140 L 340 380" stroke-opacity="0.15" stroke-dasharray="4 4" />
+                        
+                        <!-- Pulse Node Caracas -->
+                        <g class="cursor-pointer group" onclick="selectMapNode('Caracas', 'Servidor Central OS', 'Online / Activo', '2.145', '100%')">
+                            <circle cx="280" cy="120" r="10" class="fill-cyan-500/20 stroke-neonCyan group-hover:r-12 transition-all" />
+                            <circle cx="280" cy="120" r="4" class="fill-neonCyan pulse-node-active" />
+                        </g>
+                        <!-- Pulse Node Sucre/Petare -->
+                        <g class="cursor-pointer group" onclick="selectMapNode('Municipio Sucre', 'Nodo Local (Piloto)', 'Online / Enlace Foco Local', '1.420', '98.5%')">
+                            <circle cx="310" cy="122" r="12" class="fill-emerald-500/20 stroke-neonEmerald group-hover:r-14 transition-all" />
+                            <circle cx="310" cy="122" r="5" class="fill-neonEmerald pulse-node-active" />
+                        </g>
+                        <!-- Node Maracaibo -->
+                        <g class="cursor-pointer group" onclick="selectMapNode('Maracaibo', 'Enlace Regional', 'Online / Activo', '580', '99.1%')">
+                            <circle cx="110" cy="190" r="7" class="fill-cyan-500/20 stroke-neonCyan" />
+                            <circle cx="110" cy="190" r="3" class="fill-neonCyan" />
+                        </g>
+                        <!-- Node San Cristóbal -->
+                        <g class="cursor-pointer group" onclick="selectMapNode('San Cristóbal', 'Enlace Frontera', 'Standby / Estable', '310', '97.2%')">
+                            <circle cx="110" cy="270" r="7" class="fill-cyan-500/20 stroke-neonCyan" />
+                            <circle cx="110" cy="270" r="3" class="fill-neonCyan" />
+                        </g>
+                    </svg>
+
+                    <!-- Interactive Node Info Popup Panel inside Map Container -->
+                    <div id="nodeInfoBox" class="mt-4 p-3 bg-cyberGray border border-borderGray rounded-lg font-mono text-xs transition-all duration-300">
+                        <div class="text-neonCyan border-b border-borderGray pb-1 mb-1 font-bold flex justify-between">
+                            <span>>_ TELEMETRÍA DE NODO</span>
+                            <span class="text-slate-500 text-[10px]" id="nodeLatency">LAT: 12ms</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-y-1 text-slate-400">
+                            <span>UBICACIÓN:</span> <span id="nodeLoc" class="text-white">Municipio Sucre (Petare)</span>
+                            <span>TIPO:</span> <span id="nodeType" class="text-neonEmerald">Nodo Local (Piloto)</span>
+                            <span>STATUS:</span> <span id="nodeStatus" class="text-neonEmerald">Online / Enlace Foco Local</span>
+                            <span>REGISTROS:</span> <span id="nodeRecords" class="text-white">1,420 ciudadanos</span>
+                            <span>EFICIENCIA:</span> <span id="nodeEfficiency" class="text-neonCyan">98.5%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 1: SYSTEM INTEROPERABILITY SIMULATOR -->
+    <section id="arquitectura" class="py-12 bg-cyberGray/30 border-y border-borderGray relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-10">
+                <h2 class="font-mono text-xs text-neonCyan tracking-widest">>_ [01] ARQUITECTURA DIGITAL SOBERANA</h2>
+                <p class="text-3xl font-extrabold text-white mt-2">La Red de Interoperabilidad en Acción</p>
+                <p class="text-slate-400 mt-2">Simula la transmisión asíncrona de datos desde las comunidades locales hasta las matrices del Mando DB sin usar una sola hoja de papel.</p>
+            </div>
+
+            <!-- Interoperability Flow Visualizer -->
+            <div class="glass-panel p-6 rounded-2xl max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+                    
+                    <!-- Capa 1: Captura -->
+                    <div class="p-4 bg-cyberGray border border-borderGray rounded-xl text-center flex flex-col items-center justify-between">
+                        <div class="w-12 h-12 rounded-full bg-neonCyan/10 border border-neonCyan flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-tablet-screen-button text-neonCyan text-xl"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-md">1. Nodo Local (Captura)</h3>
+                        <p class="text-slate-400 text-xs mt-2">El analista captura el requerimiento en el territorio en formato estructurado JSON/CSV.</p>
+                        <span id="p-capa1" class="hidden text-neonCyan font-mono text-[10px] bg-neonCyan/10 px-2 py-0.5 rounded mt-3">PROCESANDO REGISTRO...</span>
+                    </div>
+
+                    <!-- Capa 2: API REST -->
+                    <div class="p-4 bg-cyberGray border border-borderGray rounded-xl text-center flex flex-col items-center justify-between relative">
+                        <div class="w-12 h-12 rounded-full bg-neonEmerald/10 border border-neonEmerald flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-network-wired text-neonEmerald text-xl"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-md">2. Puente API (Transmisión)</h3>
+                        <p class="text-slate-400 text-xs mt-2">El flujo viaja encriptado y asíncrono hacia el servidor, purificando redundancias.</p>
+                        <span id="p-capa2" class="hidden text-neonEmerald font-mono text-[10px] bg-neonEmerald/10 px-2 py-0.5 rounded mt-3">ENCRIPTANDO PAQUETE REST...</span>
+                    </div>
+
+                    <!-- Capa 3: Mando DB -->
+                    <div class="p-4 bg-cyberGray border border-borderGray rounded-xl text-center flex flex-col items-center justify-between">
+                        <div class="w-12 h-12 rounded-full bg-cyan-500/10 border border-cyan-500 flex items-center justify-center mb-3">
+                            <i class="fa-solid fa-server text-cyan-500 text-xl"></i>
+                        </div>
+                        <h3 class="font-bold text-white text-md">3. Mando DB (Consolidación)</h3>
+                        <p class="text-slate-400 text-xs mt-2">Los datos se almacenan en un servidor NoSQL para visualización gerencial analítica.</p>
+                        <span id="p-capa3" class="hidden text-white font-mono text-[10px] bg-cyan-500/20 px-2 py-0.5 rounded mt-3">ALMACENADO EXITOSAMENTE</span>
+                    </div>
+
+                </div>
+
+                <!-- Simulation Trigger -->
+                <div class="flex flex-col items-center mt-8 pt-6 border-t border-borderGray">
+                    <button onclick="startSimulation()" class="px-6 py-2.5 bg-cyberGray border border-neonCyan hover:bg-neonCyan hover:text-obsidian font-mono text-xs font-bold text-neonCyan rounded-lg transition-all duration-300">
+                        INICIAR SIMULACIÓN DE TRANSMISIÓN_
+                    </button>
+                    <div id="simLog" class="font-mono text-xs text-slate-500 mt-4 h-6 text-center">
+                        Consola: Inactiva. Esperando comando.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: THE SaaS ROI CALCULATOR (FOR PRIVATE BUSINESSES) -->
+    <section id="calculadora" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            <div class="lg:col-span-5 space-y-6">
+                <h2 class="font-mono text-xs text-neonEmerald tracking-widest">>_ [02] PRODUCTO DE ALTO RETORNO CORPORATIVO</h2>
+                <h3 class="text-3xl font-extrabold text-white">SaaS Cero Papel: El ahorro administrativo que tu empresa necesita</h3>
+                <p class="text-slate-400">
+                    Sustituir los procesos de carpetas físicas por el Ecosistema ÉPICA reduce sustancialmente el gasto administrativo corriente en un 60%. Mide en tiempo real los beneficios que la Doctrina Cero Papel aporta a la rentabilidad de tu negocio o alcaldía.
+                </p>
+                
+                <!-- Legal Compliance Badges -->
+                <div class="space-y-3 pt-2">
+                    <div class="flex items-center space-x-3 text-sm text-slate-300">
+                        <i class="fa-solid fa-shield-halved text-neonEmerald"></i>
+                        <span>Ley de Celeridad y Optimización de Trámites (Gaceta Oficial 7.018)</span>
+                    </div>
+                    <div class="flex items-center space-x-3 text-sm text-slate-300">
+                        <i class="fa-solid fa-scale-balanced text-neonEmerald"></i>
+                        <span>LOCTI Artículo 33 (Proyectos Factibles de Financiamiento)</span>
+                    </div>
+                    <div class="flex items-center space-x-3 text-sm text-slate-300">
+                        <i class="fa-solid fa-satellite-dish text-neonEmerald"></i>
+                        <span>Ley Orgánica de Telecomunicaciones (Seguridad de Enlaces)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROI Calculator Box Widget -->
+            <div class="lg:col-span-7 bg-cyberGray border border-borderGray p-6 rounded-2xl relative">
+                <div class="absolute top-2 right-4 font-mono text-[9px] text-slate-500">SaaS_ROI_ENGINEER_v2</div>
+                <h4 class="text-white font-mono text-sm mb-6 border-b border-borderGray pb-2">>_ CONFIGURACIÓN DE OPERATIVIDAD ANALÓGICA</h4>
+                
+                <div class="space-y-6">
+                    <!-- Input 1: Transacciones mensuales -->
+                    <div>
+                        <div class="flex justify-between font-mono text-xs text-slate-400 mb-2">
+                            <span>TRANSACCIONES/TRÁMITES MENSUALES:</span>
+                            <span id="lblTx" class="text-neonCyan font-bold">5,000</span>
+                        </div>
+                        <input type="range" id="inpTx" min="100" max="50000" step="100" value="5000" oninput="calculateROI()" class="w-full h-1 bg-borderGray rounded-lg appearance-none cursor-pointer accent-neonCyan">
+                    </div>
+
+                    <!-- Input 2: Resmas de papel mensuales -->
+                    <div>
+                        <div class="flex justify-between font-mono text-xs text-slate-400 mb-2">
+                            <span>RESMAS DE PAPEL UTILIZADAS (MENSUAL):</span>
+                            <span id="lblResmas" class="text-neonCyan font-bold">40 resmas</span>
+                        </div>
+                        <input type="range" id="inpResmas" min="1" max="500" step="1" value="40" oninput="calculateROI()" class="w-full h-1 bg-borderGray rounded-lg appearance-none cursor-pointer accent-neonCyan">
+                    </div>
+
+                    <!-- Input 3: Horas-hombre gastadas al mes -->
+                    <div>
+                        <div class="flex justify-between font-mono text-xs text-slate-400 mb-2">
+                            <span>HORAS ARCHIVO / SEGUIMIENTO FISICO:</span>
+                            <span id="lblHours" class="text-neonCyan font-bold">120 horas</span>
+                        </div>
+                        <input type="range" id="inpHours" min="10" max="2000" step="10" value="120" oninput="calculateROI()" class="w-full h-1 bg-borderGray rounded-lg appearance-none cursor-pointer accent-neonCyan">
+                    </div>
+                </div>
+
+                <!-- ROI Output Grid Display -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 pt-6 border-t border-borderGray">
+                    <div class="p-3 bg-obsidian rounded-lg border border-borderGray">
+                        <div class="font-mono text-[10px] text-slate-500">AHORRO_ANUAL_USD</div>
+                        <div id="outAhorro" class="text-xl font-bold font-mono text-neonEmerald">$4,820</div>
+                    </div>
+                    <div class="p-3 bg-obsidian rounded-lg border border-borderGray">
+                        <div class="font-mono text-[10px] text-slate-500">TIEMPO_RECUPERADO</div>
+                        <div id="outTiempo" class="text-xl font-bold font-mono text-neonCyan">72 horas</div>
+                    </div>
+                    <div class="p-3 bg-obsidian rounded-lg border border-borderGray">
+                        <div class="font-mono text-[10px] text-slate-500">ÁRBOLES_PRESERVADOS</div>
+                        <div id="outArboles" class="text-xl font-bold font-mono text-white">4.8 árboles</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- SECTION 3: INTERACTIVE SEMANTIC ORATORICAL SIMULATOR -->
+    <section id="oratoria" class="py-16 bg-cyberGray/30 border-y border-borderGray">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-10">
+                <h2 class="font-mono text-xs text-neonCyan tracking-widest">>_ [03] SIMULADOR DE ORATORIA E INTERACCIÓN DE ALTA GERENCIA</h2>
+                <p class="text-3xl font-extrabold text-white mt-2">Evaluador Semántico del Discurso Técnico</p>
+                <p class="text-slate-400 mt-2">La doctrina de "Mente Clara, Orden Real" exige argumentaciones basadas en hechos, ciencia y métricas. Pon a prueba la alineación conceptual del discurso ante situaciones críticas institucionales.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Select Scenario & Context -->
+                <div class="lg:col-span-4 bg-obsidian border border-borderGray p-5 rounded-2xl space-y-4">
+                    <h4 class="text-white font-mono text-sm border-b border-borderGray pb-2 font-bold">>_ SELECCIONAR ESCENARIO</h4>
+                    
+                    <div class="space-y-3">
+                        <button onclick="setScenario(1)" id="btnSce1" class="w-full p-3 bg-cyberGray border border-neonCyan rounded-lg text-left text-xs font-mono text-white transition-all">
+                            <div class="font-bold text-neonCyan">ESCENARIO A: BUROCRACIA MINISTERIAL</div>
+                            <p class="text-slate-400 text-[10px] mt-1">Defensa de la doctrina Cero Papel ante directivos escépticos de la vieja administración.</p>
+                        </button>
+                        <button onclick="setScenario(2)" id="btnSce2" class="w-full p-3 bg-cyberGray border border-borderGray hover:border-neonCyan/50 rounded-lg text-left text-xs font-mono text-slate-400 transition-all">
+                            <div class="font-bold text-slate-200">ESCENARIO B: SOBERANÍA ANTE EL BLOQUEO</div>
+                            <p class="text-slate-500 text-[10px] mt-1">Sustentación técnica de la soberanía e independencia tecnológica usando software libre nacional.</p>
+                        </button>
+                        <button onclick="setScenario(3)" id="btnSce3" class="w-full p-3 bg-cyberGray border border-borderGray hover:border-neonCyan/50 rounded-lg text-left text-xs font-mono text-slate-400 transition-all">
+                            <div class="font-bold text-slate-200">ESCENARIO C: FINANCIAMIENTO PRIVADO</div>
+                            <p class="text-slate-500 text-[10px] mt-1">Pitch estratégico para convencer a inversionistas privados del modelo SaaS y el ROI de ÉPICA.</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Input Response Area and Semantic Feedback -->
+                <div class="lg:col-span-8 bg-cyberGray border border-borderGray p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <div class="font-mono text-xs text-slate-400 mb-2 flex justify-between">
+                            <span>CONTEXTO DEL PROBLEMA:</span>
+                            <span class="text-neonCyan" id="scenarioName">ESCENARIO A</span>
+                        </div>
+                        <p id="scenarioPrompt" class="text-xs text-slate-300 font-mono bg-obsidian p-3 rounded-lg border border-borderGray mb-4">
+                            "Un directivo de un ministerio indica que el sistema digital Cero Papel de ÉPICA es 'demasiado arriesgado' porque el papel impreso con firmas húmedas es el único soporte legal válido. Argumente la transición."
+                        </p>
+
+                        <div class="flex flex-col">
+                            <label class="font-mono text-xs text-neonCyan mb-2">>_ REDACTE LA RESPUESTA EJECUTIVA DEL VOCERO:</label>
+                            <textarea id="oratoryInput" rows="5" class="bg-obsidian border border-borderGray text-slate-200 p-3 rounded font-mono text-xs focus:border-neonCyan outline-none resize-none placeholder:text-slate-600" placeholder="Escribe aquí tu discurso o justificación argumentativa. Debe integrar conceptos de eficiencia, datos, leyes vigentes, soberanía o automatización..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Output Assessment Results -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-4 border-t border-borderGray">
+                        <div class="p-3 bg-obsidian rounded-lg border border-borderGray flex flex-col justify-center">
+                            <div class="font-mono text-[10px] text-slate-500">ALINEACIÓN_CONCEPTUAL_DOCTRINA</div>
+                            <div class="flex items-center space-x-3 mt-1">
+                                <span id="alignmentScore" class="text-2xl font-bold font-mono text-slate-500">0%</span>
+                                <span id="alignmentLabel" class="text-[10px] px-2 py-0.5 rounded font-mono bg-slate-800 text-slate-400">ESPERANDO RESPUESTA</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end">
+                            <button onclick="analyzeOratorySemantics()" class="w-full md:w-auto px-6 py-3 bg-gradient-to-r from-cyan-500 to-emerald-500 text-obsidian font-bold rounded-lg font-mono text-xs hover:shadow-lg transition-all">
+                                ANALIZAR ALINEACIÓN SEMÁNTICA_
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Heuristic Audit Remarks -->
+                    <div id="oratoryFeedbackBox" class="mt-4 p-3 bg-obsidian border border-borderGray rounded-lg font-mono text-[10px] text-slate-500 hidden">
+                        <span class="text-neonCyan font-bold">>_ AUDITORÍA DEL REDACTOR DE ESTADO:</span>
+                        <p id="oratoryFeedbackText" class="mt-1 text-slate-400">Sin analizar.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: RUTA DE LOS PODERES CREADORES (7T HISTORIC PLANNER) -->
+    <section id="ruta" class="py-16 bg-cyberGray/20 border-t border-borderGray relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                
+                <!-- Interactive Builder Frame -->
+                <div class="lg:col-span-7 bg-obsidian border border-borderGray p-6 rounded-2xl relative order-2 lg:order-1">
+                    <div class="absolute top-2 left-4 font-mono text-[9px] text-slate-500">HISTORIC_ROUTE_BUILDER_v1.2</div>
+                    <h4 class="text-white font-mono text-sm mb-6 border-b border-borderGray pb-2 pt-1">>_ PLANIFICAR NUEVO CIRCUITO COMUNAL</h4>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Selector Sector Origen (Sucre) -->
+                        <div class="flex flex-col">
+                            <label class="font-mono text-xs text-slate-400 mb-2">📍 COORDINADA DE ORIGEN (SUCRE):</label>
+                            <select id="selOrigen" onchange="updateRutaPreview()" class="bg-cyberGray border border-borderGray text-slate-200 p-2.5 rounded font-mono text-xs focus:border-neonCyan outline-none">
+                                <option value="Petare">Comunidad Petare (Central)</option>
+                                <option value="Palo Verde">Palo Verde Sector Alto</option>
+                                <option value="Mariche">Fila de Mariche (Zona Popular)</option>
+                                <option value="La Urbina">La Urbina Residencial</option>
+                            </select>
+                        </div>
+
+                        <!-- Selector Destino Hito Historico -->
+                        <div class="flex flex-col">
+                            <label class="font-mono text-xs text-slate-400 mb-2">🏛️ SELECCIONAR DESTINO PATRIMONIAL:</label>
+                            <select id="selDestino" onchange="updateRutaPreview()" class="bg-cyberGray border border-borderGray text-slate-200 p-2.5 rounded font-mono text-xs focus:border-neonCyan outline-none">
+                                <option value="Casco Petare">Casco Histórico de Petare</option>
+                                <option value="Casa Leones">La Casa de los Leones (Petare)</option>
+                                <option value="Dulce Nombre">Iglesia Dulce Nombre de Jesús</option>
+                            </select>
+                        </div>
+
+                        <!-- Selector Mentor (Profesor de Historia) -->
+                        <div class="flex flex-col">
+                            <label class="font-mono text-xs text-slate-400 mb-2">👨‍🏫 MENTOR DE RUTA (PROF. HISTORIA):</label>
+                            <select id="selDocente" onchange="updateRutaPreview()" class="bg-cyberGray border border-borderGray text-slate-200 p-2.5 rounded font-mono text-xs focus:border-neonCyan outline-none">
+                                <option value="Prof. Hector Medina">Prof. Héctor Medina (Historiador Local)</option>
+                                <option value="Dra. Carmen Delgado">Dra. Carmen Delgado (Cronista de Petare)</option>
+                                <option value="Lic. Jose Luis Romero">Lic. José Luis Romero (Docente UBV)</option>
+                            </select>
+                        </div>
+
+                        <!-- Cantidad de niños autorizados -->
+                        <div class="flex flex-col">
+                            <label class="font-mono text-xs text-slate-400 mb-2">👶 ESTIMACIÓN DE NIÑOS ASISTENTES:</label>
+                            <input type="number" id="inpKids" min="5" max="50" value="25" onchange="updateRutaPreview()" oninput="updateRutaPreview()" class="bg-cyberGray border border-borderGray text-slate-200 p-2.5 rounded font-mono text-xs focus:border-neonCyan outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Route Visual Map Outline -->
+                    <div class="mt-6 p-4 bg-cyberGray border border-borderGray rounded-lg font-mono text-xs">
+                        <div class="text-neonCyan font-bold mb-2">>_ REPORTE DE LOGÍSTICA DE TRANSITO AUTO-GENERADO</div>
+                        <div class="space-y-1 text-slate-400">
+                            <div>VINCULACIÓN: <span id="rLink" class="text-white">Petare -> Casco Histórico</span></div>
+                            <div>MENTOR ASIGNADO: <span id="rMentor" class="text-neonEmerald">Prof. Héctor Medina</span></div>
+                            <div>ESTIMACIÓN LOGÍSTICA: <span id="rLog" class="text-white">1 Unidad de Transporte Comunitario</span></div>
+                            <div>VÉRTICE PLAN DE LA PATRIA: <span class="text-neonCyan">Transformación Educativa & Identidad (7T)</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Descriptive Content -->
+                <div class="lg:col-span-5 space-y-6 order-1 lg:order-2">
+                    <h2 class="font-mono text-xs text-neonCyan tracking-widest">>_ [04] RUTA DE LOS PODERES CREADORES</h2>
+                    <h3 class="text-3xl font-extrabold text-white">Reculturización comunal gestionada de forma eficiente</h3>
+                    <p class="text-slate-400">
+                        Convertimos el territorio en un aula abierta. A través de la Red de Nodos ÉPICA, democratizamos el acceso al conocimiento de nuestra historia patria para los niños de las comunidades del Municipio Sucre. 
+                    </p>
+                    <p class="text-slate-400">
+                        La plataforma automatiza la solicitud de permisos digitales de los representantes, la asignación de rutas logísticas y el registro de la evaluación cualitativa de los profesores de historia mediante análisis semántico en el Mando DB. Todo sin papel, todo auditable y directo.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: THE CORE MANDO DB CONSOLE & LIVE FORM -->
+    <section id="mando" class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-12">
+            <h2 class="font-mono text-xs text-neonCyan tracking-widest">>_ [05] NÚCLEO OPERATIVO DEL SISTEMA (MANDO DB)</h2>
+            <p class="text-3xl font-extrabold text-white mt-2">Activa Tu Nodo En Tiempo Real</p>
+            <p class="text-slate-400 mt-2">Diligencia el formulario de acceso de la Red de Nodos de ÉPICA. Al ejecutar el registro, tus datos pasarán por el validador, se encriptarán y se consolidarán al instante en la base de datos NoSQL del Mando DB.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Side: Registration Form -->
+            <div class="lg:col-span-5 bg-cyberGray border border-borderGray p-6 rounded-2xl relative">
+                <div class="absolute top-2 right-4 font-mono text-[9px] text-slate-500">CLIENT_NODE_REGISTER</div>
+                <h4 class="text-white font-mono text-sm mb-6 border-b border-borderGray pb-2">>_ FORMULARIO DE ACCESO_</h4>
+                
+                <form id="epicaLiveForm" class="space-y-4 font-mono text-xs" onsubmit="handleFormSubmit(event)">
+                    <div class="flex flex-col">
+                        <label class="text-neonCyan mb-1">>_ SELECCIONAR TIPO DE REGISTRO:</label>
+                        <select id="formRol" required class="bg-obsidian border border-borderGray text-slate-200 p-2.5 rounded focus:border-neonCyan outline-none">
+                            <option value="Cuadro Técnico">Cuadro Técnico (Operador de Nodo - Sucre)</option>
+                            <option value="Inversor Privado">Inversor / Corporativo SaaS</option>
+                            <option value="Prof. de Historia">Profesor de Historia / Mentor</option>
+                            <option value="Representante">Representante (Ruta 7T)</option>
+                        </select>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label class="text-neonCyan mb-1">>_ NOMBRES Y APELLIDOS DEL TITULAR:</label>
+                        <input type="text" id="formNombre" required placeholder="Ej. Roberto Mejias" class="bg-obsidian border border-borderGray text-slate-200 p-2.5 rounded focus:border-neonCyan outline-none">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="flex flex-col">
+                            <label class="text-neonCyan mb-1">>_ CÉDULA / RIF:</label>
+                            <input type="text" id="formCedula" required placeholder="Ej. V-00000000" class="bg-obsidian border border-borderGray text-slate-200 p-2.5 rounded focus:border-neonCyan outline-none">
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-neonCyan mb-1">>_ TELÉFONO MÓVIL:</label>
+                            <input type="tel" id="formTelf" required placeholder="Ej. 04125694851" class="bg-obsidian border border-borderGray text-slate-200 p-2.5 rounded focus:border-neonCyan outline-none">
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label class="text-neonCyan mb-1">>_ CORREO ELECTRÓNICO INSTITUCIONAL:</label>
+                        <input type="email" id="formEmail" required placeholder="somosepicave@gmail.com" class="bg-obsidian border border-borderGray text-slate-200 p-2.5 rounded focus:border-neonCyan outline-none">
+                    </div>
+
+                    <div class="flex flex-col">
+                        <label class="text-neonCyan mb-1">>_ COORDENADA GEOGRÁFICA / PARROQUIA:</label>
+                        <input type="text" id="formUbicacion" required placeholder="Municipio Sucre, Parroquia Petare..." class="bg-obsidian border border-borderGray text-slate-200 p-2.5 rounded focus:border-neonCyan outline-none">
+                    </div>
+
+                    <button type="submit" id="btnSubmitForm" class="w-full mt-4 py-3 bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-obsidian font-bold rounded-lg transition-all duration-300">
+                        TRANSMITIR ACCESO AL MANDO DB_
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right Side: Mando DB Active Live Console Simulator -->
+            <div class="lg:col-span-7 bg-obsidian border border-borderGray rounded-2xl overflow-hidden relative flex flex-col min-h-[500px]">
+                <!-- Terminal Header Bar -->
+                <div class="bg-cyberGray border-b border-borderGray px-4 py-2 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-yellow-500"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+                        <span class="font-mono text-[10px] text-slate-500 ml-2">MANDO_DB_CONVERT_SYSTEM: ACTIVE</span>
+                    </div>
+                    
+                    <!-- Export Options -->
+                    <div class="flex items-center space-x-2">
+                        <button onclick="exportData('json')" class="text-[10px] bg-cyberGray border border-borderGray hover:border-neonCyan px-2 py-0.5 rounded text-neonCyan font-mono">EXPORT_JSON</button>
+                        <button onclick="exportData('csv')" class="text-[10px] bg-cyberGray border border-borderGray hover:border-neonCyan px-2 py-0.5 rounded text-neonCyan font-mono">EXPORT_CSV</button>
+                    </div>
+                </div>
+
+                <!-- Database Rows Container -->
+                <div class="p-4 flex-grow overflow-y-auto font-mono text-xs space-y-4 scanline" id="mandoDbLogs">
+                    <!-- Base System logs initially loaded -->
+                    <div class="text-slate-500 text-[11px] font-mono">>_ [SYS_INIT] Conexión establecida con la nube de almacenamiento soberana.</div>
+                    <div class="text-slate-500 text-[11px] font-mono">>_ [SYS_OK] Enlace cifrado asíncrono listo para recibir pings.</div>
+                    
+                    <!-- Initial State Records (Pre-populated) -->
+                    <div class="p-3 bg-cyberGray border border-borderGray rounded-lg text-slate-300 relative border-l-4 border-l-neonCyan">
+                        <div class="absolute top-2 right-2 text-[9px] text-slate-500">ID: #0584</div>
+                        <div class="grid grid-cols-2 gap-x-2 gap-y-1">
+                            <span><span class="text-neonCyan">TITULAR:</span> Douglangel Mejias</span>
+                            <span><span class="text-neonCyan">ROL:</span> Director General</span>
+                            <span><span class="text-neonCyan">CÉDULA:</span> V-10012871</span>
+                            <span><span class="text-neonCyan">UBICACIÓN:</span> Caracas, Petare</span>
+                            <span><span class="text-neonCyan">TELF:</span> 04125694851</span>
+                            <span><span class="text-neonCyan">STATUS:</span> <span class="text-neonEmerald font-bold">ADMIN_CENTRAL</span></span>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-cyberGray border border-borderGray rounded-lg text-slate-300 relative border-l-4 border-l-neonEmerald">
+                        <div class="absolute top-2 right-2 text-[9px] text-slate-500">ID: #1421</div>
+                        <div class="grid grid-cols-2 gap-x-2 gap-y-1">
+                            <span><span class="text-neonEmerald">TITULAR:</span> María Gabriela Solórzano</span>
+                            <span><span class="text-neonEmerald">ROL:</span> Prof. de Historia</span>
+                            <span><span class="text-neonEmerald">CÉDULA:</span> V-18451203</span>
+                            <span><span class="text-neonEmerald">UBICACIÓN:</span> Sucre, Palo Verde</span>
+                            <span><span class="text-neonEmerald">TELF:</span> 04141123456</span>
+                            <span><span class="text-neonEmerald">STATUS:</span> <span class="text-neonCyan">LOG_ROUTING_OK</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terminal Bottom Status bar -->
+                <div class="bg-cyberGray border-t border-borderGray px-4 py-2 flex items-center justify-between text-[10px] font-mono text-slate-500">
+                    <span>REGISTROS EN MEMORIA: <span id="regMem" class="text-white">2</span></span>
+                    <span>ENCRIPTACIÓN: AES-256 (SANITIZED_FLOW)</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- PREMIUM CORPORATE FOOTER -->
+    <footer class="border-t border-borderGray bg-cyberGray/50 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-6 h-6 rounded bg-gradient-to-tr from-cyan-500 to-emerald-500 flex items-center justify-center">
+                            <span class="font-mono font-bold text-obsidian text-xs">É</span>
+                        </div>
+                        <span class="font-bold text-md text-white font-sans">ÉPICA TECH</span>
+                    </div>
+                    <p class="text-xs text-slate-500">
+                        Ecosistema soberano de ingeniería de software e interoperabilidad nacional. Desarrollado bajo estándares de Código Abierto.
+                    </p>
+                </div>
+                <div>
+                    <h5 class="font-mono text-xs text-neonCyan mb-4">>_ CONTACTO</h5>
+                    <ul class="text-xs text-slate-400 space-y-2 font-mono">
+                        <li><i class="fa-solid fa-phone mr-2 text-slate-600"></i> 0412-5694851</li>
+                        <li><i class="fa-solid fa-envelope mr-2 text-slate-600"></i> somosepicave@gmail.com</li>
+                        <li><i class="fa-solid fa-envelope mr-2 text-slate-600"></i> douglangelm@gmail.com</li>
                     </ul>
                 </div>
-                <div class="metric-box">
-                    <div class="metric-number">60%</div>
-                    <div class="metric-label">Eficiencia en Flujo de Datos Organizacionales</div>
+                <div>
+                    <h5 class="font-mono text-xs text-neonCyan mb-4">>_ PRESENCIA_NET</h5>
+                    <ul class="text-xs text-slate-400 space-y-2 font-mono">
+                        <li><i class="fa-brands fa-instagram mr-2 text-slate-600"></i> @somosepicaven</li>
+                        <li><i class="fa-brands fa-instagram mr-2 text-slate-600"></i> @robertooomejias (Personal)</li>
+                        <li><i class="fa-solid fa-globe mr-2 text-slate-600"></i> somosepicaven.github.io/somosepicaven</li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-mono text-xs text-neonEmerald mb-4">>_ VALORES_DEL_SISTEMA</h5>
+                    <p class="text-xs text-slate-400 italic">
+                        "La reconstrucción de los procesos operativos nacionales no deviene de discursos retóricos, se diseña mediante código y algoritmos precisos de gestión."
+                    </p>
                 </div>
             </div>
-        </section>
-
-        <section id="comunidades" class="section-core">
-            <h2>[03] RUTA DE LOS PODERES CREADORES</h2>
-            <p class="section-subtitle">Programa de Apropiación Social e Interconexión Histórica para la Transformación Educativa (7T)</p>
-            <div class="project-details">
-                <p>A través de nuestros Nodos, convertimos el territorio en un aula abierta. El sistema automatiza la logística, rutas de transporte y asignación de <strong>Mentores de Ruta (Profesores de Historia)</strong> para movilizar a los niños de la comunidad hacia los hitos patrimoniales del país, registrando evaluaciones cualitativas en tiempo real mediante análisis semántico en el Mando DB.</p>
+            <div class="mt-8 pt-8 border-t border-borderGray text-center text-slate-600 text-[10px] font-mono">
+                ÉPICA &copy; 2026 | CARACAS, VENEZUELA. TODO EL FLUJO OPERATIVO ES RESPONSABILIDAD DEL MANDO DIRECTIVO.
             </div>
-        </section>
-
-        <section id="nodos-registro" class="section-core form-section">
-            <h2>[04] ACTIVACIÓN DE NODOS / REGISTRO DE CUADROS</h2>
-            <p>Selecciona tu perfil de acceso para ingresar al Ecosistema ÉPICA.</p>
-            
-            <form id="epica-core-form" class="terminal-form">
-                <div class="form-group">
-                    <label for="perfil">>_ SELECCIONAR ROL DEL USUARIO:</label>
-                    <select id="perfil" name="perfil" required>
-                        <option value="cuadro-tecnico">Cuadro Técnico (Operador de Nodo - Sucre)</option>
-                        <option value="inversor">Inversor / Representante Corporativo</option>
-                        <option value="docente">Docente / Profesor de Historia</option>
-                        <option value="representante">Representante (Ruta de los Poderes Creadores)</option>
-                    </select>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="nombre">>_ NOMBRES Y APELLIDOS:</label>
-                        <input type="text" id="nombre" name="nombre" placeholder="Ej. Roberto Mejias" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="cedula">>_ CÉDULA / RIF:</label>
-                        <input type="text" id="cedula" name="cedula" placeholder="Ej. V-00000000" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="telefono">>_ TELÉFONO MÓVIL:</label>
-                        <input type="tel" id="telefono" name="telefono" placeholder="Ej. 04125694851" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">>_ CORREO ELECTRÓNICO:</label>
-                        <input type="email" id="email" name="email" placeholder="nombre@dominio.com" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="ubicacion">>_ COORDENADA GEOGRÁFICA / PARROQUIA (Especifique Sector Ej. Palo Verde, Petare):</label>
-                    <input type="text" id="ubicacion" name="ubicacion" placeholder="Municipio Sucre, Parroquia..." required>
-                </div>
-
-                <button type="submit" class="btn-submit">EJECUTAR SOLICITUD DE ACCESO_</button>
-            </form>
-        </section>
-    </main>
-
-    <footer class="system-footer">
-        <p>ÉPICA &copy; 2026 // Caracas, Venezuela. Todos los derechos reservados. Desarrollado bajo estándares de Software Libre.</p>
+        </div>
     </footer>
 
+    <!-- INTERACTIVE APP ACTIONS & STATE LOGIC -->
+    <script>
+        // Real-time Clock System Update
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toTimeString().split(' ')[0];
+            document.getElementById('clock').textContent = timeString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // In-memory Database of registered entities (Nodos/Usuarios) for CSV/JSON Exporting
+        const epicaDatabase = [
+            { id: 584, nombre: "Douglangel Mejias", rol: "Director General", cedula: "V-10012871", ubicacion: "Caracas, Petare", telefono: "04125694851", email: "douglangelm@gmail.com" },
+            { id: 1421, nombre: "María Gabriela Solórzano", rol: "Prof. de Historia", cedula: "V-18451203", ubicacion: "Sucre, Palo Verde", telefono: "04141123456", email: "maria@epicaven.org" }
+        ];
+
+        // Scenario mapping for the semantic evaluation console
+        const scenarios = {
+            1: {
+                name: "ESCENARIO A: BUROCRACIA MINISTERIAL",
+                prompt: "Un directivo de un ministerio indica que el sistema digital Cero Papel de ÉPICA es 'demasiado arriesgado' porque el papel impreso con firmas húmedas es el único soporte legal válido. Argumente la transición basándose en la Ley Orgánica para la Celeridad y Optimización de Trámites Administrativos (2026)."
+            },
+            2: {
+                name: "ESCENARIO B: SOBERANÍA ANTE EL BLOQUEO",
+                prompt: "Un evaluador técnico del MINCYT cuestiona si la plataforma es verdaderamente soberana o si depende de infraestructuras extranjeras. Responda justificando el uso de estándares web libres (HTML5, Vanilla JS), modularidad de código y migración final a CNTI/SUSERTE."
+            },
+            3: {
+                name: "ESCENARIO C: FINANCIAMIENTO PRIVADO",
+                prompt: "Un inversor de un consorcio comercial privado de logística está dispuesto a financiar el software, pero exige ver cómo ÉPICA reduce un 60% de los costos de archivo interno y cómo planeas estructurar un modelo SaaS aplicable a sucursales de distribución."
+            }
+        };
+
+        let currentScenarioId = 1;
+
+        function setScenario(id) {
+            currentScenarioId = id;
+            document.getElementById('scenarioName').textContent = scenarios[id].name;
+            document.getElementById('scenarioPrompt').textContent = scenarios[id].prompt;
+            document.getElementById('oratoryInput').value = "";
+            
+            // Toggle active classes on scenario selection buttons
+            [1, 2, 3].forEach(sid => {
+                const btn = document.getElementById(`btnSce${sid}`);
+                if (sid === id) {
+                    btn.className = "w-full p-3 bg-cyberGray border border-neonCyan rounded-lg text-left text-xs font-mono text-white transition-all";
+                } else {
+                    btn.className = "w-full p-3 bg-cyberGray border border-borderGray hover:border-neonCyan/50 rounded-lg text-left text-xs font-mono text-slate-400 transition-all";
+                }
+            });
+        }
+
+        // Semantic Evaluation Engine for High-pressure Oratory Scenario
+        function analyzeOratorySemantics() {
+            const input = document.getElementById('oratoryInput').value.trim();
+            const scoreDisplay = document.getElementById('alignmentScore');
+            const labelDisplay = document.getElementById('alignmentLabel');
+            const feedbackBox = document.getElementById('oratoryFeedbackBox');
+            const feedbackText = document.getElementById('oratoryFeedbackText');
+
+            if (!input) {
+                alert("Por favor, introduzca una respuesta ejecutiva para ser analizada por el motor semántico.");
+                return;
+            }
+
+            // Dict of Key Technological & Strategic Weight Words
+            const keywords = {
+                1: ["celeridad", "trámites", "firma electrónica", "firma digital", "gaceta", "cero papel", "eficiencia", "digitalización", "automatización", "ley"],
+                2: ["soberanía", "software libre", "cnti", "suserte", "independencia", "código abierto", "seguridad", "servidores", "encriptado", "auditable"],
+                3: ["saas", "roi", "ahorro", "logística", "operativo", "sucursales", "sucursal", "indicadores", "mando", "rentabilidad"]
+            };
+
+            const currentScenarioKeywords = keywords[currentScenarioId];
+            let hits = 0;
+            const textLower = input.toLowerCase();
+
+            currentScenarioKeywords.forEach(word => {
+                if (textLower.includes(word)) {
+                    hits++;
+                }
+            });
+
+            // Calculate score using dynamic algorithm (base points + hits count weight)
+            let baseScore = Math.min(Math.round((input.length / 400) * 15), 30); // length weight
+            let hitScore = Math.min(Math.round((hits / currentScenarioKeywords.length) * 70), 70); // keywords weight
+            let totalScore = baseScore + hitScore;
+
+            if (input.length < 50) totalScore = Math.round(totalScore * 0.3); // penalty for short response
+
+            // Dynamic Styling and classification labels
+            scoreDisplay.textContent = totalScore + "%";
+            feedbackBox.classList.remove('hidden');
+
+            if (totalScore >= 80) {
+                labelDisplay.textContent = "ALINEACIÓN SOBRESALIENTE (MENTE CLARA)";
+                labelDisplay.className = "text-[10px] px-2 py-0.5 rounded font-mono bg-emerald-500/20 text-neonEmerald";
+                feedbackText.textContent = `Análisis semántico óptimo. Has integrado con éxito variables cruciales de la doctrina como (${currentScenarioKeywords.slice(0, 4).join(', ')}). El tono demuestra rigor técnico, madurez ejecutiva y excelente apego al marco normativo de ÉPICA. Calificado para interlocución ministerial.`;
+            } else if (totalScore >= 50) {
+                labelDisplay.textContent = "ALINEACIÓN PARCIAL (RETÓRICA COMÚN)";
+                labelDisplay.className = "text-[10px] px-2 py-0.5 rounded font-mono bg-yellow-500/20 text-yellow-400";
+                feedbackText.textContent = `La respuesta es válida pero carece de tecnicismo. Intente incorporar más vocabulario de la arquitectura del sistema como: (${currentScenarioKeywords.slice(0, 4).join(', ')}). Evite explicaciones puramente descriptivas y ofrezca métricas o fundamentos de ley directos.`;
+            } else {
+                labelDisplay.textContent = "ALINEACIÓN DEFICIENTE (DESORDEN OPERATIVO)";
+                labelDisplay.className = "text-[10px] px-2 py-0.5 rounded font-mono bg-red-500/20 text-red-400";
+                feedbackText.textContent = `Respuesta rechazada por el analizador de Estado. El texto es demasiado ambiguo o carece de la rigurosidad conceptual requerida. Es fundamental que estructures tu argumento alrededor de la ingeniería del proyecto y soluciones factibles, no discursos ideológicos.`;
+            }
+        }
+
+        // Node Selection Helper for the Interactive Map
+        function selectMapNode(location, type, status, records, efficiency) {
+            document.getElementById('nodeLoc').textContent = location;
+            document.getElementById('nodeType').textContent = type;
+            document.getElementById('nodeStatus').textContent = status;
+            document.getElementById('nodeRecords').textContent = records + " ciudadanos";
+            document.getElementById('nodeEfficiency').textContent = efficiency;
+            
+            // Random dynamic latency simulation
+            const latency = Math.floor(Math.random() * 20) + 5;
+            document.getElementById('nodeLatency').textContent = `LAT: ${latency}ms`;
+            
+            // Flash node highlights on selection
+            const infoBox = document.getElementById('nodeInfoBox');
+            infoBox.classList.add('border-neonCyan');
+            setTimeout(() => {
+                infoBox.classList.remove('border-neonCyan');
+            }, 800);
+        }
+
+        // Live API Data Packets transmitting simulator
+        let txCounter = 42810;
+        setInterval(() => {
+            txCounter += Math.floor(Math.random() * 3) + 1;
+            document.getElementById('txCount').textContent = txCounter.toLocaleString();
+        }, 4000);
+
+        // Simulation flow for System Layer interoperability
+        function startSimulation() {
+            const log = document.getElementById('simLog');
+            const c1 = document.getElementById('p-capa1');
+            const c2 = document.getElementById('p-capa2');
+            const c3 = document.getElementById('p-capa3');
+
+            log.textContent = "PING_SEND: Iniciando transmisión de datos desde el Nodo Territorial Sucre...";
+            c1.classList.remove('hidden');
+            c2.classList.add('hidden');
+            c3.classList.add('hidden');
+
+            setTimeout(() => {
+                log.textContent = "TUNNEL_OK: Datos convertidos a JSON. Transmitiendo por puerto API REST de alta densidad...";
+                c1.classList.add('hidden');
+                c2.classList.remove('hidden');
+            }, 2500);
+
+            setTimeout(() => {
+                log.textContent = "MANDO_DB: Datos indexados de forma Cero Papel y encriptados en NoSQL Soberano.";
+                c2.classList.add('hidden');
+                c3.classList.remove('hidden');
+            }, 5000);
+
+            setTimeout(() => {
+                c3.classList.add('hidden');
+                log.textContent = "Consola: En espera de nuevas instrucciones.";
+            }, 8000);
+        }
+
+        // Live SaaS ROI Dynamic Calculator Engine
+        function calculateROI() {
+            const tx = parseInt(document.getElementById('inpTx').value);
+            const resmas = parseInt(document.getElementById('inpResmas').value);
+            const hours = parseInt(document.getElementById('inpHours').value);
+
+            // Update range labels
+            document.getElementById('lblTx').textContent = tx.toLocaleString();
+            document.getElementById('lblResmas').textContent = resmas + " resmas";
+            document.getElementById('lblHours').textContent = hours + " horas";
+
+            // Calculation formulas (Corporate estimate metrics)
+            const ahorroAnual = (resmas * 12 * 12) + (hours * 15 * 12) + (tx * 0.1 * 12);
+            const tiempoRecuperado = Math.round(hours * 0.6);
+            const arbolesPreservados = (resmas * 12 * 0.1).toFixed(1);
+
+            // Print output text with smooth animations
+            document.getElementById('outAhorro').textContent = "$" + Math.round(ahorroAnual).toLocaleString();
+            document.getElementById('outTiempo').textContent = tiempoRecuperado + " horas";
+            document.getElementById('outArboles').textContent = arbolesPreservados + " árboles";
+        }
+        // Initialize calculation values
+        calculateROI();
+
+        // 7T Communal Historic planner Dynamic update logic
+        function updateRutaPreview() {
+            const origen = document.getElementById('selOrigen').value;
+            const destino = document.getElementById('selDestino').value;
+            const mentorName = document.getElementById('selDocente').value;
+            const kids = document.getElementById('inpKids').value;
+
+            document.getElementById('rLink').textContent = origen + " -> " + destino;
+            document.getElementById('rMentor').textContent = mentorName;
+            
+            // Auto transport unit estimation logic
+            let transUnits = "1 Unidad de Transito Comunitario";
+            if (kids > 30) {
+                transUnits = "2 Unidades de Transito Comunitario (Autobús Piloto)";
+            }
+            document.getElementById('rLog').textContent = transUnits + " para " + kids + " niños autorizados";
+        }
+        updateRutaPreview();
+
+        // Live DB dynamic record simulation on user registration
+        let registerIdCount = 1940;
+        
+        // Defend against injection and sanitize user inputs
+        function sanitizeInput(str) {
+            return str.replace(/[&<>"']/g, function(match) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#x27;'
+                }[match];
+            }).trim();
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            const btn = document.getElementById('btnSubmitForm');
+            const rol = sanitizeInput(document.getElementById('formRol').value);
+            const nombre = sanitizeInput(document.getElementById('formNombre').value);
+            const cedula = sanitizeInput(document.getElementById('formCedula').value);
+            const telf = sanitizeInput(document.getElementById('formTelf').value);
+            const email = sanitizeInput(document.getElementById('formEmail').value);
+            const ubicacion = sanitizeInput(document.getElementById('formUbicacion').value);
+
+            btn.disabled = true;
+            btn.textContent = "ENCRIPTANDO REGISTRO & SUBIENDO A CONSOLA...";
+
+            setTimeout(() => {
+                const dbLogs = document.getElementById('mandoDbLogs');
+                
+                // Color formatting depending on role selection
+                let borderColor = "border-l-neonCyan";
+                if (rol === "Inversor Privado") {
+                    borderColor = "border-l-purple-500";
+                } else if (rol === "Prof. de Historia") {
+                    borderColor = "border-l-neonEmerald";
+                } else if (rol === "Representante") {
+                    borderColor = "border-l-yellow-500";
+                }
+
+                registerIdCount += Math.floor(Math.random() * 5) + 1;
+                
+                // Construct object and push to our local database array
+                const newRecord = {
+                    id: registerIdCount,
+                    nombre: nombre,
+                    rol: rol,
+                    cedula: cedula,
+                    ubicacion: ubicacion,
+                    telefono: telf,
+                    email: email
+                };
+                
+                epicaDatabase.push(newRecord);
+
+                const newRow = document.createElement('div');
+                newRow.className = `p-3 bg-cyberGray border border-borderGray rounded-lg text-slate-300 relative border-l-4 ${borderColor} animate-pulse`;
+                newRow.innerHTML = `
+                    <div class="absolute top-2 right-2 text-[9px] text-slate-500">ID: #${registerIdCount}</div>
+                    <div class="grid grid-cols-2 gap-x-2 gap-y-1">
+                        <span><span class="text-neonCyan">TITULAR:</span> ${nombre}</span>
+                        <span><span class="text-neonCyan">ROL:</span> ${rol}</span>
+                        <span><span class="text-neonCyan">CÉDULA:</span> ${cedula}</span>
+                        <span><span class="text-neonCyan">UBICACIÓN:</span> ${ubicacion}</span>
+                        <span><span class="text-neonCyan">TELF:</span> ${telf}</span>
+                        <span><span class="text-neonCyan">STATUS:</span> <span class="text-neonEmerald">EN_LINEA_VERIFICADO</span></span>
+                    </div>
+                `;
+
+                // Append new row
+                dbLogs.appendChild(newRow);
+                
+                // Update stats bar
+                document.getElementById('regMem').textContent = epicaDatabase.length;
+
+                setTimeout(() => {
+                    newRow.classList.remove('animate-pulse');
+                }, 1500);
+
+                // Reset button and form
+                btn.disabled = false;
+                btn.textContent = "TRANSMITIR ACCESO AL MANDO DB_";
+                document.getElementById('epicaLiveForm').reset();
+                
+                // Scroll to bottom
+                dbLogs.scrollTop = dbLogs.scrollHeight;
+            }, 1800);
+        }
+
+        // CSV/JSON Data Exporting Engines
+        function exportData(format) {
+            let dataStr = "";
+            let mimeType = "";
+            let filename = `epica_database_export.${format}`;
+
+            if (format === 'json') {
+                dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(epicaDatabase, null, 2));
+                mimeType = "application/json";
+            } else if (format === 'csv') {
+                const headers = ["ID", "Nombre", "Rol", "Cedula", "Ubicacion", "Telefono", "Email"];
+                const rows = epicaDatabase.map(r => [r.id, `"${r.nombre}"`, `"${r.rol}"`, r.cedula, `"${r.ubicacion}"`, r.telefono, r.email].join(","));
+                const csvContent = [headers.join(","), ...rows].join("\n");
+                dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(csvContent);
+                mimeType = "text/csv";
+            }
+
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", filename);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+    </script>
 </body>
 </html>
