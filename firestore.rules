@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Ecosistema ÉPICA - Reglas de Seguridad Cero Papel
+    match /artifacts/{appId}/public/data/militantes/{militanteId} {
+      // Regla 1: Strict Paths - Solo se puede leer de la ruta de militantes
+      allow read: if true; // Acceso público de lectura para el Mando Central
+      
+      // Regla 3: Auth Guard - Escritura estrictamente protegida
+      // Solo usuarios autenticados pueden registrar en el ledger/base de datos
+      allow write: if request.auth != null;
+    }
+    
+    // Bloquear todo lo demás por seguridad
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
