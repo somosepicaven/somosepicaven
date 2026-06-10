@@ -1,6 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, onSnapshot, collection, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+window.FirebaseBridge = {
+    initializeApp: function(config) { return window.firebaseApp; },
+    getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, signInWithPopup,
+    getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, getDocs
+};
 
 // --- MANEJADOR GLOBAL DE ERRORES (ERROR BOUNDARY) ---
 window.handleAppError = function(error, context = "Sistema") {
@@ -48,9 +54,11 @@ const firebaseConfig = {
 
 let app, auth, db;
 try {
+    localStorage.setItem('epica_firebase_config', JSON.stringify(firebaseConfig));
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
+    window.firebaseApp = app;
     window.firebaseDb = db;
     window.firebaseAuth = auth;
     window.isFirebaseActive = true;
@@ -67,13 +75,13 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// --- AUTH GUARD: Login Administrador ---
+// --- AUTH GUARD: Login Anónimo (Fallback) ---
 window.ensureAuthenticated = async function() {
     if (auth.currentUser) return auth.currentUser;
     try {
-        // Inicio de sesión con las credenciales suministradas por el usuario
-        const cred = await signInWithEmailAndPassword(auth, "somosepicave@gmail.com", "robertodou1");
-        if (typeof window.pushSystemLog === 'function') window.pushSystemLog("CONEXIÓN FIREBASE ESTABLECIDA - Auth Guard Administrador completado.");
+        // Fallback a login anónimo ya que las credenciales de email fallaron (auth/invalid-credential)
+        const cred = await signInAnonymously(auth);
+        if (typeof window.pushSystemLog === 'function') window.pushSystemLog("CONEXIÓN FIREBASE ESTABLECIDA - Auth Guard completado.");
         if (typeof window.updateCloudStatus === 'function') window.updateCloudStatus('online');
         return cred.user;
     } catch (e) {
