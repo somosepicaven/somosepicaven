@@ -1,0 +1,12 @@
+# Archivos a ignorar
+.env
+storage/logs/
+storage/framework/sessions/
+storage/framework/cache/
+bootstrap/cache/
+vendor/
+node_modules/
+*.log
+*.DS_Store
+Thumbs.db
+backup_db/
