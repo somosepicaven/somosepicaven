@@ -3,7 +3,9 @@ import {
     getAuth, 
     signInWithCustomToken, 
     signInAnonymously, 
-    onAuthStateChanged 
+    onAuthStateChanged,
+    GoogleAuthProvider,
+    signInWithPopup
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { 
     getFirestore, 
@@ -38,6 +40,19 @@ const db = getFirestore(app);
 
 let currentUser = null;
 let currentUserId = null;
+
+// Exponer las variables globales necesarias para la UI de index.html (Súmate a la Red de Mando)
+window.firebaseAuth = auth;
+window.firebaseDB = db;
+window.isFirebaseActive = true;
+window.FirebaseBridge = {
+    GoogleAuthProvider,
+    signInWithPopup
+};
+
+if (typeof window.updateCloudStatus === 'function') {
+    window.updateCloudStatus(true);
+}
 
 // Helpers seguros para logs si existen en index.html
 const safePushSystemLog = (msg) => {
