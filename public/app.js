@@ -1,325 +1,275 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, signInAnonymously, signInWithEmailAndPassword, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { 
+    getAuth, 
+    signInWithCustomToken, 
+    signInAnonymously, 
+    onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { 
+    getFirestore, 
+    doc, 
+    setDoc, 
+    getDoc, 
+    collection, 
+    addDoc, 
+    updateDoc, 
+    deleteDoc, 
+    onSnapshot, 
+    query 
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-window.FirebaseBridge = {
-    initializeApp: function(config) { return window.firebaseApp; },
-    getAuth, signInAnonymously, signInWithEmailAndPassword, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, signInWithPopup,
-    getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, getDocs
-};
+// 1. Resolver variables de entorno globales proporcionadas por el sistema
+const appId = typeof window.__app_id !== 'undefined' ? window.__app_id : 'default-app-id';
+const firebaseConfig = typeof window.__firebase_config !== 'undefined' 
+    ? JSON.parse(window.__firebase_config) 
+    : {
+        apiKey: "AIzaSyChLLOgR4OTRwcswYyo0Y1JASf5jp8CTTc", // Fallback local
+        authDomain: "proyecto-epica-c3d2d.firebaseapp.com",
+        projectId: "proyecto-epica-c3d2d",
+        storageBucket: "proyecto-epica-c3d2d.firebasestorage.app",
+        messagingSenderId: "827017252574",
+        appId: "1:827017252574:web:7b8d5d839e12eb0c3efc4f"
+      };
 
-// --- MANEJADOR GLOBAL DE ERRORES (ERROR BOUNDARY) ---
-window.handleAppError = function(error, context = "Sistema") {
-    console.error(`[ÉPICA ERROR - ${context}]:`, error);
-    
-    // Si la UI principal tiene showToast, la usamos
-    if (typeof window.showToast === 'function') {
-        window.showToast(`Error en ${context}: ${error.message || 'Fallo de red o permisos.'}`, "error");
-    } else {
-        alert(`ÉPICA ERROR [${context}]: ${error.message || 'Fallo de red o permisos.'}`);
-    }
-    
-    // Si la UI tiene pushSystemLog, lo usamos para el Dashboard
+// 2. Inicializar Aplicación y Servicios
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+let currentUserId = null;
+
+// Helpers seguros para logs si existen en index.html
+const safePushSystemLog = (msg) => {
     if (typeof window.pushSystemLog === 'function') {
-        window.pushSystemLog(`[Fallo en ${context}] -> Activando protocolos offline.`);
+        window.pushSystemLog(msg);
+    } else {
+        console.log("SYS_CORE >> " + msg);
     }
+};
+
+const safeShowToast = (msg, type) => {
+    if (typeof window.showToast === 'function') {
+        window.showToast(msg, type);
+    } else {
+        console.log(`[${type}] TOAST: ` + msg);
+    }
+};
+
+// 3. Helper de Rutas Públicas (Garantiza el cumplimiento de la REGLA 1)
+const getPublicCollectionRef = (collectionName) => {
+    return collection(db, 'artifacts', appId, 'public', 'data', collectionName);
+};
+
+const getPublicDocRef = (collectionName, docId) => {
+    return doc(db, 'artifacts', appId, 'public', 'data', collectionName, docId);
+};
+
+// ==========================================
+// MÓDULO: CNE ÉPICA (TELEMETRÍA EN VIVO)
+// ==========================================
+function syncCNEVotesRealtime() {
+    const colRef = getPublicCollectionRef('cne_votos');
+    const q = query(colRef);
     
-    // Si es un error de Firebase de permisos o red, activamos la API de contingencia PHP
-    if (error.code === 'permission-denied' || error.code === 'unavailable' || error.message.includes('offline')) {
-        window.isFirebaseActive = false;
-        if (typeof window.updateCloudStatus === 'function') {
-            window.updateCloudStatus('offline');
-        }
-    }
-};
-
-window.addEventListener('error', function(e) {
-    window.handleAppError(e.error, "Excepción Global");
-});
-
-window.addEventListener('unhandledrejection', function(e) {
-    window.handleAppError(e.reason, "Promesa Asíncrona");
-});
-
-// --- CONFIGURACIÓN DE FIREBASE (CREDENCIAIS SUMINISTRADAS) ---
-const firebaseConfig = {
-  apiKey: "AIzaSyChLLOgR4OTRwcswYyo0Y1JASf5jp8CTTc",
-  authDomain: "proyecto-epica-c3d2d.firebaseapp.com",
-  projectId: "proyecto-epica-c3d2d",
-  storageBucket: "proyecto-epica-c3d2d.firebasestorage.app",
-  messagingSenderId: "827017252574",
-  appId: "1:827017252574:web:7b8d5d839e12eb0c3efc4f",
-  measurementId: "G-WJNVBJYWJ8"
-};
-
-let app, auth, db;
-try {
-    localStorage.setItem('epica_firebase_config', JSON.stringify(firebaseConfig));
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = getFirestore(app);
-    window.firebaseApp = app;
-    window.firebaseDb = db;
-    window.firebaseAuth = auth;
-    window.isFirebaseActive = true;
-} catch (e) {
-    window.handleAppError(e, "Inicialización Firebase");
-}
-
-// Service Worker Registration
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./service-worker.js')
-            .then(reg => console.log('ServiceWorker registrado:', reg.scope))
-            .catch(err => window.handleAppError(err, "Service Worker"));
-    });
-}
-
-// --- AUTH GUARD: Login Anónimo (Fallback) ---
-window.ensureAuthenticated = async function() {
-    if (auth.currentUser) return auth.currentUser;
-    try {
-        // Fallback a login anónimo ya que las credenciales de email fallaron (auth/invalid-credential)
-        const cred = await signInWithEmailAndPassword(auth, "somosepicave@gmail.com", "robertodou1");
-        if (typeof window.pushSystemLog === 'function') window.pushSystemLog("CONEXIÓN FIREBASE ESTABLECIDA - Auth Guard completado.");
-        if (typeof window.updateCloudStatus === 'function') window.updateCloudStatus('online');
-        return cred.user;
-    } catch (e) {
-        window.handleAppError(e, "Auth Guard (Firebase Login)");
-        throw e;
-    }
-};
-
-// --- SYNC ENGINE: Sincronización Segura ---
-window.syncMilitantToFirebase = async function(militantData) {
-    try {
-        await window.ensureAuthenticated();
-        const appId = typeof window.getAppId === 'function' ? window.getAppId() : 'default-app-id';
-        const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'militantes', militantData.id);
-        await setDoc(docRef, militantData);
-        if (typeof window.pushSystemLog === 'function') window.pushSystemLog(`Militante ${militantData.name} respaldado en Firestore.`);
-    } catch (err) {
-        window.handleAppError(err, "Escritura de Firestore");
-        // Fallback a PHP API Contingencia
-        syncToPHPFallback(militantData);
-    }
-};
-
-async function syncToPHPFallback(data) {
-    try {
-        if (typeof window.pushSystemLog === 'function') window.pushSystemLog("Intentando respaldo en nube PHP alterna...");
-        const res = await fetch('api.php', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        });
-        if (!res.ok) throw new Error("PHP API retornó error.");
-        if (typeof window.pushSystemLog === 'function') window.pushSystemLog("Respaldo exitoso en nube PHP alterna.");
-    } catch (e) {
-        window.handleAppError(e, "Fallback PHP Sync");
-        if (typeof window.pushSystemLog === 'function') window.pushSystemLog("Guardado en LocalStorage/IndexedDB activado.");
-    }
-}
-
-// Listener de Base de Datos
-window.addEventListener('load', async () => {
-  try {
-    await window.ensureAuthenticated();
-    const appId = typeof window.getAppId === 'function' ? window.getAppId() : 'default-app-id';
-    const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'militantes'));
     onSnapshot(q, (snapshot) => {
-        let updatedList = [];
-        snapshot.forEach((doc) => {
-            updatedList.push(doc.data());
+        let siVotes = 0;
+        let noVotes = 0;
+        let abstVotes = 0;
+        let newLedger = [];
+        
+        snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            if (data.choice === 'SI') siVotes++;
+            else if (data.choice === 'NO') noVotes++;
+            else if (data.choice === 'ABSTENCIÓN') abstVotes++;
+            
+            newLedger.push({
+                docId: docSnap.id,
+                ...data
+            });
         });
-        if (updatedList.length > 0 && typeof window.militantsDB !== 'undefined') {
-            window.militantsDB = updatedList;
-            localStorage.setItem('epica_militants_db', JSON.stringify(window.militantsDB));
-            if(typeof window.renderMilitantsTable === 'function') window.renderMilitantsTable();
-            if(typeof window.updateDashboardMetrics === 'function') window.updateDashboardMetrics();
-            if(window.pushSystemLog) window.pushSystemLog('Base de datos sincronizada remotamente via Firestore.');
+        
+        // Ordenamiento en cliente (REGLA 2)
+        newLedger.sort((a, b) => b.timestamp - a.timestamp);
+        
+        // Exponer al objeto window de cne_epica.html
+        if (typeof window.voteState !== 'undefined') {
+            window.voteState.si = siVotes + 184912; // Base de simulación original + votos reales
+            window.voteState.no = noVotes + 92450;
+            window.voteState.abst = abstVotes + 18912;
+            
+            // Mantener solo los últimos 50 en el ledger mock, añadir los reales
+            window.ledger = newLedger.slice(0, 50); 
+            
+            if (typeof window.renderCharts === 'function') window.renderCharts();
+            if (typeof window.updateLedgerUI === 'function') window.updateLedgerUI();
         }
     }, (error) => {
-        window.handleAppError(error, "Lectura de Firebase (onSnapshot)");
+        console.error("Falla en snapshot de votos CNE:", error);
     });
-  } catch (e) {
-      // Error handled by ensureAuthenticated
-  }
-});
+}
 
-// --- LOCTI LEDGER MODULE ---
-window.loctiRecords = [];
-window.loctiCurrentPage = 1;
-const LOCTI_PAGE_SIZE = 50;
-
-window.generateLOCTILedger = async function() {
+// Reemplazo global de submitPhoneVote para cne_epica.html
+window.submitPhoneVote = async function() {
+    if (!currentUser) return;
+    
+    const choiceMap = {
+        'SI': 'SI',
+        'NO': 'NO',
+        'ABSTENCIÓN': 'ABSTENCIÓN'
+    };
+    
+    const choice = choiceMap[window.voterVote] || 'ABSTENCIÓN';
+    const ci = window.enteredCI || 'V-00000000';
+    const hashStr = 'sha256_' + Math.random().toString(36).substring(2, 15) + Date.now();
+    
+    if (typeof window.setPhoneStep === 'function') {
+        window.setPhoneStep('submitting');
+    }
+    
     try {
-        if (typeof window.pushSystemLog === 'function') window.pushSystemLog("Generando 5,050 registros LOCTI asíncronamente...");
-        window.loctiRecords = [];
-        const companies = ["Polar", "Banesco", "Mercantil", "Traki", "Farmatodo", "Gama", "Plumrose", "Nestlé", "Digitel", "Movistar"];
-        const territories = ["Caracas", "Miranda", "Zulia", "Mérida", "Sucre", "Táchira", "Lara", "Anzoátegui"];
-        
-        await new Promise(resolve => {
-            let i = 0;
-            function chunk() {
-                for (let j = 0; j < 500 && i < 5050; j++, i++) {
-                    window.loctiRecords.push({
-                        id: `LCT-${100000 + i}`,
-                        date: new Date(Date.now() - Math.floor(Math.random() * 10000000000)).toISOString().split('T')[0],
-                        territory: territories[Math.floor(Math.random() * territories.length)],
-                        company: companies[Math.floor(Math.random() * companies.length)],
-                        amount: (Math.random() * 50000 + 1000).toFixed(2),
-                        hash: `pending_hash_${i}`,
-                        verified: false
-                    });
-                }
-                if (i < 5050) {
-                    setTimeout(chunk, 0);
-                } else {
-                    resolve();
-                }
-            }
-            chunk();
+        const colRef = getPublicCollectionRef('cne_votos');
+        await addDoc(colRef, {
+            ci: ci,
+            choice: choice,
+            hash: hashStr,
+            timestamp: Date.now(),
+            createdBy: currentUserId
         });
-        
-        if (typeof window.pushSystemLog === 'function') window.pushSystemLog("5,050 registros LOCTI generados en memoria.");
-        window.renderLOCTILedger();
-    } catch(e) {
-        window.handleAppError(e, "Generador LOCTI");
+        // La UI avanzará a 'receipt' vía el listener real-time o local, pero forzaremos localmente para fluidez:
+        if (typeof window.setPhoneStep === 'function') {
+            setTimeout(() => window.setPhoneStep('receipt'), 1000);
+        }
+    } catch (error) {
+        console.error("Error transmitiendo voto:", error);
+        safeShowToast("Error de transmisión cifrada", "error");
     }
 };
 
-window.renderLOCTILedger = function() {
-    try {
-        const container = document.getElementById('ledger-container'); // Apuntamos al ID de index real.html
-        if (!container) return;
-        
-        container.innerHTML = "";
-        
-        const searchQuery = (document.getElementById('locti-search') ? document.getElementById('locti-search').value.toLowerCase() : "");
-        const filtered = window.loctiRecords.filter(r => r.id.toLowerCase().includes(searchQuery) || r.company.toLowerCase().includes(searchQuery) || r.territory.toLowerCase().includes(searchQuery));
-        
-        const totalPages = Math.ceil(filtered.length / LOCTI_PAGE_SIZE);
-        if (window.loctiCurrentPage > totalPages && totalPages > 0) window.loctiCurrentPage = totalPages;
-        
-        const startIdx = (window.loctiCurrentPage - 1) * LOCTI_PAGE_SIZE;
-        const pageRecords = filtered.slice(startIdx, startIdx + LOCTI_PAGE_SIZE);
-        
-        pageRecords.forEach(record => {
-            const div = document.createElement('div');
-            div.className = "flex justify-between items-center py-2 text-xs text-slate-300";
-            div.innerHTML = `
-                <div class="flex flex-col"><span class="font-bold text-white">${record.id}</span><span class="text-[10px] text-slate-500">${record.date}</span></div>
-                <div><span class="px-2 py-0.5 bg-epica-cyan/10 text-epica-cyan rounded font-mono">${record.company}</span></div>
-                <div class="text-epica-mint font-bold">$${record.amount}</div>
-                <div class="text-right font-mono text-[9px] ${record.verified ? 'text-emerald-400' : 'text-amber-500'}">${record.hash.substring(0,12)}...</div>
-            `;
-            container.appendChild(div);
+
+// ==========================================
+// MÓDULO: MILITANTES (MANDO DB)
+// ==========================================
+function syncMilitantsRealtime() {
+    const colRef = getPublicCollectionRef('militantes');
+    
+    // Consulta simple (Cumple REGLA 2)
+    const q = query(colRef);
+    
+    // Listener asíncrono con callback de éxito y manejo de errores (Mandatorio)
+    onSnapshot(q, (snapshot) => {
+        window.militantsDB = []; // Usamos la variable global
+        snapshot.forEach((docSnap) => {
+            window.militantsDB.push({ id: docSnap.id, docId: docSnap.id, ...docSnap.data() });
         });
         
-        if (!document.getElementById('locti-paginator')) {
-            const paginator = document.createElement('div');
-            paginator.id = "locti-paginator";
-            paginator.className = "flex justify-between items-center mt-4 pt-2 border-t border-slate-900";
-            paginator.innerHTML = `
-                <button id="locti-prev" class="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded text-xs transition"><i class="fa-solid fa-arrow-left"></i></button>
-                <span class="text-[10px] text-slate-400 font-mono">Página <span id="locti-page-num">${window.loctiCurrentPage}</span> de <span id="locti-total-pages">${totalPages}</span></span>
-                <button id="locti-next" class="px-3 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded text-xs transition"><i class="fa-solid fa-arrow-right"></i></button>
-            `;
-            container.parentElement.appendChild(paginator);
-            
-            document.getElementById('locti-prev').addEventListener('click', () => {
-                if (window.loctiCurrentPage > 1) { window.loctiCurrentPage--; window.renderLOCTILedger(); }
-            });
-            document.getElementById('locti-next').addEventListener('click', () => {
-                if (window.loctiCurrentPage < totalPages) { window.loctiCurrentPage++; window.renderLOCTILedger(); }
-            });
-            
-            const searchInput = document.createElement('input');
-            searchInput.id = 'locti-search';
-            searchInput.type = 'text';
-            searchInput.className = "w-full bg-slate-950 border border-slate-900 rounded px-3 py-2 text-xs text-white focus:border-epica-cyan outline-none mb-3";
-            searchInput.placeholder = "Buscar por ID, Empresa o Territorio...";
-            searchInput.addEventListener('input', () => {
-                window.loctiCurrentPage = 1;
-                window.renderLOCTILedger();
-            });
-            container.parentElement.insertBefore(searchInput, container);
-            
-            const auditBtn = document.createElement('button');
-            auditBtn.className = "w-full mt-3 px-3 py-2 bg-gradient-to-r from-epica-cyan to-epica-mint text-black rounded text-xs font-bold transition hover:scale-[1.02]";
-            auditBtn.innerHTML = '<i class="fa-solid fa-shield-halved mr-2"></i>Auditoría SHA-256 en Lotes';
-            auditBtn.onclick = window.auditLOCTIBatch;
-            container.parentElement.appendChild(auditBtn);
+        // Ordenamiento en memoria del cliente (REGLA 2)
+        window.militantsDB.sort((a, b) => b.timestamp - a.timestamp);
+        
+        // Reflejar cambios en la UI
+        if (typeof window.renderMilitantsTable === 'function') window.renderMilitantsTable();
+        if (typeof window.updateDashboardMetrics === 'function') window.updateDashboardMetrics();
+        safePushSystemLog(`Sincronización Mando DB completada. ${window.militantsDB.length} registros cargados.`);
+    }, (error) => {
+        console.error("Falla en snapshot militantes:", error);
+        safeShowToast("Error de conexión al sincronizar la base de datos de militantes.", "error");
+    });
+}
+
+// Función para añadir Militante a la nube
+window.registerMilitant = async function(event) {
+    event.preventDefault();
+    if (!currentUser) {
+        safeShowToast("Error: No autenticado en el sistema.", "error");
+        return;
+    }
+    
+    const name = document.getElementById('militant-name').value;
+    const cid = document.getElementById('militant-id').value;
+    const node = document.getElementById('militant-node').value;
+    const skill = document.getElementById('militant-skill').value;
+    const phone = document.getElementById('militant-phone').value;
+    
+    try {
+        const colRef = getPublicCollectionRef('militantes');
+        await addDoc(colRef, {
+            name,
+            cid,
+            node,
+            skill,
+            phone,
+            status: "Activo",
+            timestamp: Date.now(),
+            createdBy: currentUserId
+        });
+        
+        document.getElementById('militant-form').reset();
+        safeShowToast("Analista registrado exitosamente en la nube central.", "success");
+    } catch (error) {
+        console.error("Error al registrar en Firestore:", error);
+        safeShowToast("Falla de escritura en la base de datos.", "error");
+    }
+};
+
+// Función para eliminar Militante de la nube
+window.deleteMilitant = async function(docId) {
+    if (!currentUser) return;
+    try {
+        const docRef = getPublicDocRef('militantes', docId);
+        await deleteDoc(docRef);
+        safeShowToast("Analista removido de la base de datos.", "info");
+    } catch (error) {
+        console.error("Error al remover documento:", error);
+    }
+};
+
+
+// ==========================================
+// PUENTE DE CONTROLES DE AUTENTICACIÓN
+// ==========================================
+// Sincronización de Autenticación de Prioridad Alta
+const initAuthBridge = async () => {
+    try {
+        const token = typeof window.__initial_auth_token !== 'undefined' ? window.__initial_auth_token : null;
+        if (token) {
+            await signInWithCustomToken(auth, token);
+            safePushSystemLog("Autenticación con Token Personalizado exitosa.");
         } else {
-            document.getElementById('locti-page-num').textContent = window.loctiCurrentPage;
-            document.getElementById('locti-total-pages').textContent = totalPages;
+            await signInAnonymously(auth);
+            safePushSystemLog("Autenticación Anónima iniciada.");
         }
-    } catch(e) {
-        window.handleAppError(e, "Render LOCTI");
+    } catch (error) {
+        console.error("Falla crítica en inicialización Auth:", error);
+        safePushSystemLog("ERROR CRÍTICO: No se pudo establecer conexión de seguridad.");
     }
 };
 
-window.auditLOCTIBatch = function() {
-    try {
-        if (typeof window.pushSystemLog === 'function') window.pushSystemLog("INICIANDO AUDITORÍA CRIPTOGRÁFICA EN LOTES...");
-        const BATCH_SIZE = 250;
+// Escucha del estado de autenticación para activar base de datos
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        currentUser = user;
+        currentUserId = user.uid || crypto.randomUUID();
+        const inputAppId = document.getElementById('firebase-app-id-input');
+        if (inputAppId) inputAppId.value = appId;
         
-        const container = document.getElementById('ledger-container').parentElement;
-        let progressBar = document.getElementById('audit-progress');
-        if (!progressBar) {
-            progressBar = document.createElement('div');
-            progressBar.id = 'audit-progress';
-            progressBar.className = "w-full bg-slate-900 rounded-full h-1 mt-4 overflow-hidden";
-            progressBar.innerHTML = `<div id="audit-progress-bar" class="bg-epica-cyan h-1" style="width: 0%"></div>`;
-            container.appendChild(progressBar);
-        }
-        const barInner = document.getElementById('audit-progress-bar');
-        barInner.style.width = '0%';
+        safePushSystemLog(`Usuario autenticado de forma segura. ID: ${currentUserId}`);
         
-        let currentIndex = 0;
-        
-        function processBatch() {
-            try {
-                const end = Math.min(currentIndex + BATCH_SIZE, window.loctiRecords.length);
-                for (let i = currentIndex; i < end; i++) {
-                    window.loctiRecords[i].hash = 'sha256_' + Math.random().toString(36).substring(2, 15);
-                    window.loctiRecords[i].verified = true;
-                }
-                currentIndex = end;
-                
-                const pct = Math.round((currentIndex / window.loctiRecords.length) * 100);
-                barInner.style.width = pct + '%';
-                
-                if (currentIndex < window.loctiRecords.length) {
-                    setTimeout(processBatch, 20);
-                } else {
-                    if (typeof window.pushSystemLog === 'function') window.pushSystemLog("AUDITORÍA COMPLETADA EXITOSAMENTE.");
-                    if (typeof window.showToast === 'function') window.showToast("Auditoría LOCTI exitosa", "success");
-                    window.renderLOCTILedger();
-                }
-            } catch(e) {
-                window.handleAppError(e, "Procesamiento Lote LOCTI");
-            }
+        // Activar las escuchas en tiempo real de las colecciones (REGLA 3 cumplida)
+        if (document.getElementById('panel-militantes')) {
+            syncMilitantsRealtime();
         }
         
-        setTimeout(processBatch, 20);
-    } catch(e) {
-        window.handleAppError(e, "Inicio Auditoría LOCTI");
+        // Si estamos en la app CNE EPICA
+        if (document.getElementById('content-simulador')) {
+            syncCNEVotesRealtime();
+        }
+    } else {
+        currentUser = null;
+        currentUserId = null;
+        safePushSystemLog("Estado de sesión: No autenticado.");
     }
-};
-
-// Arrancar Módulos Adicionales
-window.addEventListener('load', () => {
-    // Parar la generación de mocks del index.html real
-    if (typeof clearInterval === 'function') {
-        // En index real.html había un setInterval inyectando transacciones falsas, si existe, idealmente se detendría.
-    }
-    window.generateLOCTILedger();
 });
 
-
-// Sobrescribir mocks de la UI original para evitar conflictos
-window.renderLedger = function() {};
-window.simulateIncomingTransactions = function() {};
-
+// Arrancar flujo en la carga de la página
+initAuthBridge();
