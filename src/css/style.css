@@ -34,6 +34,11 @@ body {
     box-shadow: 0 0 12px rgba(6, 182, 212, 0.25);
     outline: none;
 }
+/* Fix for native <option> rendering white text on white background in Windows browsers */
+.glass-input option {
+    background-color: #05070c; /* epica-card-bg */
+    color: #f8fafc;
+}
 .section-content {
     display: none;
     opacity: 0;
