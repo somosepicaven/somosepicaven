@@ -124,6 +124,11 @@
             70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(6, 182, 212, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); }
         }
+        /* Fix for native <option> rendering white text on white background in Windows browsers */
+        .glass-input option {
+            background-color: #05070c;
+            color: #f8fafc;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-epica-cyan selection:text-black" id="main-body">
@@ -3473,30 +3478,222 @@
 
         function renderMilitantsTable() {
             const body = document.getElementById('militants-table-body');
+            if (!body) return;
             body.innerHTML = '';
-
             if (dbLocal.length === 0) {
-                body.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="p-6 text-center text-slate-500 bg-black/40 font-mono">
-                            Ningún militante registrado aún en esta base de datos.
-                        </td>
-                    </tr>
-                `;
+                body.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-slate-500 bg-black/40 font-mono">Ningún militante registrado aún en esta base de datos.</td></tr>`;
                 return;
             }
-
             dbLocal.forEach((mil, index) => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-900/60 transition border-b border-slate-900";
-                
                 let ocupacionTexto = mil.occupationStatus || "No declarada";
                 if (mil.occupationStatus === 'Trabaja') ocupacionTexto = `Trabaja en ${mil.workPlace}`;
                 else if (mil.occupationStatus === 'Estudia') ocupacionTexto = `Estudia en ${mil.studyPlace}`;
                 else if (mil.occupationStatus === 'Ambas') ocupacionTexto = `${mil.workPlace} / ${mil.studyPlace}`;
-
                 tr.innerHTML = `
                     <td class="p-3 font-semibold text-white">${mil.name}</td>
                     <td class="p-3 font-mono font-bold text-epica-cyan">${mil.cedula || mil.id}</td>
                     <td class="p-3 text-slate-400 truncate max-w-[150px]">${mil.node || 'Central'}</td>
-                    <td class="p-3 text-slate-400 truncate max-w-[150px
+                    <td class="p-3 text-slate-400 truncate max-w-[150px]">${mil.skill || mil.workPlace || '—'}</td>
+                    <td class="p-3 text-slate-400 font-mono">${mil.phone || '—'}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold font-mono ${mil.role === 'Administrador' ? 'bg-amber-400/10 text-amber-400 border border-amber-400/25' : 'bg-epica-cyan/10 text-epica-cyan border border-epica-cyan/25'}">${mil.role || 'Militante'}</span></td>
+                    <td class="p-3 text-right">
+                        <button onclick="deleteMilitant('${mil.id}', ${index})" class="p-1 rounded hover:bg-red-950/40 text-red-500 transition"><i class="fa-solid fa-trash-can"></i></button>
+                    </td>`;
+                body.appendChild(tr);
+            });
+        }
+
+        async function deleteMilitant(nodeId, index) {
+            showCustomConfirm("¿Eliminar Ficha?","Esta acción removerá el registro del militante de forma definitiva.", async () => {
+                dbLocal.splice(index, 1);
+                saveMilitantsToLocalStorage();
+                renderMilitantsTable();
+                showToast("Ficha removida correctamente.");
+            });
+        }
+
+        function clearDatabase() {
+            showCustomConfirm("¿Purgar Base de Datos?","Esta acción removerá de forma irreversible toda la base de datos de militantes local.", () => {
+                dbLocal = []; saveMilitantsToLocalStorage(); renderMilitantsTable(); showToast("Base de datos local limpia.", "info");
+            });
+        }
+
+        function exportDatabase(format) {
+            if (dbLocal.length === 0) { showToast("No hay datos cargados para exportar.", "error"); return; }
+            if (format === 'csv') {
+                const headers = ["Nodo ID","Nombre","Cedula","Telefono","Email","Edad","Rol","Preferencia","Ocupacion","Lugar Estudios","Lugar Trabajo","Fecha"];
+                const rows = dbLocal.map(mil => [`"${mil.id}"`,`"${mil.name}"`,`"${mil.cedula}"`,`"${mil.phone}"`,`"${mil.email}"`,mil.age,`"${mil.role}"`,`"${mil.pref}"`,`"${mil.occupationStatus}"`,`"${mil.studyPlace||''}"`,`"${mil.workPlace||''}"`,`"${mil.timestamp||''}"`]);
+                const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + headers.join(",") + "\n" + rows.map(e=>e.join(",")).join("\n");
+                const link = document.createElement("a");
+                link.setAttribute("href", encodeURI(csvContent));
+                link.setAttribute("download","militantes_epica_mando.csv");
+                document.body.appendChild(link); link.click(); document.body.removeChild(link);
+                showToast("Base de datos exportada.");
+            }
+        }
+
+        function openDetailModal(index) {
+            const mil = dbLocal[index]; if (!mil) return;
+            const s = (v) => v || '—';
+            const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = s(v); };
+            set('modal-nodo', mil.id); set('modal-name', mil.name); set('modal-cedula', mil.cedula);
+            set('modal-phone', mil.phone); set('modal-email', mil.email);
+            set('modal-age', mil.age ? mil.age + ' años' : '—'); set('modal-role', mil.role);
+            let oc = mil.occupationStatus || "No declarada";
+            if (mil.occupationStatus === 'Trabaja') oc = `Trabaja en: ${mil.workPlace}`;
+            else if (mil.occupationStatus === 'Estudia') oc = `Estudia en: ${mil.studyPlace}`;
+            else if (mil.occupationStatus === 'Ambas') oc = `Estudia en: ${mil.studyPlace} y trabaja en: ${mil.workPlace}`;
+            set('modal-occupation', oc); set('modal-why', mil.whyEpica); set('modal-aspirations', mil.aspirations);
+            const pdfW = document.getElementById('modal-pdf-wrapper');
+            if (pdfW) {
+                if (mil.pdfBase64) {
+                    pdfW.classList.remove('hidden');
+                    set('modal-pdf-size', mil.pdfSize);
+                    const btn = document.getElementById('modal-pdf-download-btn');
+                    if (btn) btn.onclick = () => { const a = document.createElement("a"); a.href = mil.pdfBase64; a.download = mil.pdfName || "Autobiografia.pdf"; document.body.appendChild(a); a.click(); document.body.removeChild(a); };
+                } else { pdfW.classList.add('hidden'); }
+            }
+            const modal = document.getElementById('detail-modal'); if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeDetailModal() { const m = document.getElementById('detail-modal'); if (m) m.classList.add('hidden'); }
+
+        const mapRegionsDB = {
+            'central': { name:"Nodo Central (Distrito Capital, Miranda, La Guaira)", status:"Fase: Planificación y Desarrollo Técnico", militants:"452 Registrados", cells:"En Maquetación", desc:"Coordinando la infraestructura de pruebas para el piloto del programa 'Estado Cero Papel'." },
+            'occidente': { name:"Nodo Occidental (Zulia, Falcón, Lara, Yaracuy)", status:"Fase: Desarrollo y Captación de Politólogos", militants:"312 Registrados", cells:"En Maquetación", desc:"Planteando la digitalización de permisos aduaneros junto a las cámaras de comercio locales." },
+            'oriente': { name:"Nodo Oriental (Anzoátegui, Monagas, Sucre, Delta Amacuro)", status:"Fase: Maquetación y Diseño de Nodos Regionales", militants:"185 Registrados", cells:"En Maquetación", desc:"Estudio para la digitalización tributaria y auditoría de subsidios de fomento." },
+            'andes': { name:"Nodo Andes (Mérida, Táchira, Trujillo)", status:"Fase: Planificación Estratégica", militants:"220 Registrados", cells:"En Maquetación", desc:"Coordinando políticas de vialidad digital en zonas agrícolas y fronterizas." }
+        };
+
+        function selectMapRegion(regionKey) {
+            const data = mapRegionsDB[regionKey]; if (!data) return;
+            const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+            set('region-name', data.name);
+            const st = document.getElementById('region-status');
+            if (st) st.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> ${data.status}`;
+            set('region-militants', data.militants); set('region-cells', data.cells); set('region-desc', data.desc);
+            showToast(`Mapeando coordenadas del Nodo: ${regionKey.toUpperCase()}`, "info");
+        }
+
+        const slidesPresenterNotes = {
+            1:`<h5>Slide 1</h5><p>"Bienvenidos a ÉPICA. Un modelo de Estado como software integrado, pragmático y de alta eficiencia."</p>`,
+            2:`<h5>Slide 2</h5><p>"Rigor estrictamente técnico, meritocrático y equilibrado."</p>`,
+            3:`<h5>Slide 3</h5><p>"Estado Cero Papel reducirá en más del 60% la duración de los trámites."</p>`,
+            4:`<h5>Slide 4</h5><p>"Combinamos la agilidad del capital privado con el fomento de subsidios públicos."</p>`,
+            5:`<h5>Slide 5</h5><p>"Retorno institucional con libre mercado estable y seguridad jurídica."</p>`,
+            6:`<h5>Slide 6</h5><p>"Simulador híbrido transparente de distribución de subsidios y capital privado."</p>`
+        };
+
+        function showDeckSlide(num) {
+            document.querySelectorAll('.slide-item').forEach(s => s.classList.add('hidden'));
+            const s = document.getElementById(`deck-slide-${num}`); if (s) s.classList.remove('hidden');
+            const ind = document.getElementById('deck-slide-indicator'); if (ind) ind.textContent = `Diapositiva ${num} / ${totalDeckSlides}`;
+            const ttl = document.getElementById('deck-slide-title');
+            if (ttl) ttl.textContent = `Diapositiva ${num}: ` + [,"Portada Ejecutiva","Centro Neutral","Ingeniería en Marcha","Sinergia de Recursos","Inversión Tecnológica","Presupuestos e Impacto"][num];
+            activeDeckSlide = num;
+            const nt = document.getElementById('speaker-notes-container'); if (nt) nt.innerHTML = slidesPresenterNotes[num] || '';
+        }
+        function prevDeckSlide() { let p = activeDeckSlide - 1; if (p < 1) p = totalDeckSlides; showDeckSlide(p); }
+        function nextDeckSlide() { let n = activeDeckSlide + 1; if (n > totalDeckSlides) n = 1; showDeckSlide(n); }
+        function toggleSpeakerNotes() {
+            const p = document.getElementById('speaker-notes-panel'); if (!p) return;
+            const btn = document.getElementById('speaker-notes-btn-text');
+            if (p.classList.contains('hidden')) { p.classList.remove('hidden'); if (btn) btn.textContent = 'Ocultar Notas'; }
+            else { p.classList.add('hidden'); if (btn) btn.textContent = 'Notas del Orador'; }
+        }
+
+        let currentOratoryIndex = 0;
+        function generateRandomOratoryQuestion() {
+            currentOratoryIndex = Math.floor(Math.random() * oratoryQuestions.length);
+            const q = oratoryQuestions[currentOratoryIndex];
+            const el = document.getElementById('sim-oratory-prompt-text');
+            if (el) { el.textContent = q.prompt; const inp = document.getElementById('user-oratory-text'); if (inp) inp.value = ''; const fb = document.getElementById('oratory-feedback'); if (fb) fb.classList.add('hidden'); showToast("Nueva pregunta cargada."); }
+        }
+        function evaluateUserOratory() {
+            const input = document.getElementById('user-oratory-text');
+            const feedback = document.getElementById('oratory-feedback');
+            if (!input || !input.value.trim()) { showToast("Por favor, escribe una respuesta.", "error"); return; }
+            const text = input.value.toLowerCase();
+            const current = oratoryQuestions[currentOratoryIndex] || oratoryQuestions[0];
+            let fs = current.forbidden.filter(w => text.includes(w));
+            let ss = current.strategic.filter(w => text.includes(w));
+            let score = Math.max(0, Math.min(100, 50 + ss.length * 15 - fs.length * 20));
+            let grade = score >= 90 ? 'A+' : score >= 70 ? 'B' : 'F';
+            let cc = score >= 90 ? 'bg-emerald-950/40 border-emerald-900/40 text-emerald-200' : score >= 70 ? 'bg-emerald-950/20 border-emerald-900/20 text-slate-200' : 'bg-red-950/40 border-red-900/40 text-red-200';
+            let cm = score >= 90 ? '¡Excelente! Respuesta de Centro Neutral perfecta.' : score >= 70 ? 'Aprobado. Incorpora más términos técnicos.' : 'Insuficiente. Evita la retórica polarizante.';
+            if (feedback) { feedback.className = `p-4 border rounded-xl text-xs space-y-1.5 ${cc} font-sans`; feedback.innerHTML = `<div class="flex justify-between font-bold font-mono"><span>Evaluación:</span><span>${grade} (${score} pts)</span></div><p>${cm}</p><div class="text-[10px] opacity-75 mt-2">Estratégicas: ${ss.join(', ')||'Ninguna'} | Conflictivas: ${fs.join(', ')||'Ninguna'}</div>`; feedback.classList.remove('hidden'); }
+            showToast(`Calificación: ${grade}`);
+        }
+        function filterDocs() {
+            const q = (document.getElementById('doc-search-input')?.value || '').toLowerCase();
+            document.querySelectorAll('.doc-card').forEach(c => c.classList.toggle('hidden', !(c.getAttribute('data-title')||'').toLowerCase().includes(q)));
+        }
+        function copyDocContent() {
+            const c = document.getElementById('reader-content'); if (!c) return;
+            if (window.getSelection && document.createRange) { const r = document.createRange(); r.selectNode(c); window.getSelection().removeAllRanges(); window.getSelection().addRange(r); try { document.execCommand('copy'); showToast("Contenido copiado."); } catch(e) { showToast("Error al copiar.", "error"); } window.getSelection().removeAllRanges(); }
+        }
+        function renderLedger() {
+            const c = document.getElementById('ledger-container'); if (!c) return; c.innerHTML = '';
+            ledgerTransactions.forEach(tx => {
+                let col = ["Subsidio de Fomento","Fondo Público","Aporte Mixto"].includes(tx.amount) ? "text-epica-cyan" : "text-epica-mint";
+                c.innerHTML += `<div class="grid grid-cols-4 p-3 text-slate-400 hover:bg-slate-950/50 transition border-b border-slate-900/40"><span class="text-slate-200 font-bold">${tx.id}</span><span class="${col} font-bold font-mono">${tx.amount}</span><span class="text-slate-300">${tx.desc}</span><span class="text-right text-slate-600 font-mono">${tx.sig}</span></div>`;
+            });
+        }
+        function simulateIncomingTransactions() {
+            setInterval(() => {
+                const sigs = ["0x3a4b","0x56c1","0x98d4","0xef32","0x12dc","0x8a7f"];
+                const isPub = Math.random() > 0.5;
+                ledgerTransactions.unshift({ id:`TX-${Math.floor(1000+Math.random()*9000)}`, amount: isPub ? "Subsidio Público" : "Inversión Privada", desc:"Recurso "+(isPub?"Social":"Infraestructura")+" Nodo "+["Central","Andes","Occidente","Oriente"][Math.floor(Math.random()*4)], sig:sigs[Math.floor(Math.random()*sigs.length)]+"...ff"+Math.floor(10+Math.random()*89) });
+                if (ledgerTransactions.length > 20) ledgerTransactions.pop();
+                renderLedger();
+            }, 8000);
+        }
+        function updateDashboardMetrics() {
+            const el = document.getElementById('metric-total-militants'); if (el) el.textContent = dbLocal.length;
+        }
+
+        // BOOTSTRAP
+        window.onload = function() {
+            const saved = localStorage.getItem('epica_current_user');
+            if (saved) { try { loginAs(JSON.parse(saved)); } catch(e) {} }
+            if (typeof showDeckSlide === 'function') showDeckSlide(1);
+            const fd = document.querySelector('.doc-card');
+            if (typeof readDoc === 'function' && fd) readDoc('manual-entrenamiento', fd);
+            loadMilitantsDB();
+            if (typeof loadGitHubConfigInputs === 'function') loadGitHubConfigInputs();
+            if (typeof loadFirebaseConfigInputs === 'function') loadFirebaseConfigInputs();
+            if (typeof runSkillsMatcher === 'function') runSkillsMatcher();
+            if (typeof runBudgetCalculator === 'function') runBudgetCalculator();
+            renderLedger(); simulateIncomingTransactions();
+            setTimeout(() => { if (typeof generateRandomOratoryQuestion === 'function') generateRandomOratoryQuestion(); }, 500);
+            showToast("Portal de Comando ÉPICA inicializado de forma segura.", "info");
+        };
+
+        // Global exports
+        window.renderMilitantsTable = renderMilitantsTable;
+        window.deleteMilitant = deleteMilitant;
+        window.clearDatabase = clearDatabase;
+        window.exportDatabase = exportDatabase;
+        window.openDetailModal = openDetailModal;
+        window.closeDetailModal = closeDetailModal;
+        window.selectMapRegion = selectMapRegion;
+        window.showDeckSlide = showDeckSlide;
+        window.prevDeckSlide = prevDeckSlide;
+        window.nextDeckSlide = nextDeckSlide;
+        window.toggleSpeakerNotes = toggleSpeakerNotes;
+        window.generateRandomOratoryQuestion = generateRandomOratoryQuestion;
+        window.evaluateUserOratory = evaluateUserOratory;
+        window.filterDocs = filterDocs;
+        window.copyDocContent = copyDocContent;
+        window.renderLedger = renderLedger;
+        window.updateDashboardMetrics = updateDashboardMetrics;
+        window.showToast = showToast;
+        window.pushSystemLog = function(msg) {
+            const el = document.getElementById('sys-log');
+            if (el) { const p = document.createElement('p'); p.className = 'text-epica-mint font-mono text-xs'; p.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg; el.prepend(p); }
+        };
+    </script>
+</body>
+</html>
