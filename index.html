@@ -2183,7 +2183,7 @@
             }, 2100);
         }
 
-        function resetCnePhoneApp() { resetCnePhoneApp(); setCnePhoneStep('welcome'); }
+        function resetCnePhoneApp() { cnePhoneStep = 'welcome'; cneEnteredCI = ''; cneVoterVote = ''; setCnePhoneStep('welcome'); }
 
         // --- DASHBOARD EFFICIENCY & OLYMPIC CALCULATORS ---
         function calculateStateEfficiency() {
@@ -2206,15 +2206,37 @@
             document.getElementById('val-mc').innerText = mc.toFixed(2);
             document.getElementById('val-np').innerText = np.toFixed(2);
 
-            const scorePct = Math.round(((bf + mc + np) / 3) * 100);
+            const w1 = (parseInt(document.getElementById('weight-w1').value) || 40) / 100;
+            const w2 = (parseInt(document.getElementById('weight-w2').value) || 30) / 100;
+            const w3 = (parseInt(document.getElementById('weight-w3').value) || 30) / 100;
+            const scorePct = Math.round((bf * w1 + mc * w2 + np * w3) * 100);
             document.getElementById('olympic-potency-val').innerText = scorePct + "%";
             document.getElementById('olympic-progress-bar').style.width = scorePct + "%";
+
+            let statusDesc = '"Desarrollo Bajo / Requiere Entrenamiento Intensivo"';
+            let barColor = 'bg-red-500';
+            if (scorePct >= 80) { statusDesc = '"Élite / Candidato a Medalla"'; barColor = 'bg-epica-cyan'; }
+            else if (scorePct >= 60) { statusDesc = '"Desarrollo Alto / Especialización Recomendada"'; barColor = 'bg-emerald-500'; }
+            else if (scorePct >= 40) { statusDesc = '"Desarrollo Medio / En Formación"'; barColor = 'bg-amber-500'; }
+            document.getElementById('olympic-status-desc').innerText = statusDesc;
+            document.getElementById('olympic-progress-bar').className = `${barColor} h-full transition-all duration-300`;
+            document.getElementById('olympic-potency-val').className = `text-6xl font-black mt-4 ${scorePct >= 60 ? 'text-emerald-400' : scorePct >= 40 ? 'text-amber-400' : 'text-red-400'}`;
         }
 
         function runBudgetCalculator() {
             const amount = parseFloat(document.getElementById('invest-amount').value) || 0;
-            document.getElementById('invest-social').innerText = "USD " + (amount * 0.5).toLocaleString();
-            document.getElementById('invest-infra').innerText = "USD " + (amount * 0.3).toLocaleString();
+            const ratioPub = parseInt(document.getElementById('ratio-slider').value) || 50;
+            const ratioPriv = 100 - ratioPub;
+            document.getElementById('label-ratio-pub').innerText = ratioPub + '% Pub';
+            document.getElementById('label-ratio-priv').innerText = ratioPriv + '% Priv';
+            const pubAmount = amount * (ratioPub / 100);
+            const privAmount = amount * (ratioPriv / 100);
+            document.getElementById('invest-social').innerText = 'USD ' + (pubAmount * 0.5).toLocaleString(undefined, {maximumFractionDigits:0});
+            document.getElementById('invest-scholar').innerText = 'USD ' + ((pubAmount * 0.3 + privAmount * 0.2)).toLocaleString(undefined, {maximumFractionDigits:0});
+            document.getElementById('invest-infra').innerText = 'USD ' + (privAmount * 0.6).toLocaleString(undefined, {maximumFractionDigits:0});
+            document.getElementById('invest-ops').innerText = 'USD ' + ((pubAmount * 0.2 + privAmount * 0.2)).toLocaleString(undefined, {maximumFractionDigits:0});
+            const daysSaved = Math.round((amount / 500) * (ratioPriv / 100 + 0.5));
+            document.getElementById('invest-days').innerText = 'Reducción de ' + daysSaved + ' días de trámites';
         }
 
         // --- REGISTRATION & DATA STORAGE SYSTEM ---
@@ -2266,18 +2288,810 @@
             document.querySelectorAll('.section-content').forEach(s => s.classList.remove('active'));
             const sec = document.getElementById(id);
             if(sec) sec.classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(btn => {
+                const section = btn.getAttribute('data-section');
+                if (section === id) {
+                    btn.classList.add('text-white', 'bg-slate-900/60');
+                    btn.classList.remove('text-slate-400');
+                } else {
+                    btn.classList.remove('text-white', 'bg-slate-900/60');
+                    if (!btn.classList.contains('text-epica-cyan')) btn.classList.add('text-slate-400');
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // ============================================
+        // TOAST NOTIFICATION SYSTEM
+        // ============================================
+        function showToast(message, type) {
+            type = type || 'success';
+            var container = document.getElementById('toast-container');
+            if (!container) return;
+            var toast = document.createElement('div');
+            var bgColor = type === 'error' ? 'bg-red-950 border-red-800 text-red-300' : type === 'warning' ? 'bg-amber-950 border-amber-800 text-amber-300' : 'bg-emerald-950 border-emerald-800 text-emerald-300';
+            var icon = type === 'error' ? 'fa-circle-xmark' : type === 'warning' ? 'fa-triangle-exclamation' : 'fa-circle-check';
+            toast.className = 'pointer-events-auto ' + bgColor + ' border rounded-xl px-4 py-3 text-xs font-semibold flex items-center gap-2 shadow-2xl';
+            toast.style.transform = 'translateX(100%)';
+            toast.style.opacity = '0';
+            toast.style.transition = 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+            toast.innerHTML = '<i class="fa-solid ' + icon + '"></i> ' + message;
+            container.appendChild(toast);
+            requestAnimationFrame(function() { toast.style.transform = 'translateX(0)'; toast.style.opacity = '1'; });
+            setTimeout(function() { toast.style.opacity = '0'; toast.style.transform = 'translateX(100%)'; setTimeout(function() { if (toast.parentNode) toast.remove(); }, 400); }, 3500);
+        }
+
+        // ============================================
+        // MOBILE NAV TOGGLE
+        // ============================================
+        function toggleMobileNav() {
+            var nav = document.getElementById('mobile-nav');
+            var icon = document.getElementById('menu-icon');
+            if (nav.classList.contains('hidden')) {
+                nav.classList.remove('hidden');
+                icon.className = 'fa-solid fa-xmark';
+            } else {
+                nav.classList.add('hidden');
+                icon.className = 'fa-solid fa-bars';
+            }
+        }
+
+        // ============================================
+        // AUTH TAB SWITCHER
+        // ============================================
+        function switchAuthTab(tab) {
+            var loginForm = document.getElementById('form-auth-login');
+            var regForm = document.getElementById('form-auth-register');
+            var tabLogin = document.getElementById('auth-tab-login');
+            var tabReg = document.getElementById('auth-tab-register');
+            var successScreen = document.getElementById('db-registration-success');
+            if (successScreen) successScreen.classList.add('hidden');
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                regForm.classList.add('hidden');
+                tabLogin.className = 'flex-1 py-2 text-center border-b-2 border-epica-cyan text-white font-extrabold text-sm transition font-sans';
+                tabReg.className = 'flex-1 py-2 text-center border-b-2 border-transparent text-slate-500 font-semibold text-sm hover:text-slate-300 transition font-sans';
+            } else {
+                loginForm.classList.add('hidden');
+                regForm.classList.remove('hidden');
+                tabReg.className = 'flex-1 py-2 text-center border-b-2 border-epica-cyan text-white font-extrabold text-sm transition font-sans';
+                tabLogin.className = 'flex-1 py-2 text-center border-b-2 border-transparent text-slate-500 font-semibold text-sm hover:text-slate-300 transition font-sans';
+            }
+        }
+
+        // ============================================
+        // PITCH DECK SLIDE NAVIGATION
+        // ============================================
+        var currentDeckSlide = 1;
+        var totalDeckSlides = 6;
+        var deckSlideTitles = [
+            'Lámina 1: Portada Ejecutiva',
+            'Lámina 2: Centro Neutral',
+            'Lámina 3: Proyectos y Tracción',
+            'Lámina 4: Financiamiento Híbrido',
+            'Lámina 5: Propuesta de Valor / ROI',
+            'Lámina 6: Simulador de Presupuestos'
+        ];
+        var speakerNotesData = [
+            'Buenos días/tardes. Mi nombre es Roberto Mejías, y vengo en representación de ÉPICA. Hoy quiero mostrarles una propuesta de inversión en tecnología de gobernanza que no tiene precedente en América Latina. La burocracia venezolana le cuesta millones anuales al sector privado. Nuestra solución: Ciencia de Datos aplicada a la administración pública.',
+            'ÉPICA no es un partido de izquierda ni de derecha. Somos un Centro Neutral de acción pragmática. Esto significa que nuestra propuesta de gobernanza es estrictamente técnica: meritocracia, tecnología aplicada y apertura financiera transparente.',
+            'Ya tenemos dos proyectos en marcha. El primero, "Estado Cero Papel", digitaliza trámites para reducir tiempos en un 60%. El segundo, la "Red de Nodos Digitales", crea células de participación ciudadana cifradas en tiempo real con costo de mantenimiento cero.',
+            'Para no cerrar puertas, nuestro modelo financiero es híbrido. Combinamos inversión privada con subsidios públicos de desarrollo. Esto evita la privatización elitista y el clientelismo estatal.',
+            'Cada centavo invertido va a software de gobernanza, infraestructura digital y el equipo de politólogos e ingenieros que rediseñan el marco institucional. No financiamos mítines. Financiamos ciencia.',
+            'Aquí pueden interactuar con nuestro simulador. Ajusten el monto y la proporción público/privado para ver cómo se asignarían los recursos en cada área técnica.'
+        ];
+
+        function nextDeckSlide() {
+            if (currentDeckSlide < totalDeckSlides) { currentDeckSlide++; updateDeckSlide(); }
+        }
+        function prevDeckSlide() {
+            if (currentDeckSlide > 1) { currentDeckSlide--; updateDeckSlide(); }
+        }
+        function updateDeckSlide() {
+            for (var i = 1; i <= totalDeckSlides; i++) {
+                var slide = document.getElementById('deck-slide-' + i);
+                if (slide) { if (i === currentDeckSlide) { slide.classList.remove('hidden'); } else { slide.classList.add('hidden'); } }
+            }
+            document.getElementById('deck-slide-title').innerText = deckSlideTitles[currentDeckSlide - 1];
+            document.getElementById('deck-slide-indicator').innerText = 'Diapositiva ' + currentDeckSlide + ' / ' + totalDeckSlides;
+            updateSpeakerNotes();
+        }
+        function toggleSpeakerNotes() {
+            var panel = document.getElementById('speaker-notes-panel');
+            panel.classList.toggle('hidden');
+            updateSpeakerNotes();
+        }
+        function updateSpeakerNotes() {
+            var container = document.getElementById('speaker-notes-container');
+            if (container) container.innerHTML = '<p>' + speakerNotesData[currentDeckSlide - 1] + '</p>';
+        }
+
+        // ============================================
+        // MAP REGION SELECTOR
+        // ============================================
+        var regionData = {
+            central: { name: 'Nodo Central (Distrito Capital)', status: 'Planificación y Diseño Técnico', militants: '1,245 Activos', cells: 'En Maquetación', desc: 'Coordinando la infraestructura de pruebas para el piloto del programa Estado Cero Papel en la región.' },
+            occidente: { name: 'Nodo Occidente (Zulia)', status: 'En Activación', militants: '890 Registrados', cells: 'Pre-Formación', desc: 'Región estratégica por su producción industrial y petrolera. Se planifica el piloto de digitalización de trámites municipales.' },
+            oriente: { name: 'Nodo Oriente (Anzoátegui)', status: 'Fase Conceptual', militants: '420 Interesados', cells: 'Sin Activar', desc: 'Zona en fase de estudio para integración al ecosistema. Potencial alto por la actividad industrial del eje Anaco-Barcelona.' },
+            andes: { name: 'Nodo Andes (Mérida)', status: 'Investigación Académica', militants: '310 Colaboradores', cells: 'Universitaria', desc: 'Vinculación con universidades como la ULA para desarrollo de investigación aplicada en gobernanza digital.' }
+        };
+        function selectMapRegion(region) {
+            var data = regionData[region];
+            if (!data) return;
+            document.getElementById('region-name').innerText = data.name;
+            document.getElementById('region-status').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> ' + data.status;
+            document.getElementById('region-militants').innerText = data.militants;
+            document.getElementById('region-cells').innerText = data.cells;
+            document.getElementById('region-desc').innerText = data.desc;
+        }
+
+        // ============================================
+        // CNE PROPOSAL COPY & VOICE GUIDE
+        // ============================================
+        function copyCneProposalText() {
+            var doc = document.getElementById('cne-proposal-document');
+            if (doc) {
+                navigator.clipboard.writeText(doc.innerText).then(function() { showToast('Documento copiado al portapapeles.'); });
+            }
+        }
+
+        var voiceActive = false;
+        function triggerVoiceGuide() {
+            if (!('speechSynthesis' in window)) { showToast('Tu navegador no soporta la síntesis de voz.', 'warning'); return; }
+            var textEl = document.getElementById('voice-text');
+            if (voiceActive) {
+                window.speechSynthesis.cancel();
+                voiceActive = false;
+                if (textEl) textEl.innerText = 'Guía de Voz';
+                return;
+            }
+            var utterance = new SpeechSynthesisUtterance('Bienvenido al Sistema de Soberanía Digital de ÉPICA. Este módulo simula un referéndum digital donde cada voto es cifrado y verificable. Ingrese su cédula para iniciar el escrutinio.');
+            utterance.lang = 'es-VE';
+            utterance.rate = 0.9;
+            utterance.onend = function() { voiceActive = false; if (textEl) textEl.innerText = 'Guía de Voz'; };
+            voiceActive = true;
+            if (textEl) textEl.innerText = 'Detener Voz';
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // ============================================
+        // AUTHENTICATION SYSTEM
+        // ============================================
+        function handleManualLogin(event) {
+            event.preventDefault();
+            var email = document.getElementById('login-email').value;
+            var pass = document.getElementById('login-pass').value;
+            var saved = JSON.parse(localStorage.getItem('epica_militantes_db_v4') || '[]');
+            var user = saved.find(function(m) { return m.email === email || m.name === email; });
+            if (user) {
+                loginUserSession(user);
+                showToast('Bienvenido, ' + user.name + '. Sesión iniciada.');
+                showSection('home');
+            } else {
+                showToast('Credenciales no encontradas. Regístrate primero.', 'error');
+            }
+        }
+
+        function handleGoogleSignIn() {
+            showToast('Sincronización con Google requiere configurar Firebase en Mando DB.', 'warning');
+        }
+
+        function loginUserSession(user) {
+            localStorage.setItem('epica_session', JSON.stringify(user));
+            var badge = document.getElementById('nav-user-badge');
+            var logoutBtn = document.getElementById('nav-logout-btn');
+            var regBtn = document.getElementById('nav-reg-btn');
+            if (badge) { badge.innerText = user.name; badge.classList.remove('hidden'); }
+            if (logoutBtn) logoutBtn.classList.remove('hidden');
+            if (regBtn) regBtn.classList.add('hidden');
+            if (user.role === 'Administrador') {
+                var adminBtn = document.getElementById('nav-admin-db-btn');
+                var mobileAdminBtn = document.getElementById('mobile-nav-admin-db');
+                if (adminBtn) adminBtn.classList.remove('hidden');
+                if (mobileAdminBtn) mobileAdminBtn.classList.remove('hidden');
+            }
+        }
+
+        function logoutUser() {
+            localStorage.removeItem('epica_session');
+            var badge = document.getElementById('nav-user-badge');
+            var logoutBtn = document.getElementById('nav-logout-btn');
+            var regBtn = document.getElementById('nav-reg-btn');
+            var adminBtn = document.getElementById('nav-admin-db-btn');
+            var mobileAdminBtn = document.getElementById('mobile-nav-admin-db');
+            if (badge) badge.classList.add('hidden');
+            if (logoutBtn) logoutBtn.classList.add('hidden');
+            if (regBtn) regBtn.classList.remove('hidden');
+            if (adminBtn) adminBtn.classList.add('hidden');
+            if (mobileAdminBtn) mobileAdminBtn.classList.add('hidden');
+            showToast('Sesión cerrada correctamente.');
+            showSection('registro');
+        }
+
+        function triggerPasswordRecovery() {
+            showToast('Se ha enviado un enlace de recuperación a tu correo registrado.', 'warning');
+        }
+
+        function resetRegistrationForm() {
+            document.getElementById('db-registration-success').classList.add('hidden');
+            document.getElementById('form-auth-register').classList.remove('hidden');
+            document.getElementById('form-auth-register').reset();
+            removePDFFile();
+            switchAuthTab('register');
+        }
+
+        // ============================================
+        // PDF FILE PROCESSING
+        // ============================================
+        function processPDFFile(input) {
+            var file = input.files[0];
+            if (!file) return;
+            if (file.type !== 'application/pdf') { showToast('Solo se aceptan archivos PDF.', 'error'); input.value = ''; return; }
+            if (file.size > 18 * 1024 * 1024) { showToast('El archivo excede 18 MB.', 'error'); input.value = ''; return; }
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                base64PDFData = e.target.result;
+                document.getElementById('pdf-upload-icon').className = 'fa-solid fa-file-pdf text-2xl text-emerald-500 mb-1';
+                document.getElementById('pdf-upload-text').innerHTML = '<span class="font-bold text-emerald-400">PDF Cargado</span>';
+                document.getElementById('pdf-preview-box').classList.remove('hidden');
+                document.getElementById('pdf-preview-name').innerText = file.name;
+                document.getElementById('pdf-preview-size').innerText = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removePDFFile() {
+            base64PDFData = '';
+            var fileInput = document.getElementById('reg-pdf-autobiography');
+            if (fileInput) fileInput.value = '';
+            var uploadIcon = document.getElementById('pdf-upload-icon');
+            if (uploadIcon) uploadIcon.className = 'fa-solid fa-cloud-arrow-up text-2xl text-slate-500 mb-1';
+            var uploadText = document.getElementById('pdf-upload-text');
+            if (uploadText) uploadText.innerHTML = '<span class="font-bold">Cargar PDF</span> o arrastrar archivo';
+            var previewBox = document.getElementById('pdf-preview-box');
+            if (previewBox) previewBox.classList.add('hidden');
+        }
+
+        // ============================================
+        // OCCUPATION FIELDS TOGGLE
+        // ============================================
+        function toggleOccupationFields(value) {
+            var estudia = document.getElementById('wrapper-estudia');
+            var trabaja = document.getElementById('wrapper-trabaja');
+            estudia.classList.add('hidden');
+            trabaja.classList.add('hidden');
+            if (value === 'Estudia' || value === 'Ambas') estudia.classList.remove('hidden');
+            if (value === 'Trabaja' || value === 'Ambas') trabaja.classList.remove('hidden');
+        }
+
+        // ============================================
+        // SKILLS MATCHER / CREDENTIAL GENERATOR
+        // ============================================
+        function runSkillsMatcher() {
+            var name = document.getElementById('matcher-name-input').value || 'Científico Anónimo';
+            var uni = document.getElementById('matcher-uni-input').value || 'Universidad de Venezuela';
+            var role = document.getElementById('matcher-role-select').value;
+            var roleMap = {
+                arquitecto: { title: 'Arquitecto de Sistemas Digitales', skills: ['Digitalización de Trámites', 'Diseño de Infraestructura Cero Papel', 'Automatización de Procesos'], color: 'cyan' },
+                analista: { title: 'Analista Cuantitativo', skills: ['Econometría Aplicada', 'Ciencia de Datos Políticos', 'Modelado Estadístico'], color: 'emerald' },
+                mediador: { title: 'Mediador Institucional', skills: ['Teoría de Juegos', 'Resolución de Conflictos', 'Negociación Multinivel'], color: 'purple' },
+                publicas: { title: 'Especialista en Políticas Públicas', skills: ['Diseño Legislativo', 'Evaluación de Impacto', 'Análisis Regulatorio'], color: 'amber' },
+                electoral: { title: 'Director de Inteligencia Electoral', skills: ['Big Data Electoral', 'Estrategia de Campaña', 'Análisis Demográfico'], color: 'rose' }
+            };
+            var data = roleMap[role] || roleMap.arquitecto;
+            var skillsHtml = data.skills.map(function(s) { return '<div class="flex items-center gap-2 text-xs text-slate-300"><i class="fa-solid fa-circle-check text-' + data.color + '-400"></i> ' + s + '</div>'; }).join('');
+            var output = document.getElementById('matcher-output');
+            output.innerHTML = '<div class="absolute -top-10 -right-10 w-40 h-40 bg-' + data.color + '-500/5 rounded-full blur-2xl"></div>' +
+                '<div class="space-y-4 relative z-10">' +
+                    '<div class="flex items-center gap-3 pb-3 border-b border-slate-800">' +
+                        '<div class="w-14 h-14 rounded-2xl bg-' + data.color + '-500/10 border border-' + data.color + '-500/20 flex items-center justify-center">' +
+                            '<i class="fa-solid fa-id-card-clip text-' + data.color + '-400 text-xl"></i>' +
+                        '</div>' +
+                        '<div>' +
+                            '<h3 class="text-lg font-extrabold text-white font-display">' + name + '</h3>' +
+                            '<p class="text-[10px] text-slate-400 font-mono uppercase tracking-wider">' + uni + '</p>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div><span class="text-xs font-bold text-' + data.color + '-400 uppercase tracking-wider font-mono">' + data.title + '</span></div>' +
+                    '<div class="space-y-2">' +
+                        '<span class="text-[10px] text-slate-500 uppercase font-bold">Competencias Certificadas:</span>' +
+                        skillsHtml +
+                    '</div>' +
+                '</div>' +
+                '<div class="border-t border-slate-800 pt-3 flex justify-between items-center text-[10px] text-slate-500 font-mono relative z-10">' +
+                    '<span>ÉPICA // CREDENCIAL DIGITAL</span>' +
+                    '<span class="text-' + data.color + '-400 font-bold">VERIFICADO ✓</span>' +
+                '</div>';
+        }
+
+        // ============================================
+        // MI ÉPICA: LOGIN, FE DE VIDA, RUTA, LOGISTICA
+        // ============================================
+        function handleMiEpicaLogin(event) {
+            event.preventDefault();
+            var ci = document.getElementById('mi-epica-ci').value;
+            var pin = document.getElementById('mi-epica-pin').value;
+            if (ci && pin.length === 4) {
+                showToast('Acceso concedido para C.I.: ' + ci + '. Bienvenido al portal ciudadano.');
+            } else {
+                showToast('Ingresa tu cédula y un PIN de 4 dígitos válido.', 'error');
+            }
+        }
+
+        function certifyFeDeVida() {
+            var now = new Date();
+            showToast('Fe de Vida certificada exitosamente. Fecha: ' + now.toLocaleDateString('es-VE') + ' — Hora: ' + now.toLocaleTimeString('es-VE'));
+        }
+
+        function handleRutaPedagogica(event) {
+            event.preventDefault();
+            var nombre = document.getElementById('ruta-nombre').value;
+            var edad = document.getElementById('ruta-edad').value;
+            var representante = document.getElementById('ruta-representante').value;
+            showToast(nombre + ' (' + edad + ' años) inscrito en la Ruta Pedagógica. Representante: ' + representante);
+            event.target.reset();
+        }
+
+        function handleLogisticaComunal(event) {
+            event.preventDefault();
+            var rubro = document.getElementById('logistica-rubro').value;
+            var cantidad = document.getElementById('logistica-cantidad').value;
+            var unidad = document.getElementById('logistica-unidad').value;
+            var comuna = document.getElementById('logistica-comuna').value;
+            var inventario = JSON.parse(localStorage.getItem('epica_inventario_offline') || '[]');
+            inventario.push({ rubro: rubro, cantidad: cantidad, unidad: unidad, comuna: comuna, timestamp: new Date().toISOString() });
+            localStorage.setItem('epica_inventario_offline', JSON.stringify(inventario));
+            showToast('Inventario guardado localmente: ' + cantidad + ' ' + unidad + ' de ' + rubro + ' en ' + comuna);
+            document.getElementById('offline-sync-status').classList.remove('hidden');
+            event.target.reset();
+        }
+
+        // ============================================
+        // OLYMPIC WEIGHTS VALIDATOR
+        // ============================================
+        function validateOlympicWeights(changedIndex) {
+            var w1 = parseInt(document.getElementById('weight-w1').value) || 0;
+            var w2 = parseInt(document.getElementById('weight-w2').value) || 0;
+            var w3 = parseInt(document.getElementById('weight-w3').value) || 0;
+            var total = w1 + w2 + w3;
+            if (total !== 100) {
+                showToast('Los pesos suman ' + total + '%. Deben sumar exactamente 100%.', 'warning');
+            }
+            calculateOlympicPotential();
+        }
+
+        // ============================================
+        // ENROLL KID & VALIDATE RUTA
+        // ============================================
+        function enrollKid(event) {
+            event.preventDefault();
+            var name = document.getElementById('kid-name').value;
+            var age = document.getElementById('kid-age').value;
+            showToast(name + ' (' + age + ' años) inscrito exitosamente en la Ruta de los Poderes Creadores.');
+            event.target.reset();
+        }
+
+        function validateRuta() {
+            var ci = document.getElementById('ruta-validation-ci').value;
+            if (!ci) { showToast('Ingresa la cédula del representante.', 'error'); return; }
+            showToast('Asistencia validada para representante C.I.: ' + ci + '. Registro guardado.');
+            document.getElementById('ruta-validation-ci').value = '';
+        }
+
+        // ============================================
+        // REGISTER MILITANT & FILTER & EXPORT
+        // ============================================
+        function registerMilitant(event) {
+            event.preventDefault();
+            var nodeVal = document.getElementById('militant-node').value;
+            var militant = {
+                id: 'EP-' + nodeVal.substring(0, 3).toUpperCase() + '-' + Math.floor(100 + Math.random() * 900),
+                name: document.getElementById('militant-name').value,
+                cedula: document.getElementById('militant-id').value,
+                node: nodeVal,
+                skill: document.getElementById('militant-skill').value,
+                phone: document.getElementById('militant-phone').value,
+                role: 'Militante',
+                status: 'Activo',
+                timestamp: new Date().toISOString()
+            };
+            dbLocal.unshift(militant);
+            localStorage.setItem('epica_militantes_db_v4', JSON.stringify(dbLocal));
+            showToast('Analista ' + militant.name + ' registrado en ' + militant.node + '.');
+            renderMilitantsTable();
+            renderMilitantsTableDep();
+            event.target.reset();
+        }
+
+        function renderMilitantsTableDep() {
+            var body = document.getElementById('militants-table-body-dep');
+            if (!body) return;
+            body.innerHTML = '';
+            dbLocal.forEach(function(m) {
+                body.innerHTML += '<tr class="border-b border-slate-800 hover:bg-slate-900/50 transition">' +
+                    '<td class="p-4 font-semibold">' + m.name + '</td>' +
+                    '<td class="p-4 font-mono text-slate-400">' + (m.cedula || '-') + '</td>' +
+                    '<td class="p-4">' + (m.node || 'Central') + '</td>' +
+                    '<td class="p-4">' + (m.skill || m.role || '-') + '</td>' +
+                    '<td class="p-4 font-mono">' + (m.phone || '-') + '</td>' +
+                    '<td class="p-4"><span class="text-xs px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/50">' + (m.status || 'Activo') + '</span></td>' +
+                    '<td class="p-4 text-right"><button onclick="deleteMilitant(\'' + m.id + '\')" class="text-red-400 hover:text-red-300 text-xs"><i class="fa-solid fa-trash-can"></i></button></td>' +
+                    '</tr>';
+            });
+        }
+
+        function deleteMilitant(id) {
+            dbLocal = dbLocal.filter(function(m) { return m.id !== id; });
+            localStorage.setItem('epica_militantes_db_v4', JSON.stringify(dbLocal));
+            renderMilitantsTable();
+            renderMilitantsTableDep();
+            showToast('Registro eliminado.');
+        }
+
+        function filterMilitants() {
+            var query = document.getElementById('militant-search').value.toLowerCase();
+            var rows = document.querySelectorAll('#militants-table-body-dep tr');
+            rows.forEach(function(row) {
+                row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
+            });
+        }
+
+        function exportMilitants(format) {
+            if (dbLocal.length === 0) { showToast('No hay datos para exportar.', 'warning'); return; }
+            var headers = 'ID,Nombre,Cédula,Nodo,Habilidad,Teléfono,Estatus\n';
+            var rows = dbLocal.map(function(m) { return m.id + ',' + m.name + ',' + (m.cedula || '') + ',' + (m.node || '') + ',' + (m.skill || m.role || '') + ',' + (m.phone || '') + ',' + (m.status || 'Activo'); }).join('\n');
+            downloadFile('epica_militantes.csv', headers + rows, 'text/csv');
+        }
+
+        // ============================================
+        // CREDITS LOCTI DATABASE
+        // ============================================
+        function generateCreditsDatabase() {
+            rawCreditsDatabase = [];
+            var statuses = ['Consolidado', 'Auditado', 'En Tránsito'];
+            for (var i = 0; i < 5050; i++) {
+                var date = new Date(2025, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1);
+                rawCreditsDatabase.push({
+                    id: 'LOCTI-' + String(i + 1).padStart(5, '0'),
+                    date: date.toISOString().split('T')[0],
+                    beneficiary: mockBeneficiaries[Math.floor(Math.random() * mockBeneficiaries.length)],
+                    enterprise: mockEnterprises[Math.floor(Math.random() * mockEnterprises.length)],
+                    amount: (Math.random() * 50000 + 500).toFixed(2),
+                    hash: makeCneHash(),
+                    status: statuses[Math.floor(Math.random() * statuses.length)],
+                    node: mockNodes[Math.floor(Math.random() * mockNodes.length)]
+                });
+            }
+            filteredCredits = rawCreditsDatabase.slice();
+            updateCreditsMetrics();
+            renderCreditsPage();
+        }
+
+        function updateCreditsMetrics() {
+            var total = rawCreditsDatabase.reduce(function(sum, c) { return sum + parseFloat(c.amount); }, 0);
+            var el1 = document.getElementById('credits-total-records');
+            if (el1) el1.innerText = rawCreditsDatabase.length.toLocaleString();
+            var el2 = document.getElementById('credits-total-amount');
+            if (el2) el2.innerText = '$' + total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            var auditedCount = rawCreditsDatabase.filter(function(c) { return c.status === 'Auditado'; }).length;
+            var auditedPct = Math.round((auditedCount / rawCreditsDatabase.length) * 100);
+            var el3 = document.getElementById('credits-audited-pct');
+            if (el3) el3.innerText = auditedPct + '%';
+            var el4 = document.getElementById('credits-audit-status');
+            if (el4) el4.innerText = auditedPct === 100 ? '(Completo)' : '(Pendiente)';
+        }
+
+        function renderCreditsPage() {
+            var start = (creditsCurrentPage - 1) * creditsPageSize;
+            var end = Math.min(start + creditsPageSize, filteredCredits.length);
+            var pageData = filteredCredits.slice(start, end);
+            var totalPages = Math.ceil(filteredCredits.length / creditsPageSize) || 1;
+            var body = document.getElementById('credits-table-body');
+            if (!body) return;
+            body.innerHTML = '';
+            pageData.forEach(function(c) {
+                var statusColor = c.status === 'Auditado' ? 'bg-emerald-950 text-emerald-400 border-emerald-800/50' : c.status === 'Consolidado' ? 'bg-cyan-950 text-cyan-400 border-cyan-800/50' : 'bg-amber-950 text-amber-400 border-amber-800/50';
+                body.innerHTML += '<tr class="border-b border-slate-800 hover:bg-slate-900/50 transition">' +
+                    '<td class="p-4 text-epica-cyan font-bold">' + c.id + '</td>' +
+                    '<td class="p-4 text-slate-400">' + c.date + '</td>' +
+                    '<td class="p-4 text-slate-300">' + c.beneficiary + '</td>' +
+                    '<td class="p-4 text-slate-400">' + c.enterprise + '</td>' +
+                    '<td class="p-4 text-white font-bold">$' + parseFloat(c.amount).toLocaleString() + '</td>' +
+                    '<td class="p-4 text-slate-500 text-[10px]">' + c.hash.substring(0, 12) + '...</td>' +
+                    '<td class="p-4"><span class="text-[10px] font-bold px-2 py-0.5 rounded border ' + statusColor + '">' + c.status + '</span></td>' +
+                    '</tr>';
+            });
+            var pagInfo = document.getElementById('credits-pagination-info');
+            if (pagInfo) pagInfo.innerText = 'Mostrando registros ' + (filteredCredits.length > 0 ? start + 1 : 0) + '-' + end + ' de ' + filteredCredits.length.toLocaleString();
+            var pagDisplay = document.getElementById('credits-current-page-display');
+            if (pagDisplay) pagDisplay.innerText = 'Pág. ' + creditsCurrentPage + ' de ' + totalPages;
+        }
+
+        function filterCredits() {
+            var query = (document.getElementById('credits-search').value || '').toLowerCase();
+            var nodeFilter = document.getElementById('credits-filter-node').value;
+            var statusFilter = document.getElementById('credits-filter-status').value;
+            filteredCredits = rawCreditsDatabase.filter(function(c) {
+                var matchQuery = !query || c.id.toLowerCase().includes(query) || c.beneficiary.toLowerCase().includes(query) || c.enterprise.toLowerCase().includes(query);
+                var matchNode = nodeFilter === 'todos' || c.node === nodeFilter;
+                var matchStatus = statusFilter === 'todos' || c.status === statusFilter;
+                return matchQuery && matchNode && matchStatus;
+            });
+            creditsCurrentPage = 1;
+            renderCreditsPage();
+        }
+
+        function changeCreditsPage(delta) {
+            var totalPages = Math.ceil(filteredCredits.length / creditsPageSize) || 1;
+            var newPage = creditsCurrentPage + delta;
+            if (newPage >= 1 && newPage <= totalPages) {
+                creditsCurrentPage = newPage;
+                renderCreditsPage();
+            }
+        }
+
+        function auditAllCreditsBatch() {
+            if (isBatchAudited) { showToast('La auditoría ya fue completada.', 'warning'); return; }
+            var progressContainer = document.getElementById('audit-progress-container');
+            progressContainer.classList.remove('hidden');
+            var audited = 0;
+            var total = rawCreditsDatabase.length;
+            var batchSize = 50;
+            var interval = setInterval(function() {
+                audited = Math.min(audited + batchSize, total);
+                var pct = Math.round((audited / total) * 100);
+                document.getElementById('audit-progress-text').innerText = audited.toLocaleString() + ' / ' + total.toLocaleString() + ' (' + pct + '%)';
+                document.getElementById('audit-progress-bar').style.width = pct + '%';
+                if (audited >= total) {
+                    clearInterval(interval);
+                    isBatchAudited = true;
+                    rawCreditsDatabase.forEach(function(c) { c.status = 'Auditado'; });
+                    filteredCredits = rawCreditsDatabase.slice();
+                    renderCreditsPage();
+                    updateCreditsMetrics();
+                    showToast('Auditoría de 5,050 registros completada con éxito. Todas las firmas SHA-256 verificadas.');
+                    setTimeout(function() { progressContainer.classList.add('hidden'); }, 2000);
+                }
+            }, 30);
+        }
+
+        // ============================================
+        // FIREBASE & GITHUB CONFIG
+        // ============================================
+        function saveFirebaseConfig(event) {
+            event.preventDefault();
+            var config = {
+                apiKey: document.getElementById('fb-apiKey').value,
+                authDomain: document.getElementById('fb-authDomain').value,
+                projectId: document.getElementById('fb-projectId').value,
+                appId: document.getElementById('fb-appId').value
+            };
+            localStorage.setItem('epica_firebase_config', JSON.stringify(config));
+            var cloudStatus = document.getElementById('nav-cloud-status');
+            if (cloudStatus) {
+                cloudStatus.className = 'text-[9px] bg-emerald-950/40 border border-emerald-900/30 text-emerald-400 font-mono px-2 py-0.5 rounded-md flex items-center gap-1';
+                cloudStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> FIREBASE CONECTADO';
+            }
+            showToast('Configuración de Firebase guardada exitosamente.');
+        }
+
+        function saveGitHubConfig(event) {
+            event.preventDefault();
+            var config = {
+                user: document.getElementById('git-user').value,
+                repo: document.getElementById('git-repo').value,
+                token: document.getElementById('git-token').value
+            };
+            localStorage.setItem('epica_github_config', JSON.stringify(config));
+            showToast('Configuración de GitHub guardada exitosamente.');
+        }
+
+        function validateRepoInput(input) {
+            var warning = document.getElementById('git-repo-warning');
+            if (input.value.includes('/')) { warning.classList.remove('hidden'); } else { warning.classList.add('hidden'); }
+        }
+
+        // ============================================
+        // EXPORT & CLEAR DATABASE
+        // ============================================
+        function exportDatabase(format) {
+            if (dbLocal.length === 0) { showToast('No hay datos para exportar.', 'warning'); return; }
+            var headers = 'ID,Nombre,Cédula,Rol,Fecha\n';
+            var rows = dbLocal.map(function(m) { return m.id + ',' + m.name + ',' + (m.cedula || '') + ',' + (m.role || '') + ',' + (m.timestamp || ''); }).join('\n');
+            downloadFile('epica_database.csv', headers + rows, 'text/csv');
+        }
+
+        function clearDatabase() {
+            showConfirmModal('¿Borrar Base de Datos?', 'Esta acción eliminará todos los registros de militantes almacenados localmente. Esta acción no se puede deshacer.', function() {
+                dbLocal = [];
+                localStorage.removeItem('epica_militantes_db_v4');
+                renderMilitantsTable();
+                renderMilitantsTableDep();
+                showToast('Base de datos borrada exitosamente.');
+            });
+        }
+
+        function downloadFile(filename, content, type) {
+            var blob = new Blob([content], { type: type });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // ============================================
+        // CONFIRM MODAL
+        // ============================================
+        function showConfirmModal(title, msg, onConfirm) {
+            var modal = document.getElementById('confirm-modal');
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-msg').innerText = msg;
+            modal.classList.remove('hidden');
+            document.getElementById('confirm-cancel-btn').onclick = function() { modal.classList.add('hidden'); };
+            document.getElementById('confirm-accept-btn').onclick = function() { modal.classList.add('hidden'); onConfirm(); };
+        }
+
+        // ============================================
+        // DOCS & ORATORY SYSTEM
+        // ============================================
+        function generateOratoryTest() {
+            var q1 = [
+                '¿Cómo explicaría usted el concepto de "Centro Neutral" a un ciudadano escéptico en 30 segundos?',
+                '¿Qué diferencia fundamental existe entre un político tradicional y un politólogo en la visión de ÉPICA?',
+                '¿Por qué ÉPICA no se define como de izquierda ni de derecha?'
+            ];
+            var q2 = [
+                'Un periodista le pregunta: "¿ÉPICA es una fachada para algún partido existente?" ¿Cómo responde?',
+                'Un ciudadano dice: "Todos los movimientos prometen digitalización y nunca cumplen." ¿Su respuesta?',
+                'Le preguntan en TV: "¿ÉPICA apoya al gobierno actual o a la oposición?" ¿Qué dice?'
+            ];
+            var q3 = [
+                'Explique la fórmula de eficiencia estatal de ÉPICA en términos que entienda un abuelo.',
+                '¿Cómo convencería a un empresario de invertir en el modelo híbrido de ÉPICA?',
+                'Describa el programa "Estado Cero Papel" como si hablara con niños de primaria.'
+            ];
+            var r1 = q1[Math.floor(Math.random() * q1.length)];
+            var r2 = q2[Math.floor(Math.random() * q2.length)];
+            var r3 = q3[Math.floor(Math.random() * q3.length)];
+            return '<div class="space-y-6">' +
+                '<div class="p-4 bg-red-950/20 border border-red-900/30 rounded-xl">' +
+                    '<p class="text-[10px] text-red-400 uppercase font-bold font-mono mb-1"><i class="fa-solid fa-shield-halved mr-1"></i> SISTEMA ANTI-TRAMPAS ACTIVADO</p>' +
+                    '<p class="text-xs text-slate-400">Las preguntas se generan aleatoriamente cada vez que abres este módulo. No puedes memorizar respuestas.</p>' +
+                '</div>' +
+                '<div class="space-y-4">' +
+                    '<div class="p-4 bg-slate-950 border border-slate-800 rounded-xl">' +
+                        '<span class="text-[10px] text-epica-cyan uppercase font-bold font-mono">RONDA 1 — Concepto Base</span>' +
+                        '<p class="text-sm text-white font-semibold mt-2">' + r1 + '</p>' +
+                        '<textarea placeholder="Escribe tu respuesta aquí..." class="w-full mt-3 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-epica-cyan outline-none" rows="3"></textarea>' +
+                    '</div>' +
+                    '<div class="p-4 bg-slate-950 border border-slate-800 rounded-xl">' +
+                        '<span class="text-[10px] text-amber-400 uppercase font-bold font-mono">RONDA 2 — Presión Mediática</span>' +
+                        '<p class="text-sm text-white font-semibold mt-2">' + r2 + '</p>' +
+                        '<textarea placeholder="Escribe tu respuesta aquí..." class="w-full mt-3 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-amber-500 outline-none" rows="3"></textarea>' +
+                    '</div>' +
+                    '<div class="p-4 bg-slate-950 border border-slate-800 rounded-xl">' +
+                        '<span class="text-[10px] text-epica-mint uppercase font-bold font-mono">RONDA 3 — Simplificación Técnica</span>' +
+                        '<p class="text-sm text-white font-semibold mt-2">' + r3 + '</p>' +
+                        '<textarea placeholder="Escribe tu respuesta aquí..." class="w-full mt-3 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:border-epica-mint outline-none" rows="3"></textarea>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        }
+
+        function readDoc(docId, element) {
+            document.querySelectorAll('.doc-card').forEach(function(c) { c.classList.remove('active'); });
+            if (element) element.classList.add('active');
+            var title = 'Preparación de Vocero ÉPICA';
+            var content = '';
+            if (docId === 'manual-entrenamiento') {
+                title = 'Pruebas Autogenerativas de Oratoria';
+                content = generateOratoryTest();
+            }
+            document.getElementById('reader-title').innerText = title;
+            document.getElementById('reader-content').innerHTML = content;
+        }
+
+        function filterDocs() {
+            var query = document.getElementById('doc-search-input').value.toLowerCase();
+            document.querySelectorAll('.doc-card').forEach(function(card) {
+                var title = (card.getAttribute('data-title') || card.innerText).toLowerCase();
+                card.style.display = title.includes(query) ? '' : 'none';
+            });
+        }
+
+        function copyDocContent() {
+            var content = document.getElementById('reader-content');
+            if (content) {
+                navigator.clipboard.writeText(content.innerText).then(function() { showToast('Contenido copiado al portapapeles.'); });
+            }
+        }
+
+        // ============================================
+        // LEDGER FINANCIERO
+        // ============================================
+        function initializeLedger() {
+            var container = document.getElementById('ledger-container');
+            if (!container) return;
+            var transactions = [
+                { id: 'EP-TXN-001', origin: 'Subsidio FONACIT', assign: 'Infraestructura Digital (Nodo CCS)', hash: makeCneHash() },
+                { id: 'EP-TXN-002', origin: 'Co-Inversión Privada', assign: 'Becas Meritocráticas ÉPICA', hash: makeCneHash() },
+                { id: 'EP-TXN-003', origin: 'Crédito LOCTI Empresarial', assign: 'Licencias de Software Cero Papel', hash: makeCneHash() },
+                { id: 'EP-TXN-004', origin: 'Donación Anónima Verificada', assign: 'Nodo Occidente (Zulia)', hash: makeCneHash() },
+                { id: 'EP-TXN-005', origin: 'Aporte Municipal Digital', assign: 'Ruta Pedagógica Infantil', hash: makeCneHash() }
+            ];
+            container.innerHTML = '';
+            transactions.forEach(function(tx) {
+                var row = document.createElement('div');
+                row.className = 'grid grid-cols-4 p-3 hover:bg-slate-900/40 text-xs transition-all';
+                row.innerHTML = '<span class="text-epica-cyan font-bold">' + tx.id + '</span>' +
+                    '<span class="text-slate-400">' + tx.origin + '</span>' +
+                    '<span class="text-slate-300">' + tx.assign + '</span>' +
+                    '<span class="text-right text-slate-500 font-mono text-[10px]">' + tx.hash.substring(0, 10) + '...</span>';
+                container.appendChild(row);
+            });
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
         window.onload = function() {
+            // CNE Telemetry
             setCnePhoneStep('welcome');
             renderCneCharts();
             setInterval(simulateCneGlobalVotes, 4000);
+
+            // Calculators
             calculateStateEfficiency();
             calculateOlympicPotential();
             runBudgetCalculator();
-            
-            const saved = localStorage.getItem('epica_militantes_db_v4');
-            if(saved) { dbLocal = JSON.parse(saved); renderMilitantsTable(); }
+
+            // Database
+            var saved = localStorage.getItem('epica_militantes_db_v4');
+            if (saved) { dbLocal = JSON.parse(saved); renderMilitantsTable(); renderMilitantsTableDep(); }
+
+            // Session restore
+            var session = localStorage.getItem('epica_session');
+            if (session) { loginUserSession(JSON.parse(session)); }
+
+            // Firebase config restore
+            var fbConfig = localStorage.getItem('epica_firebase_config');
+            if (fbConfig) {
+                var cfg = JSON.parse(fbConfig);
+                var el;
+                el = document.getElementById('fb-apiKey'); if (el) el.value = cfg.apiKey || '';
+                el = document.getElementById('fb-authDomain'); if (el) el.value = cfg.authDomain || '';
+                el = document.getElementById('fb-projectId'); if (el) el.value = cfg.projectId || '';
+                el = document.getElementById('fb-appId'); if (el) el.value = cfg.appId || '';
+                var cloudStatus = document.getElementById('nav-cloud-status');
+                if (cloudStatus) {
+                    cloudStatus.className = 'text-[9px] bg-emerald-950/40 border border-emerald-900/30 text-emerald-400 font-mono px-2 py-0.5 rounded-md flex items-center gap-1';
+                    cloudStatus.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> FIREBASE CONECTADO';
+                }
+            }
+
+            // GitHub config restore
+            var ghConfig = localStorage.getItem('epica_github_config');
+            if (ghConfig) {
+                var ghCfg = JSON.parse(ghConfig);
+                var ghEl;
+                ghEl = document.getElementById('git-user'); if (ghEl) ghEl.value = ghCfg.user || '';
+                ghEl = document.getElementById('git-repo'); if (ghEl) ghEl.value = ghCfg.repo || '';
+                ghEl = document.getElementById('git-token'); if (ghEl) ghEl.value = ghCfg.token || '';
+            }
+
+            // Ledger & Credits
+            initializeLedger();
+            generateCreditsDatabase();
+
+            // Docs initial load
+            readDoc('manual-entrenamiento', document.querySelector('.doc-card'));
+
+            // Skills matcher initial render
+            runSkillsMatcher();
         };
     </script>
 </body>
